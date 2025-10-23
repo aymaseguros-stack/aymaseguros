@@ -9,6 +9,19 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ayma-blue': '#1e40af',
+                        'ayma-blue-dark': '#1e3a8a',
+                        'ayma-blue-light': '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
     <style>
         body {
@@ -17,8 +30,8 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+            0%, 100% { box-shadow: 0 0 20px rgba(30, 64, 175, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(30, 64, 175, 0.8); }
         }
         .pulse-glow {
             animation: pulse-glow 2s infinite;
@@ -111,7 +124,26 @@
             </svg>
         );
 
-        const AymaAdvisorsLanding = () => {
+        // Logo Component
+        const AymaLogo = ({ size = "normal" }) => {
+            const sizes = {
+                small: { circle: 40, text: "text-lg", subtext: "text-[6px]" },
+                normal: { circle: 64, text: "text-3xl", subtext: "text-[8px]" },
+                large: { circle: 80, text: "text-4xl", subtext: "text-[10px]" }
+            };
+            const s = sizes[size];
+            
+            return (
+                <div className={`w-${s.circle} h-${s.circle} bg-ayma-blue rounded-full flex items-center justify-center shadow-xl border-4 border-white`} style={{width: s.circle + 'px', height: s.circle + 'px'}}>
+                    <div className="text-center">
+                        <div className={`${s.text} font-black text-white leading-none`}>A</div>
+                        <div className={`${s.subtext} text-white uppercase tracking-wider font-bold opacity-90`}>SEGUROS</div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AymaAdvisorsApp = () => {
             const [showChat, setShowChat] = useState(false);
             const [messages, setMessages] = useState([]);
             const [input, setInput] = useState('');
@@ -120,6 +152,43 @@
             const [isTyping, setIsTyping] = useState(false);
             const [showSuccess, setShowSuccess] = useState(false);
             const messagesEndRef = useRef(null);
+
+            // Guardar cotización en storage persistente
+            const saveQuoteToStorage = async (quote) => {
+                try {
+                    const quoteWithId = {
+                        ...quote,
+                        id: Date.now(),
+                        status: 'nueva',
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    if (window.storage) {
+                        await window.storage.set(`quote:${quoteWithId.id}`, JSON.stringify(quoteWithId));
+                    }
+                    
+                    // Enviar notificación a WhatsApp
+                    sendAdminNotification(quoteWithId);
+                } catch (error) {
+                    console.log('Storage no disponible, continuando...');
+                }
+            };
+
+            const sendAdminNotification = (quote) => {
+                const message = `🆕 *NUEVA COTIZACIÓN - AYMA ADVISORS*
+
+*Cliente:* ${quote.nombre}
+*CP:* ${quote.codigoPostal}
+*Vehículo:* ${quote.marca} ${quote.modelo} (${quote.anio})
+*Cobertura:* ${quote.cobertura}
+
+⏰ ${new Date().toLocaleString('es-AR')}
+
+Ver en panel: ayma-seguros.netlify.app/admin`;
+                
+                // Esto se abrirá cuando el usuario complete la cotización
+                console.log('Notificación lista para admin');
+            };
 
             const scrollToBottom = () => {
                 messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -201,6 +270,7 @@
                         setCurrentQuote(finalQuote);
                         setCurrentStep('finalizado');
                         setShowSuccess(true);
+                        saveQuoteToStorage(finalQuote);
                         addBotMessage("¡Perfecto! Tu cotización está lista. Enviame tus datos por WhatsApp y te mando las mejores propuestas al instante.");
                         break;
 
@@ -241,20 +311,15 @@ Quiero recibir las mejores cotizaciones del mercado.`;
 
             if (!showChat) {
                 return (
-                    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900">
+                    <div className="min-h-screen bg-gradient-to-br from-ayma-blue-dark via-ayma-blue to-ayma-blue-light">
                         <div className="container mx-auto px-4 py-8">
-                            {/* Header con Logo y Nombre juntos */}
+                            {/* Header con Logo */}
                             <div className="text-center mb-8">
                                 <div className="flex items-center justify-center mb-4">
-                                    <div className="w-20 h-20 bg-gradient-to-br from-blue-800 to-blue-900 rounded-xl flex items-center justify-center shadow-2xl border-4 border-white mr-4">
-                                        <div className="text-center">
-                                            <div className="text-3xl font-black text-white leading-none">AA</div>
-                                            <div className="text-[7px] text-blue-200 uppercase tracking-wider font-bold">seguros</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-left">
-                                        <h1 className="text-4xl md:text-5xl font-bold text-white">Ayma Advisors</h1>
-                                        <p className="text-blue-200 text-sm">Ahorro inteligente desde 2008</p>
+                                    <AymaLogo size="normal" />
+                                    <div className="text-left ml-4">
+                                        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">AYMA ADVISORS</h1>
+                                        <p className="text-gray-200 text-sm italic">Ahorro inteligente desde 2008</p>
                                     </div>
                                 </div>
                             </div>
@@ -268,7 +333,6 @@ Quiero recibir las mejores cotizaciones del mercado.`;
 
                             {/* Card blanca SEPARADA */}
                             <div className="max-w-5xl mx-auto">
-
                                 <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
                                     <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 text-center leading-tight">
                                         Dejá de pagar de más por tu seguro de auto
@@ -287,7 +351,7 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                                         </div>
                                         
                                         <div className="text-center p-6 bg-blue-50 rounded-xl border-2 border-blue-200">
-                                            <div className="bg-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <div className="bg-ayma-blue w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                                 <Zap size={32} className="text-white" />
                                             </div>
                                             <h3 className="font-bold text-gray-800 mb-2 text-xl">En 2 minutos</h3>
@@ -359,7 +423,7 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                             <div className="max-w-4xl mx-auto mt-12 bg-white rounded-2xl p-8 shadow-xl">
                                 <h3 className="text-gray-800 text-center font-bold text-xl mb-6">Trabajamos con las mejores aseguradoras:</h3>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-6 rounded-xl font-bold text-blue-900 text-center shadow-md">Nación Seguros</div>
+                                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-6 rounded-xl font-bold text-ayma-blue text-center shadow-md">Nación Seguros</div>
                                     <div className="bg-gradient-to-br from-red-50 to-red-100 px-4 py-6 rounded-xl font-bold text-red-900 text-center shadow-md">San Cristóbal</div>
                                     <div className="bg-gradient-to-br from-green-50 to-green-100 px-4 py-6 rounded-xl font-bold text-green-900 text-center shadow-md">Mapfre</div>
                                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 px-4 py-6 rounded-xl font-bold text-purple-900 text-center shadow-md">SMG Seguros</div>
@@ -384,7 +448,8 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                             <div className="text-center text-white mt-12 pt-8 border-t border-blue-500">
                                 <p className="mb-2 text-lg">📍 Rosario, Santa Fe, Argentina</p>
                                 <p className="mb-2 text-lg">📞 +54 9 341 695-2259</p>
-                                <p className="text-blue-200">Atención personalizada por WhatsApp</p>
+                                <p className="text-blue-200 mb-4">Atención personalizada por WhatsApp</p>
+                                <a href="/admin.html" className="text-blue-200 text-xs hover:text-white">Admin</a>
                             </div>
                         </div>
                     </div>
@@ -395,23 +460,18 @@ Quiero recibir las mejores cotizaciones del mercado.`;
             return (
                 <div className="flex h-screen bg-gray-100">
                     <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full bg-white shadow-2xl">
-                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 shadow-lg">
+                        <div className="bg-gradient-to-r from-ayma-blue-dark to-ayma-blue text-white p-4 shadow-lg">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
-                                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mr-3 shadow-lg">
-                                        <div className="text-center">
-                                            <div className="text-lg font-black text-blue-600 leading-none">AA</div>
-                                            <div className="text-[6px] text-blue-400 uppercase">seguros</div>
-                                        </div>
-                                    </div>
-                                    <div>
+                                    <AymaLogo size="small" />
+                                    <div className="ml-3">
                                         <h2 className="text-xl font-bold">Ayma Advisors</h2>
                                         <p className="text-sm text-blue-100">Cotizador Inteligente</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setShowChat(false)}
-                                    className="text-white hover:bg-blue-700 px-3 py-1 rounded transition"
+                                    className="text-white hover:bg-ayma-blue px-3 py-1 rounded transition"
                                 >
                                     ← Volver
                                 </button>
@@ -424,7 +484,7 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                                     <div className={`flex items-start max-w-[80%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
                                         <div className={`flex-shrink-0 ${msg.sender === 'user' ? 'ml-2' : 'mr-2'}`}>
                                             {msg.sender === 'bot' ? (
-                                                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                                <div className="w-10 h-10 bg-ayma-blue rounded-full flex items-center justify-center">
                                                     <Bot size={22} className="text-white" />
                                                 </div>
                                             ) : (
@@ -433,7 +493,7 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                                                 </div>
                                             )}
                                         </div>
-                                        <div className={`p-3 rounded-2xl ${msg.sender === 'bot' ? 'bg-white border-2 border-blue-200' : 'bg-blue-600 text-white'}`}>
+                                        <div className={`p-3 rounded-2xl ${msg.sender === 'bot' ? 'bg-white border-2 border-blue-200' : 'bg-ayma-blue text-white'}`}>
                                             <p className="text-sm leading-relaxed">{msg.text}</p>
                                         </div>
                                     </div>
@@ -442,14 +502,14 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                             {isTyping && (
                                 <div className="flex justify-start">
                                     <div className="flex items-start max-w-[80%]">
-                                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mr-2">
+                                        <div className="w-10 h-10 bg-ayma-blue rounded-full flex items-center justify-center mr-2">
                                             <Bot size={22} className="text-white" />
                                         </div>
                                         <div className="p-3 rounded-2xl bg-white border-2 border-blue-200">
                                             <div className="flex space-x-1">
-                                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce"></div>
+                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                                             </div>
                                         </div>
                                     </div>
@@ -476,7 +536,7 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                                 </button>
                                 <button
                                     onClick={startNewQuote}
-                                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-all"
+                                    className="w-full bg-ayma-blue hover:bg-ayma-blue-dark text-white font-semibold py-3 px-6 rounded-xl transition-all"
                                 >
                                     Nueva Cotización
                                 </button>
@@ -491,13 +551,13 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                                     placeholder="Escribe tu respuesta aquí..."
-                                    className="flex-1 p-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="flex-1 p-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue focus:border-transparent"
                                     disabled={currentStep === 'finalizado'}
                                 />
                                 <button
                                     onClick={handleSend}
                                     disabled={currentStep === 'finalizado'}
-                                    className="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+                                    className="bg-ayma-blue text-white p-3 rounded-xl hover:bg-ayma-blue-dark disabled:bg-gray-300 disabled:cursor-not-allowed transition-all transform hover:scale-105"
                                 >
                                     <Send size={24} />
                                 </button>
@@ -508,7 +568,7 @@ Quiero recibir las mejores cotizaciones del mercado.`;
             );
         };
 
-        ReactDOM.render(<AymaAdvisorsLanding />, document.getElementById('root'));
+        ReactDOM.render(<AymaAdvisorsApp />, document.getElementById('root'));
     </script>
 </body>
 </html>
