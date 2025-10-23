@@ -113,8 +113,11 @@
             const [quotes, setQuotes] = useState([]);
             const [filter, setFilter] = useState('todas');
             const [searchTerm, setSearchTerm] = useState('');
+            const [selectedQuote, setSelectedQuote] = useState(null);
+            const [noteText, setNoteText] = useState('');
+            const [showNoteModal, setShowNoteModal] = useState(false);
 
-            // Cargar cotizaciones del storage
+            // Cargar cotizaciones del localStorage
             useEffect(() => {
                 if (isAuthenticated) {
                     loadQuotes();
@@ -123,22 +126,22 @@
                 }
             }, [isAuthenticated]);
 
-            const loadQuotes = async () => {
+            const loadQuotes = () => {
                 try {
-                    if (window.storage) {
-                        const result = await window.storage.list('quote:');
-                        if (result && result.keys) {
-                            const quotesData = await Promise.all(
-                                result.keys.map(async (key) => {
-                                    const data = await window.storage.get(key);
-                                    return data ? JSON.parse(data.value) : null;
-                                })
-                            );
-                            setQuotes(quotesData.filter(q => q !== null).sort((a, b) => b.id - a.id));
-                        }
-                    }
+                    const quotesData = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
+                    setQuotes(quotesData.sort((a, b) => b.id - a.id));
                 } catch (error) {
-                    console.log('Error cargando cotizaciones:', error);
+                    console.error('Error cargando cotizaciones:', error);
+                    setQuotes([]);
+                }
+            };
+
+            const saveQuotes = (updatedQuotes) => {
+                try {
+                    localStorage.setItem('ayma_quotes', JSON.stringify(updatedQuotes));
+                    setQuotes(updatedQuotes.sort((a, b) => b.id - a.id));
+                } catch (error) {
+                    console.error('Error guardando cotizaciones:', error);
                 }
             };
 
@@ -158,17 +161,43 @@
                 setPassword('');
             };
 
-            const updateQuoteStatus = async (quoteId, newStatus) => {
-                try {
-                    const quote = quotes.find(q => q.id === quoteId);
-                    if (quote && window.storage) {
-                        const updatedQuote = { ...quote, status: newStatus, updatedAt: new Date().toISOString() };
-                        await window.storage.set(`quote:${quoteId}`, JSON.stringify(updatedQuote));
-                        loadQuotes();
+            const updateQuoteStatus = (quoteId, newStatus) => {
+                const updatedQuotes = quotes.map(q => 
+                    q.id === quoteId 
+                        ? { ...q, status: newStatus, updatedAt: new Date().toISOString() }
+                        : q
+                );
+                saveQuotes(updatedQuotes);
+            };
+
+            const addNote = (quoteId) => {
+                if (!noteText.trim()) return;
+                
+                const updatedQuotes = quotes.map(q => {
+                    if (q.id === quoteId) {
+                        const newNote = {
+                            text: noteText,
+                            timestamp: new Date().toISOString(),
+                            id: Date.now()
+                        };
+                        return {
+                            ...q,
+                            notes: q.notes || '',
+                            contactHistory: [...(q.contactHistory || []), newNote]
+                        };
                     }
-                } catch (error) {
-                    console.log('Error actualizando estado:', error);
-                }
+                    return q;
+                });
+                
+                saveQuotes(updatedQuotes);
+                setNoteText('');
+                setShowNoteModal(false);
+            };
+
+            const openNoteModal = (quote) => {
+                setSelectedQuote(quote);
+                setShowNoteModal(true);
+                setNoteText('');
             };
 
             const getStatusBadge = (status) => {
@@ -436,6 +465,12 @@
 
                                                 <div className="flex flex-col gap-2">
                                                     <button
+                                                        onClick={() => openNoteModal(quote)}
+                                                        className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                                                    >
+                                                        📝 Agregar Nota
+                                                    </button>
+                                                    <button
                                                         onClick={() => updateQuoteStatus(quote.id, 'nueva')}
                                                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
                                                     >
@@ -461,12 +496,68 @@
                                                     </button>
                                                 </div>
                                             </div>
+                                            
+                                            {/* Historial de notas */}
+                                            {quote.contactHistory && quote.contactHistory.length > 0 && (
+                                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                                    <h4 className="font-semibold text-gray-700 mb-2">📋 Historial de Seguimiento:</h4>
+                                                    <div className="space-y-2">
+                                                        {quote.contactHistory.map(note => (
+                                                            <div key={note.id} className="bg-gray-50 p-3 rounded-lg text-sm">
+                                                                <p className="text-gray-800">{note.text}</p>
+                                                                <p className="text-gray-500 text-xs mt-1">
+                                                                    {new Date(note.timestamp).toLocaleString('es-AR')}
+                                                                </p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })
                             )}
                         </div>
                     </div>
+
+                    {/* Modal de Notas */}
+                    {showNoteModal && selectedQuote && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                    📝 Agregar Nota - {selectedQuote.nombre}
+                                </h3>
+                                
+                                <div className="mb-4">
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        {selectedQuote.marca} {selectedQuote.modelo} ({selectedQuote.anio})
+                                    </p>
+                                </div>
+
+                                <textarea
+                                    value={noteText}
+                                    onChange={(e) => setNoteText(e.target.value)}
+                                    placeholder="Ej: Llamé al cliente, le interesa la cobertura de Nación Seguros. Volver a contactar mañana..."
+                                    className="w-full h-32 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue resize-none"
+                                />
+
+                                <div className="flex gap-3 mt-4">
+                                    <button
+                                        onClick={() => addNote(selectedQuote.id)}
+                                        className="flex-1 bg-ayma-blue hover:bg-ayma-blue-dark text-white font-bold py-3 px-4 rounded-xl transition"
+                                    >
+                                        Guardar Nota
+                                    </button>
+                                    <button
+                                        onClick={() => setShowNoteModal(false)}
+                                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl transition"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
@@ -475,4 +566,3 @@
     </script>
 </body>
 </html>
-                
