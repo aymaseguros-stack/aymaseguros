@@ -160,17 +160,19 @@
                         ...quote,
                         id: Date.now(),
                         status: 'nueva',
-                        createdAt: new Date().toISOString()
+                        createdAt: new Date().toISOString(),
+                        notes: '',
+                        contactHistory: []
                     };
                     
-                    if (window.storage) {
-                        await window.storage.set(`quote:${quoteWithId.id}`, JSON.stringify(quoteWithId));
-                    }
+                    // Guardar en localStorage (funciona siempre)
+                    const existingQuotes = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
+                    existingQuotes.push(quoteWithId);
+                    localStorage.setItem('ayma_quotes', JSON.stringify(existingQuotes));
                     
-                    // Enviar notificación a WhatsApp
-                    sendAdminNotification(quoteWithId);
+                    console.log('Cotización guardada:', quoteWithId);
                 } catch (error) {
-                    console.log('Storage no disponible, continuando...');
+                    console.error('Error guardando cotización:', error);
                 }
             };
 
