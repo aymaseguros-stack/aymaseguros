@@ -243,31 +243,33 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                 return (
                     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900">
                         <div className="container mx-auto px-4 py-8">
-                            {/* Header con Logo */}
-                            <div className="text-center mb-8">
-                                <div className="flex items-center justify-center mb-4">
-                                    <div className="relative">
-                                        <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center shadow-2xl border-4 border-white mr-4">
-                                            <div className="text-center">
-                                                <div className="text-4xl font-black text-white leading-none">AA</div>
-                                                <div className="text-[8px] text-blue-200 uppercase tracking-wider font-semibold">seguros</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-left">
-                                        <h1 className="text-4xl md:text-5xl font-bold text-white">Ayma Advisors</h1>
-                                        <p className="text-blue-200 text-sm">Ahorro inteligente desde 2008</p>
+                            {/* Header con Logo en la derecha */}
+                            <div className="flex justify-end mb-6">
+                                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center shadow-2xl border-4 border-white">
+                                    <div className="text-center">
+                                        <div className="text-4xl font-black text-white leading-none">AA</div>
+                                        <div className="text-[8px] text-blue-200 uppercase tracking-wider font-semibold">seguros</div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Main Hero Card */}
-                            <div className="max-w-5xl mx-auto">
-                                <div className="bg-yellow-400 text-gray-900 text-center py-3 px-4 rounded-t-2xl font-bold text-lg">
+                            {/* Banner amarillo separado como encabezado */}
+                            <div className="max-w-3xl mx-auto mb-8">
+                                <div className="bg-yellow-400 text-gray-900 text-center py-4 px-6 rounded-2xl font-bold text-lg shadow-2xl">
                                     🔥 OFERTA EXCLUSIVA: Hasta 35% de descuento sobre tu póliza actual
                                 </div>
+                            </div>
 
-                                <div className="bg-white rounded-b-2xl shadow-2xl p-8 md:p-12">
+                            {/* Título principal */}
+                            <div className="text-center mb-8">
+                                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Ayma Advisors</h1>
+                                <p className="text-blue-200 text-lg">Ahorro inteligente desde 2008</p>
+                            </div>
+
+                            {/* Main Hero Card */}
+                            <div className="max-w-5xl mx-auto">
+
+                                <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
                                     <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 text-center leading-tight">
                                         Dejá de pagar de más por tu seguro de auto
                                     </h2>
@@ -465,21 +467,19 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                                         <p className="text-green-700 text-sm">Enviame tus datos por WhatsApp y te mando las mejores propuestas en minutos</p>
                                     </div>
                                 </div>
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={sendToWhatsApp}
-                                        className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shadow-xl"
-                                    >
-                                        <MessageCircle size={24} />
-                                        Enviar por WhatsApp
-                                    </button>
-                                    <button
-                                        onClick={startNewQuote}
-                                        className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-6 rounded-xl transition-all"
-                                    >
-                                        Nueva Cotización
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={sendToWhatsApp}
+                                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shadow-xl mb-3"
+                                >
+                                    <MessageCircle size={24} />
+                                    Enviar por WhatsApp
+                                </button>
+                                <button
+                                    onClick={startNewQuote}
+                                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-all"
+                                >
+                                    Nueva Cotización
+                                </button>
                             </div>
                         )}
 
