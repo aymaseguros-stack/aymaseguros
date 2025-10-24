@@ -57,7 +57,6 @@
                 <polyline points="14 2 14 8 20 8"></polyline>
                 <line x1="16" y1="13" x2="8" y2="13"></line>
                 <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
         );
 
@@ -68,18 +67,19 @@
             </svg>
         );
 
+        const Calendar = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        );
+
         const CheckCircle = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        );
-
-        const XCircle = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
             </svg>
         );
 
@@ -116,12 +116,18 @@
             const [selectedQuote, setSelectedQuote] = useState(null);
             const [noteText, setNoteText] = useState('');
             const [showNoteModal, setShowNoteModal] = useState(false);
+            const [showReminderModal, setShowReminderModal] = useState(false);
+            const [reminderDate, setReminderDate] = useState('');
+            const [reminderTime, setReminderTime] = useState('');
+            const [reminderType, setReminderType] = useState('llamada');
+            const [reminderNotes, setReminderNotes] = useState('');
+            const [currentView, setCurrentView] = useState('dashboard'); // dashboard, calendar
 
             // Cargar cotizaciones del localStorage
             useEffect(() => {
                 if (isAuthenticated) {
                     loadQuotes();
-                    const interval = setInterval(loadQuotes, 5000); // Actualizar cada 5 segundos
+                    const interval = setInterval(loadQuotes, 5000);
                     return () => clearInterval(interval);
                 }
             }, [isAuthenticated]);
@@ -182,7 +188,6 @@
                         };
                         return {
                             ...q,
-                            notes: q.notes || '',
                             contactHistory: [...(q.contactHistory || []), newNote]
                         };
                     }
@@ -198,6 +203,59 @@
                 setSelectedQuote(quote);
                 setShowNoteModal(true);
                 setNoteText('');
+            };
+
+            const openReminderModal = (quote) => {
+                setSelectedQuote(quote);
+                setShowReminderModal(true);
+                setReminderDate('');
+                setReminderTime('');
+                setReminderType('llamada');
+                setReminderNotes('');
+            };
+
+            const addReminder = (quoteId) => {
+                if (!reminderDate || !reminderTime) {
+                    alert('Por favor completá fecha y hora');
+                    return;
+                }
+                
+                const updatedQuotes = quotes.map(q => {
+                    if (q.id === quoteId) {
+                        const newReminder = {
+                            date: reminderDate,
+                            time: reminderTime,
+                            type: reminderType,
+                            notes: reminderNotes,
+                            completed: false,
+                            id: Date.now(),
+                            createdAt: new Date().toISOString()
+                        };
+                        return {
+                            ...q,
+                            reminders: [...(q.reminders || []), newReminder]
+                        };
+                    }
+                    return q;
+                });
+                
+                saveQuotes(updatedQuotes);
+                setShowReminderModal(false);
+            };
+
+            const toggleReminderComplete = (quoteId, reminderId) => {
+                const updatedQuotes = quotes.map(q => {
+                    if (q.id === quoteId && q.reminders) {
+                        return {
+                            ...q,
+                            reminders: q.reminders.map(r => 
+                                r.id === reminderId ? { ...r, completed: !r.completed } : r
+                            )
+                        };
+                    }
+                    return q;
+                });
+                saveQuotes(updatedQuotes);
             };
 
             const getStatusBadge = (status) => {
@@ -229,6 +287,24 @@
                 return { show: false };
             };
 
+            const getPendingReminders = () => {
+                const today = new Date().toISOString().split('T')[0];
+                return quotes.flatMap(q => 
+                    (q.reminders || [])
+                        .filter(r => !r.completed && r.date <= today)
+                        .map(r => ({ ...r, quote: q }))
+                ).sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+            };
+
+            const getTodayReminders = () => {
+                const today = new Date().toISOString().split('T')[0];
+                return quotes.flatMap(q => 
+                    (q.reminders || [])
+                        .filter(r => r.date === today)
+                        .map(r => ({ ...r, quote: q }))
+                ).sort((a, b) => a.time.localeCompare(b.time));
+            };
+
             const getMetrics = () => {
                 const total = quotes.length;
                 const nuevas = quotes.filter(q => q.status === 'nueva').length;
@@ -236,8 +312,9 @@
                 const vendidas = quotes.filter(q => q.status === 'vendida').length;
                 const perdidas = quotes.filter(q => q.status === 'perdida').length;
                 const conversionRate = total > 0 ? ((vendidas / total) * 100).toFixed(1) : 0;
+                const pendingReminders = getPendingReminders().length;
 
-                return { total, nuevas, cotizadas, vendidas, perdidas, conversionRate };
+                return { total, nuevas, cotizadas, vendidas, perdidas, conversionRate, pendingReminders };
             };
 
             const filteredQuotes = quotes.filter(quote => {
@@ -249,6 +326,18 @@
                 return matchesFilter && matchesSearch;
             });
 
+            const getReminderTypeIcon = (type) => {
+                const icons = {
+                    llamada: '📞',
+                    email: '📧',
+                    whatsapp: '💬',
+                    reunion: '🤝',
+                    cotizacion: '📋',
+                    seguimiento: '🔄'
+                };
+                return icons[type] || '📌';
+            };
+
             // Login Screen
             if (!isAuthenticated) {
                 return (
@@ -259,7 +348,7 @@
                                     <Lock size={40} className="text-white" />
                                 </div>
                                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Ayma Advisors</h1>
-                                <p className="text-gray-600">Panel de Administración</p>
+                                <p className="text-gray-600">Panel de Administración v2.0</p>
                             </div>
 
                             <form onSubmit={handleLogin} className="space-y-6">
@@ -313,6 +402,8 @@
 
             // Dashboard
             const metrics = getMetrics();
+            const pendingReminders = getPendingReminders();
+            const todayReminders = getTodayReminders();
 
             return (
                 <div className="min-h-screen bg-gray-100">
@@ -321,203 +412,417 @@
                         <div className="container mx-auto px-4 py-4">
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
+                                    <h1 className="text-2xl font-bold text-gray-900">Panel de Administración v2.0</h1>
                                     <p className="text-sm text-gray-600">Ayma Advisors - Sistema de Gestión</p>
                                 </div>
-                                <button
-                                    onClick={handleLogout}
-                                    className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
-                                >
-                                    <LogOut size={18} />
-                                    Cerrar Sesión
-                                </button>
+                                <div className="flex gap-3 items-center">
+                                    <button
+                                        onClick={() => setCurrentView('dashboard')}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                                            currentView === 'dashboard' 
+                                                ? 'bg-ayma-blue text-white' 
+                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        }`}
+                                    >
+                                        <FileText size={18} />
+                                        Dashboard
+                                    </button>
+                                    <button
+                                        onClick={() => setCurrentView('calendar')}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                                            currentView === 'calendar' 
+                                                ? 'bg-ayma-blue text-white' 
+                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        }`}
+                                    >
+                                        <Calendar size={18} />
+                                        Calendario
+                                        {metrics.pendingReminders > 0 && (
+                                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                                {metrics.pendingReminders}
+                                            </span>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+                                    >
+                                        <LogOut size={18} />
+                                        Cerrar Sesión
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="container mx-auto px-4 py-8">
-                        {/* Métricas */}
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-gray-500">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-600 font-semibold">Total</p>
-                                        <p className="text-3xl font-bold text-gray-900">{metrics.total}</p>
+                        {currentView === 'calendar' ? (
+                            // Vista de Calendario
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6">📅 Calendario de Seguimientos</h2>
+                                
+                                {/* Recordatorios Pendientes */}
+                                {pendingReminders.length > 0 && (
+                                    <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6 mb-6">
+                                        <h3 className="text-xl font-bold text-red-800 mb-4">⚠️ Recordatorios Vencidos ({pendingReminders.length})</h3>
+                                        <div className="space-y-3">
+                                            {pendingReminders.map(reminder => (
+                                                <div key={reminder.id} className="bg-white rounded-lg p-4 shadow">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <span className="text-2xl">{getReminderTypeIcon(reminder.type)}</span>
+                                                                <span className="font-bold text-gray-900">{reminder.quote.nombre}</span>
+                                                                <span className="text-sm text-gray-600">
+                                                                    {reminder.quote.marca} {reminder.quote.modelo}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-sm text-gray-700 mb-1">
+                                                                <strong>{reminder.type.charAt(0).toUpperCase() + reminder.type.slice(1)}:</strong> {reminder.notes || 'Sin notas'}
+                                                            </p>
+                                                            <p className="text-xs text-red-600 font-semibold">
+                                                                📅 {reminder.date} ⏰ {reminder.time}
+                                                            </p>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => toggleReminderComplete(reminder.quote.id, reminder.id)}
+                                                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                                                        >
+                                                            ✓ Completar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <FileText size={40} className="text-gray-400" />
+                                )}
+
+                                {/* Recordatorios de Hoy */}
+                                <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">📌 Hoy ({todayReminders.length})</h3>
+                                    {todayReminders.length === 0 ? (
+                                        <p className="text-gray-500">No hay recordatorios para hoy</p>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {todayReminders.map(reminder => (
+                                                <div key={reminder.id} className={`rounded-lg p-4 ${reminder.completed ? 'bg-gray-100' : 'bg-blue-50 border-2 border-blue-200'}`}>
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <span className="text-2xl">{getReminderTypeIcon(reminder.type)}</span>
+                                                                <span className={`font-bold ${reminder.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                                                                    {reminder.quote.nombre}
+                                                                </span>
+                                                                <span className="text-sm text-gray-600">
+                                                                    {reminder.quote.marca} {reminder.quote.modelo}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-sm text-gray-700 mb-1">
+                                                                <strong>{reminder.type.charAt(0).toUpperCase() + reminder.type.slice(1)}:</strong> {reminder.notes || 'Sin notas'}
+                                                            </p>
+                                                            <p className="text-xs text-gray-600">
+                                                                ⏰ {reminder.time}
+                                                            </p>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => toggleReminderComplete(reminder.quote.id, reminder.id)}
+                                                            className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                                                                reminder.completed 
+                                                                    ? 'bg-gray-300 text-gray-600 hover:bg-gray-400' 
+                                                                    : 'bg-green-500 text-white hover:bg-green-600'
+                                                            }`}
+                                                        >
+                                                            {reminder.completed ? '↻ Reabrir' : '✓ Completar'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Próximos Recordatorios */}
+                                <div className="bg-white rounded-xl shadow-md p-6">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">🗓️ Próximos Días</h3>
+                                    {quotes.filter(q => q.reminders && q.reminders.length > 0).length === 0 ? (
+                                        <p className="text-gray-500">No hay recordatorios programados</p>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {quotes
+                                                .filter(q => q.reminders && q.reminders.some(r => !r.completed && r.date > new Date().toISOString().split('T')[0]))
+                                                .map(quote => (
+                                                    <div key={quote.id} className="border-2 border-gray-200 rounded-lg p-4">
+                                                        <h4 className="font-bold text-gray-900 mb-2">
+                                                            {quote.nombre} - {quote.marca} {quote.modelo}
+                                                        </h4>
+                                                        <div className="space-y-2">
+                                                            {quote.reminders
+                                                                .filter(r => !r.completed && r.date > new Date().toISOString().split('T')[0])
+                                                                .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time))
+                                                                .map(reminder => (
+                                                                    <div key={reminder.id} className="flex justify-between items-center bg-gray-50 p-3 rounded">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span>{getReminderTypeIcon(reminder.type)}</span>
+                                                                            <span className="text-sm">
+                                                                                {reminder.type.charAt(0).toUpperCase() + reminder.type.slice(1)}
+                                                                            </span>
+                                                                            <span className="text-xs text-gray-600">
+                                                                                {reminder.date} {reminder.time}
+                                                                            </span>
+                                                                        </div>
+                                                                        <button
+                                                                            onClick={() => toggleReminderComplete(quote.id, reminder.id)}
+                                                                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-semibold"
+                                                                        >
+                                                                            ✓
+                                                                        </button>
+                                                                    </div>
+                                                                ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-
-                            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-blue-600 font-semibold">Nuevas</p>
-                                        <p className="text-3xl font-bold text-blue-700">{metrics.nuevas}</p>
+                        ) : (
+                            // Vista Dashboard Original
+                            <>
+                                {/* Métricas */}
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
+                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-gray-500">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-gray-600 font-semibold">Total</p>
+                                                <p className="text-3xl font-bold text-gray-900">{metrics.total}</p>
+                                            </div>
+                                            <FileText size={40} className="text-gray-400" />
+                                        </div>
                                     </div>
-                                    <Bell size={40} className="text-blue-400" />
-                                </div>
-                            </div>
 
-                            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-yellow-600 font-semibold">Cotizadas</p>
-                                        <p className="text-3xl font-bold text-yellow-700">{metrics.cotizadas}</p>
+                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-blue-600 font-semibold">Nuevas</p>
+                                                <p className="text-3xl font-bold text-blue-700">{metrics.nuevas}</p>
+                                            </div>
+                                            <Bell size={40} className="text-blue-400" />
+                                        </div>
                                     </div>
-                                    <Clock size={40} className="text-yellow-400" />
-                                </div>
-                            </div>
 
-                            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-green-600 font-semibold">Vendidas</p>
-                                        <p className="text-3xl font-bold text-green-700">{metrics.vendidas}</p>
+                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-yellow-600 font-semibold">Cotizadas</p>
+                                                <p className="text-3xl font-bold text-yellow-700">{metrics.cotizadas}</p>
+                                            </div>
+                                            <Clock size={40} className="text-yellow-400" />
+                                        </div>
                                     </div>
-                                    <DollarSign size={40} className="text-green-400" />
-                                </div>
-                            </div>
 
-                            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-ayma-blue">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-ayma-blue font-semibold">Conversión</p>
-                                        <p className="text-3xl font-bold text-ayma-blue-dark">{metrics.conversionRate}%</p>
+                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-green-600 font-semibold">Vendidas</p>
+                                                <p className="text-3xl font-bold text-green-700">{metrics.vendidas}</p>
+                                            </div>
+                                            <DollarSign size={40} className="text-green-400" />
+                                        </div>
                                     </div>
-                                    <BarChart size={40} className="text-ayma-blue-light" />
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Filtros */}
-                        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-                            <div className="flex flex-col md:flex-row gap-4">
-                                <div className="flex-1">
-                                    <input
-                                        type="text"
-                                        placeholder="Buscar por nombre, marca o modelo..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
-                                    />
-                                </div>
-                                <div className="flex gap-2 flex-wrap">
-                                    {['todas', 'nueva', 'cotizada', 'vendida', 'perdida'].map(f => (
-                                        <button
-                                            key={f}
-                                            onClick={() => setFilter(f)}
-                                            className={`px-4 py-2 rounded-lg font-semibold transition ${
-                                                filter === f
-                                                    ? 'bg-ayma-blue text-white'
-                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                            }`}
-                                        >
-                                            {f.charAt(0).toUpperCase() + f.slice(1)}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-ayma-blue">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-ayma-blue font-semibold">Conversión</p>
+                                                <p className="text-3xl font-bold text-ayma-blue-dark">{metrics.conversionRate}%</p>
+                                            </div>
+                                            <BarChart size={40} className="text-ayma-blue-light" />
+                                        </div>
+                                    </div>
 
-                        {/* Lista de Cotizaciones */}
-                        <div className="space-y-4">
-                            {filteredQuotes.length === 0 ? (
-                                <div className="bg-white rounded-xl shadow-md p-12 text-center">
-                                    <p className="text-gray-500 text-lg">No hay cotizaciones para mostrar</p>
+                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-purple-600 font-semibold">Recordatorios</p>
+                                                <p className="text-3xl font-bold text-purple-700">{metrics.pendingReminders}</p>
+                                            </div>
+                                            <Calendar size={40} className="text-purple-400" />
+                                        </div>
+                                    </div>
                                 </div>
-                            ) : (
-                                filteredQuotes.map(quote => {
-                                    const alert = getAlertStatus(quote);
-                                    return (
-                                        <div key={quote.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
-                                            <div className="flex flex-col md:flex-row justify-between gap-4">
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-3 mb-3">
-                                                        <h3 className="text-xl font-bold text-gray-900">{quote.nombre}</h3>
-                                                        {getStatusBadge(quote.status)}
+
+                                {/* Filtros */}
+                                <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+                                    <div className="flex flex-col md:flex-row gap-4">
+                                        <div className="flex-1">
+                                            <input
+                                                type="text"
+                                                placeholder="Buscar por nombre, marca o modelo..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
+                                            />
+                                        </div>
+                                        <div className="flex gap-2 flex-wrap">
+                                            {['todas', 'nueva', 'cotizada', 'vendida', 'perdida'].map(f => (
+                                                <button
+                                                    key={f}
+                                                    onClick={() => setFilter(f)}
+                                                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                                                        filter === f
+                                                            ? 'bg-ayma-blue text-white'
+                                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                    }`}
+                                                >
+                                                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Lista de Cotizaciones */}
+                                <div className="space-y-4">
+                                    {filteredQuotes.length === 0 ? (
+                                        <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                                            <p className="text-gray-500 text-lg">No hay cotizaciones para mostrar</p>
+                                        </div>
+                                    ) : (
+                                        filteredQuotes.map(quote => {
+                                            const alert = getAlertStatus(quote);
+                                            const hasReminders = quote.reminders && quote.reminders.length > 0;
+                                            const pendingQuoteReminders = quote.reminders?.filter(r => !r.completed) || [];
+                                            
+                                            return (
+                                                <div key={quote.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
+                                                    <div className="flex flex-col md:flex-row justify-between gap-4">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-3 mb-3">
+                                                                <h3 className="text-xl font-bold text-gray-900">{quote.nombre}</h3>
+                                                                {getStatusBadge(quote.status)}
+                                                                {pendingQuoteReminders.length > 0 && (
+                                                                    <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-semibold">
+                                                                        📅 {pendingQuoteReminders.length} recordatorio{pendingQuoteReminders.length > 1 ? 's' : ''}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            
+                                                            {alert.show && (
+                                                                <div className={`${alert.color} text-sm font-semibold mb-2`}>
+                                                                    {alert.message}
+                                                                </div>
+                                                            )}
+
+                                                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                                                <div>
+                                                                    <span className="text-gray-600">CP:</span>
+                                                                    <span className="ml-2 font-semibold">{quote.codigoPostal}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Vehículo:</span>
+                                                                    <span className="ml-2 font-semibold">{quote.marca} {quote.modelo} ({quote.anio})</span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Cobertura:</span>
+                                                                    <span className="ml-2 font-semibold">{quote.cobertura}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Fecha:</span>
+                                                                    <span className="ml-2 font-semibold">{new Date(quote.createdAt).toLocaleString('es-AR')}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex flex-col gap-2">
+                                                            <button
+                                                                onClick={() => openReminderModal(quote)}
+                                                                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                                                            >
+                                                                📅 Recordatorio
+                                                            </button>
+                                                            <button
+                                                                onClick={() => openNoteModal(quote)}
+                                                                className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                                                            >
+                                                                📝 Nota
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updateQuoteStatus(quote.id, 'nueva')}
+                                                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                                                            >
+                                                                🆕 Nueva
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updateQuoteStatus(quote.id, 'cotizada')}
+                                                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                                                            >
+                                                                📧 Cotizada
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updateQuoteStatus(quote.id, 'vendida')}
+                                                                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                                                            >
+                                                                💰 Vendida
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updateQuoteStatus(quote.id, 'perdida')}
+                                                                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                                                            >
+                                                                ❌ Perdida
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     
-                                                    {alert.show && (
-                                                        <div className={`${alert.color} text-sm font-semibold mb-2`}>
-                                                            {alert.message}
+                                                    {/* Recordatorios Activos */}
+                                                    {pendingQuoteReminders.length > 0 && (
+                                                        <div className="mt-4 pt-4 border-t border-gray-200">
+                                                            <h4 className="font-semibold text-gray-700 mb-2">📅 Recordatorios Pendientes:</h4>
+                                                            <div className="space-y-2">
+                                                                {pendingQuoteReminders.map(reminder => (
+                                                                    <div key={reminder.id} className="bg-purple-50 p-3 rounded-lg text-sm flex justify-between items-center">
+                                                                        <div>
+                                                                            <p className="text-gray-800">
+                                                                                <span className="font-semibold">{getReminderTypeIcon(reminder.type)} {reminder.type}:</span> {reminder.notes || 'Sin notas'}
+                                                                            </p>
+                                                                            <p className="text-gray-600 text-xs mt-1">
+                                                                                📅 {reminder.date} ⏰ {reminder.time}
+                                                                            </p>
+                                                                        </div>
+                                                                        <button
+                                                                            onClick={() => toggleReminderComplete(quote.id, reminder.id)}
+                                                                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-semibold"
+                                                                        >
+                                                                            ✓
+                                                                        </button>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
                                                         </div>
                                                     )}
 
-                                                    <div className="grid grid-cols-2 gap-4 text-sm">
-                                                        <div>
-                                                            <span className="text-gray-600">CP:</span>
-                                                            <span className="ml-2 font-semibold">{quote.codigoPostal}</span>
-                                                        </div>
-                                                        <div>
-                                                            <span className="text-gray-600">Vehículo:</span>
-                                                            <span className="ml-2 font-semibold">{quote.marca} {quote.modelo} ({quote.anio})</span>
-                                                        </div>
-                                                        <div>
-                                                            <span className="text-gray-600">Cobertura:</span>
-                                                            <span className="ml-2 font-semibold">{quote.cobertura}</span>
-                                                        </div>
-                                                        <div>
-                                                            <span className="text-gray-600">Fecha:</span>
-                                                            <span className="ml-2 font-semibold">{new Date(quote.createdAt).toLocaleString('es-AR')}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-col gap-2">
-                                                    <button
-                                                        onClick={() => openNoteModal(quote)}
-                                                        className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                    >
-                                                        📝 Agregar Nota
-                                                    </button>
-                                                    <button
-                                                        onClick={() => updateQuoteStatus(quote.id, 'nueva')}
-                                                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                    >
-                                                        🆕 Nueva
-                                                    </button>
-                                                    <button
-                                                        onClick={() => updateQuoteStatus(quote.id, 'cotizada')}
-                                                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                    >
-                                                        📧 Cotizada
-                                                    </button>
-                                                    <button
-                                                        onClick={() => updateQuoteStatus(quote.id, 'vendida')}
-                                                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                    >
-                                                        💰 Vendida
-                                                    </button>
-                                                    <button
-                                                        onClick={() => updateQuoteStatus(quote.id, 'perdida')}
-                                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                    >
-                                                        ❌ Perdida
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            
-                                            {/* Historial de notas */}
-                                            {quote.contactHistory && quote.contactHistory.length > 0 && (
-                                                <div className="mt-4 pt-4 border-t border-gray-200">
-                                                    <h4 className="font-semibold text-gray-700 mb-2">📋 Historial de Seguimiento:</h4>
-                                                    <div className="space-y-2">
-                                                        {quote.contactHistory.map(note => (
-                                                            <div key={note.id} className="bg-gray-50 p-3 rounded-lg text-sm">
-                                                                <p className="text-gray-800">{note.text}</p>
-                                                                <p className="text-gray-500 text-xs mt-1">
-                                                                    {new Date(note.timestamp).toLocaleString('es-AR')}
-                                                                </p>
+                                                    {/* Historial de notas */}
+                                                    {quote.contactHistory && quote.contactHistory.length > 0 && (
+                                                        <div className="mt-4 pt-4 border-t border-gray-200">
+                                                            <h4 className="font-semibold text-gray-700 mb-2">📋 Historial de Seguimiento:</h4>
+                                                            <div className="space-y-2">
+                                                                {quote.contactHistory.map(note => (
+                                                                    <div key={note.id} className="bg-gray-50 p-3 rounded-lg text-sm">
+                                                                        <p className="text-gray-800">{note.text}</p>
+                                                                        <p className="text-gray-500 text-xs mt-1">
+                                                                            {new Date(note.timestamp).toLocaleString('es-AR')}
+                                                                        </p>
+                                                                    </div>
+                                                                ))}
                                                             </div>
-                                                        ))}
-                                                    </div>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
-                                    );
-                                })
-                            )}
-                        </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Modal de Notas */}
@@ -550,6 +855,88 @@
                                     </button>
                                     <button
                                         onClick={() => setShowNoteModal(false)}
+                                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl transition"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal de Recordatorios */}
+                    {showReminderModal && selectedQuote && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                    📅 Programar Recordatorio - {selectedQuote.nombre}
+                                </h3>
+                                
+                                <div className="mb-4">
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        {selectedQuote.marca} {selectedQuote.modelo} ({selectedQuote.anio})
+                                    </p>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Fecha</label>
+                                            <input
+                                                type="date"
+                                                value={reminderDate}
+                                                onChange={(e) => setReminderDate(e.target.value)}
+                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
+                                                min={new Date().toISOString().split('T')[0]}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Hora</label>
+                                            <input
+                                                type="time"
+                                                value={reminderTime}
+                                                onChange={(e) => setReminderTime(e.target.value)}
+                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de recordatorio</label>
+                                        <select
+                                            value={reminderType}
+                                            onChange={(e) => setReminderType(e.target.value)}
+                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
+                                        >
+                                            <option value="llamada">📞 Llamada</option>
+                                            <option value="email">📧 Email</option>
+                                            <option value="whatsapp">💬 WhatsApp</option>
+                                            <option value="reunion">🤝 Reunión</option>
+                                            <option value="cotizacion">📋 Enviar Cotización</option>
+                                            <option value="seguimiento">🔄 Seguimiento General</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Notas (opcional)</label>
+                                        <textarea
+                                            value={reminderNotes}
+                                            onChange={(e) => setReminderNotes(e.target.value)}
+                                            placeholder="Ej: Llamar para confirmar interés en póliza de Nación Seguros..."
+                                            className="w-full h-24 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue resize-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3 mt-6">
+                                    <button
+                                        onClick={() => addReminder(selectedQuote.id)}
+                                        className="flex-1 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-xl transition"
+                                    >
+                                        Programar Recordatorio
+                                    </button>
+                                    <button
+                                        onClick={() => setShowReminderModal(false)}
                                         className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl transition"
                                     >
                                         Cancelar
