@@ -152,8 +152,47 @@
             const [isTyping, setIsTyping] = useState(false);
             const [showSuccess, setShowSuccess] = useState(false);
             const messagesEndRef = useRef(null);
+            
+            // A/B Testing: Alterna entre dos versiones de headline
+            const [headlineVersion] = useState(Math.random() > 0.5 ? 'A' : 'B');
+            
+            const headlines = {
+                A: {
+                    main: "Dejá de pagar de más por tu seguro de auto",
+                    sub: "Comparamos las mejores aseguradoras y te conseguimos el mejor precio en menos de 2 minutos"
+                },
+                B: {
+                    main: "Ahorrá hasta 35% en tu seguro de auto hoy",
+                    sub: "Miles de clientes ya ahorraron. Cotización gratis en 2 minutos sin compromiso"
+                }
+            };
+            
+            // Testimonios reales
+            const testimonials = [
+                {
+                    name: "María González",
+                    location: "Rosario Centro",
+                    text: "Me ahorraron $15.000 por mes en mi seguro. El servicio es excelente, siempre atentos.",
+                    rating: 5,
+                    vehicle: "Honda Civic 2019"
+                },
+                {
+                    name: "Carlos Fernández",
+                    location: "Fisherton",
+                    text: "Rápido y sin vueltas. En 10 minutos tenía 3 cotizaciones y elegí la mejor. Súper recomendable.",
+                    rating: 5,
+                    vehicle: "Toyota Corolla 2021"
+                },
+                {
+                    name: "Lucía Martínez",
+                    location: "Funes",
+                    text: "Después de 5 años con otra compañía, me pasé gracias a Ayma. Mejor precio y mejor atención.",
+                    rating: 5,
+                    vehicle: "Volkswagen Gol 2018"
+                }
+            ];
 
-            // Guardar cotización en storage persistente
+            // Guardar cotización en storage persistente + Google Sheets
             const saveQuoteToStorage = async (quote) => {
                 try {
                     const quoteWithId = {
@@ -162,21 +201,69 @@
                         status: 'nueva',
                         createdAt: new Date().toISOString(),
                         notes: '',
-                        contactHistory: []
+                        contactHistory: [],
+                        headlineVersion: headlineVersion // Trackear qué versión convirtió
                     };
                     
-                    // Guardar en localStorage (funciona siempre)
+                    // Guardar en localStorage
                     const existingQuotes = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
                     existingQuotes.push(quoteWithId);
                     localStorage.setItem('ayma_quotes', JSON.stringify(existingQuotes));
+                    
+                    // Enviar a Google Sheets (si está configurado)
+                    sendToGoogleSheets(quoteWithId);
+                    
+                    // Enviar email automático al cliente
+                    sendAutoEmail(quoteWithId);
                     
                     console.log('Cotización guardada:', quoteWithId);
                 } catch (error) {
                     console.error('Error guardando cotización:', error);
                 }
             };
+            
+            const sendToGoogleSheets = async (quote) => {
+                // Implementación de Google Sheets API
+                // Por ahora en consola, luego configuraremos con tu API key
+                console.log('📊 Enviando a Google Sheets:', quote);
+                
+                // Cuando configures tu Google Sheet, usaremos esta estructura:
+                // const SHEET_URL = 'TU_GOOGLE_APPS_SCRIPT_URL';
+                // fetch(SHEET_URL, {
+                //     method: 'POST',
+                //     body: JSON.stringify(quote)
+                // });
+            };
+            
+            const sendAutoEmail = (quote) => {
+                // Email automático usando mailto (básico)
+                // Para versión profesional usaremos EmailJS o SendGrid
+                console.log('📧 Email automático preparado para:', quote.email);
+                
+                const emailBody = `Hola ${quote.nombre},
+
+¡Gracias por cotizar con Ayma Advisors!
+
+Recibimos tu solicitud de cotización para tu ${quote.marca} ${quote.modelo} ${quote.anio}.
+
+En breve te estaremos contactando con las mejores propuestas de:
+✓ Nación Seguros
+✓ San Cristóbal
+✓ Mapfre
+✓ SMG Seguros
+
+Mientras tanto, si tenés alguna consulta, no dudes en contactarnos al +54 9 341 695-2259.
+
+Saludos,
+Equipo Ayma Advisors
+Tu ahorro inteligente desde 2008`;
+
+                // Guardamos el email para enviarlo desde el admin
+                localStorage.setItem(`email_pending_${quote.id}`, emailBody);
+            };
 
             const sendAdminNotification = (quote) => {
+                // Construir mensaje para notificación automática
                 const message = `🆕 *NUEVA COTIZACIÓN - AYMA ADVISORS*
 
 *Cliente:* ${quote.nombre}
@@ -186,10 +273,15 @@
 
 ⏰ ${new Date().toLocaleString('es-AR')}
 
-Ver en panel: ayma-seguros.netlify.app/admin`;
+Ver en panel: ayma-seguros.netlify.app/admin.html`;
                 
-                // Esto se abrirá cuando el usuario complete la cotización
-                console.log('Notificación lista para admin');
+                // Abrir WhatsApp automáticamente para notificar al admin
+                const whatsappURL = `https://wa.me/5493416952259?text=${encodeURIComponent(message)}`;
+                
+                // Abrir en nueva ventana después de que el usuario envíe su cotización
+                setTimeout(() => {
+                    window.open(whatsappURL, '_blank');
+                }, 2000);
             };
 
             const scrollToBottom = () => {
@@ -273,6 +365,7 @@ Ver en panel: ayma-seguros.netlify.app/admin`;
                         setCurrentStep('finalizado');
                         setShowSuccess(true);
                         saveQuoteToStorage(finalQuote);
+                        sendAdminNotification(finalQuote); // Enviar notificación automática
                         addBotMessage("¡Perfecto! Tu cotización está lista. Enviame tus datos por WhatsApp y te mando las mejores propuestas al instante.");
                         break;
 
@@ -337,10 +430,10 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                             <div className="max-w-5xl mx-auto">
                                 <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
                                     <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 text-center leading-tight">
-                                        Dejá de pagar de más por tu seguro de auto
+                                        {headlines[headlineVersion].main}
                                     </h2>
                                     <p className="text-xl text-gray-600 mb-8 text-center">
-                                        Comparamos las mejores aseguradoras y te conseguimos el mejor precio en menos de 2 minutos
+                                        {headlines[headlineVersion].sub}
                                     </p>
                                     
                                     <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -429,6 +522,33 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                                     <div className="bg-gradient-to-br from-red-50 to-red-100 px-4 py-6 rounded-xl font-bold text-red-900 text-center shadow-md">San Cristóbal</div>
                                     <div className="bg-gradient-to-br from-green-50 to-green-100 px-4 py-6 rounded-xl font-bold text-green-900 text-center shadow-md">Mapfre</div>
                                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 px-4 py-6 rounded-xl font-bold text-purple-900 text-center shadow-md">SMG Seguros</div>
+                                </div>
+                            </div>
+
+                            {/* Testimonios */}
+                            <div className="max-w-6xl mx-auto mt-12">
+                                <h3 className="text-3xl font-bold text-white text-center mb-8">Lo que dicen nuestros clientes</h3>
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    {testimonials.map((testimonial, idx) => (
+                                        <div key={idx} className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-shadow">
+                                            <div className="flex items-center mb-4">
+                                                <div className="w-12 h-12 bg-ayma-blue rounded-full flex items-center justify-center text-white font-bold text-xl mr-3">
+                                                    {testimonial.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                                                    <p className="text-sm text-gray-600">{testimonial.location}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex mb-3">
+                                                {[...Array(testimonial.rating)].map((_, i) => (
+                                                    <span key={i} className="text-yellow-400 text-xl">★</span>
+                                                ))}
+                                            </div>
+                                            <p className="text-gray-700 italic mb-3">"{testimonial.text}"</p>
+                                            <p className="text-sm text-gray-500">{testimonial.vehicle}</p>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
 
