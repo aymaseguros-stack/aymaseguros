@@ -1,119 +1,10 @@
-</div>
-                        </div>
-                    )}
-
-                    {/* Modal de Email */}
-                    {showEmailModal && selectedQuote && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-3xl">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                                    📧 Enviar Email - {selectedQuote.nombre}
-                                </h3>
-                                
-                                <div className="mb-4">
-                                    <p className="text-sm text-gray-600">
-                                        Para: {selectedQuote.email}
-                                    </p>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Asunto</label>
-                                        <input
-                                            type="text"
-                                            value={emailSubject}
-                                            onChange={(e) => setEmailSubject(e.target.value)}
-                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
-                                            placeholder="Asunto del email..."
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Mensaje</label>
-                                        <textarea
-                                            value={emailBody}
-                                            onChange={(e) => setEmailBody(e.target.value)}
-                                            className="w-full h-64 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue resize-none"
-                                            placeholder="Cuerpo del email..."
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-3 mt-6">
-                                    <button
-                                        onClick={() => sendEmail(selectedQuote.id)}
-                                        className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl transition"
-                                    >
-                                        Enviar Email
-                                    </button>
-                                    <button
-                                        onClick={() => setShowEmailModal(false)}
-                                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl transition"
-                                    >
-                                        Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Modal de Llamada */}
-                    {showCallModal && selectedQuote && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                                    📞 Registrar Llamada - {selectedQuote.nombre}
-                                </h3>
-                                
-                                <div className="mb-4 bg-green-50 p-4 rounded-lg">
-                                    <p className="text-sm text-gray-700 mb-2">
-                                        <strong>Teléfono:</strong> {selectedQuote.telefono}
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                        {selectedQuote.marca} {selectedQuote.modelo} ({selectedQuote.anio})
-                                    </p>
-                                </div>
-
-                                <div className="mb-4">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Notas de la llamada</label>
-                                    <textarea
-                                        value={callNotes}
-                                        onChange={(e) => setCallNotes(e.target.value)}
-                                        placeholder="Ej: Cliente interesado en cobertura todo riesgo. Le cotizamos Nación y San Cristóbal. Volver a llamar mañana para cerrar..."
-                                        className="w-full h-32 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue resize-none"
-                                    />
-                                </div>
-
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => logCall(selectedQuote.id)}
-                                        className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition"
-                                    >
-                                        Guardar Llamada
-                                    </button>
-                                    <button
-                                        onClick={() => setShowCallModal(false)}
-                                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl transition"
-                                    >
-                                        Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
-
-        ReactDOM.render(<AymaAdminPanel />, document.getElementById('root'));
-    </script>
-</body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Ayma Advisors</title>
+    <meta name="description" content="Ahorrá hasta 35% en tu seguro de auto. Comparamos las mejores aseguradoras. Cotización en 2 minutos. Rosario, Santa Fe.">
+    <title>Ayma Advisors - Ahorrá hasta 35% en tu Seguro de Auto | Rosario</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -131,11 +22,19 @@
             }
         }
     </script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(30, 64, 175, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(30, 64, 175, 0.8); }
+        }
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
         }
     </style>
 </head>
@@ -143,60 +42,12 @@
     <div id="root"></div>
     
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
-        // Iconos
-        const Lock = ({ size = 24, className = "" }) => (
+        // Iconos SVG
+        const Shield = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-        );
-
-        const BarChart = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <line x1="12" y1="20" x2="12" y2="10"></line>
-                <line x1="18" y1="20" x2="18" y2="4"></line>
-                <line x1="6" y1="20" x2="6" y2="16"></line>
-            </svg>
-        );
-
-        const FileText = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-        );
-
-        const Bell = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-        );
-
-        const Calendar = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-        );
-
-        const CheckCircle = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        );
-
-        const DollarSign = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
         );
 
@@ -207,964 +58,639 @@
             </svg>
         );
 
-        const LogOut = ({ size = 24, className = "" }) => (
+        const TrendingDown = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                <polyline points="17 18 23 18 23 12"></polyline>
             </svg>
         );
 
-        const AymaAdminPanel = () => {
-            const [isAuthenticated, setIsAuthenticated] = useState(false);
-            const [username, setUsername] = useState('');
-            const [password, setPassword] = useState('');
-            const [loginError, setLoginError] = useState('');
-            const [quotes, setQuotes] = useState([]);
-            const [filter, setFilter] = useState('todas');
-            const [searchTerm, setSearchTerm] = useState('');
-            const [selectedQuote, setSelectedQuote] = useState(null);
-            const [noteText, setNoteText] = useState('');
-            const [showNoteModal, setShowNoteModal] = useState(false);
-            const [showReminderModal, setShowReminderModal] = useState(false);
-            const [reminderDate, setReminderDate] = useState('');
-            const [reminderTime, setReminderTime] = useState('');
-            const [reminderType, setReminderType] = useState('llamada');
-            const [reminderNotes, setReminderNotes] = useState('');
-            const [currentView, setCurrentView] = useState('dashboard'); // dashboard, calendar, crm
-            const [showEmailModal, setShowEmailModal] = useState(false);
-            const [emailSubject, setEmailSubject] = useState('');
-            const [emailBody, setEmailBody] = useState('');
-            const [showCallModal, setShowCallModal] = useState(false);
-            const [callNotes, setCallNotes] = useState('');
+        const Award = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+        );
 
-            // Cargar cotizaciones del localStorage
-            useEffect(() => {
-                if (isAuthenticated) {
-                    loadQuotes();
-                    const interval = setInterval(loadQuotes, 5000);
-                    return () => clearInterval(interval);
+        const CheckCircle = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        );
+
+        const Users = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+        );
+
+        const Bot = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                <circle cx="12" cy="5" r="2"></circle>
+                <path d="M12 7v4"></path>
+                <line x1="8" y1="16" x2="8" y2="16"></line>
+                <line x1="16" y1="16" x2="16" y2="16"></line>
+            </svg>
+        );
+
+        const User = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        );
+
+        const Send = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        );
+
+        const MessageCircle = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+        );
+
+        const Zap = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+        );
+
+        // Logo Component
+        const AymaLogo = ({ size = "normal" }) => {
+            const sizes = {
+                small: { circle: 40, text: "text-lg", subtext: "text-[6px]" },
+                normal: { circle: 64, text: "text-3xl", subtext: "text-[8px]" },
+                large: { circle: 80, text: "text-4xl", subtext: "text-[10px]" }
+            };
+            const s = sizes[size];
+            
+            return (
+                <div className={`w-${s.circle} h-${s.circle} bg-ayma-blue rounded-full flex items-center justify-center shadow-xl border-4 border-white`} style={{width: s.circle + 'px', height: s.circle + 'px'}}>
+                    <div className="text-center">
+                        <div className={`${s.text} font-black text-white leading-none`}>A</div>
+                        <div className={`${s.subtext} text-white uppercase tracking-wider font-bold opacity-90`}>SEGUROS</div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AymaAdvisorsApp = () => {
+            const [showChat, setShowChat] = useState(false);
+            const [messages, setMessages] = useState([]);
+            const [input, setInput] = useState('');
+            const [currentStep, setCurrentStep] = useState('inicio');
+            const [currentQuote, setCurrentQuote] = useState({});
+            const [isTyping, setIsTyping] = useState(false);
+            const [showSuccess, setShowSuccess] = useState(false);
+            const messagesEndRef = useRef(null);
+            
+            // A/B Testing: Alterna entre dos versiones de headline
+            const [headlineVersion] = useState(Math.random() > 0.5 ? 'A' : 'B');
+            
+            const headlines = {
+                A: {
+                    main: "Dejá de pagar de más por tu seguro de auto",
+                    sub: "Comparamos las mejores aseguradoras y te conseguimos el mejor precio en menos de 2 minutos"
+                },
+                B: {
+                    main: "Ahorrá hasta 35% en tu seguro de auto hoy",
+                    sub: "Miles de clientes ya ahorraron. Cotización gratis en 2 minutos sin compromiso"
                 }
-            }, [isAuthenticated]);
-
-            const loadQuotes = () => {
-                try {
-                    const quotesData = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
-                    setQuotes(quotesData.sort((a, b) => b.id - a.id));
-                } catch (error) {
-                    console.error('Error cargando cotizaciones:', error);
-                    setQuotes([]);
-                }
-            };
-
-            const saveQuotes = (updatedQuotes) => {
-                try {
-                    localStorage.setItem('ayma_quotes', JSON.stringify(updatedQuotes));
-                    setQuotes(updatedQuotes.sort((a, b) => b.id - a.id));
-                } catch (error) {
-                    console.error('Error guardando cotizaciones:', error);
-                }
-            };
-
-            const handleLogin = (e) => {
-                e.preventDefault();
-                if (username === 'ayma' && password === 'Mimamamemima14') {
-                    setIsAuthenticated(true);
-                    setLoginError('');
-                } else {
-                    setLoginError('Usuario o contraseña incorrectos');
-                }
-            };
-
-            const handleLogout = () => {
-                setIsAuthenticated(false);
-                setUsername('');
-                setPassword('');
-            };
-
-            const updateQuoteStatus = (quoteId, newStatus) => {
-                const updatedQuotes = quotes.map(q => 
-                    q.id === quoteId 
-                        ? { ...q, status: newStatus, updatedAt: new Date().toISOString() }
-                        : q
-                );
-                saveQuotes(updatedQuotes);
-            };
-
-            const addNote = (quoteId) => {
-                if (!noteText.trim()) return;
-                
-                const updatedQuotes = quotes.map(q => {
-                    if (q.id === quoteId) {
-                        const newNote = {
-                            text: noteText,
-                            timestamp: new Date().toISOString(),
-                            id: Date.now()
-                        };
-                        return {
-                            ...q,
-                            contactHistory: [...(q.contactHistory || []), newNote]
-                        };
-                    }
-                    return q;
-                });
-                
-                saveQuotes(updatedQuotes);
-                setNoteText('');
-                setShowNoteModal(false);
-            };
-
-            const openNoteModal = (quote) => {
-                setSelectedQuote(quote);
-                setShowNoteModal(true);
-                setNoteText('');
-            };
-
-            const openReminderModal = (quote) => {
-                setSelectedQuote(quote);
-                setShowReminderModal(true);
-                setReminderDate('');
-                setReminderTime('');
-                setReminderType('llamada');
-                setReminderNotes('');
             };
             
-            const openEmailModal = (quote) => {
-                setSelectedQuote(quote);
-                setShowEmailModal(true);
-                setEmailSubject(`Propuesta de Seguro - ${quote.marca} ${quote.modelo}`);
-                setEmailBody(`Hola ${quote.nombre},
+            // Testimonios reales
+            const testimonials = [
+                {
+                    name: "María González",
+                    location: "Rosario Centro",
+                    text: "Me ahorraron $15.000 por mes en mi seguro. El servicio es excelente, siempre atentos.",
+                    rating: 5,
+                    vehicle: "Honda Civic 2019"
+                },
+                {
+                    name: "Carlos Fernández",
+                    location: "Fisherton",
+                    text: "Rápido y sin vueltas. En 10 minutos tenía 3 cotizaciones y elegí la mejor. Súper recomendable.",
+                    rating: 5,
+                    vehicle: "Toyota Corolla 2021"
+                },
+                {
+                    name: "Lucía Martínez",
+                    location: "Funes",
+                    text: "Después de 5 años con otra compañía, me pasé gracias a Ayma. Mejor precio y mejor atención.",
+                    rating: 5,
+                    vehicle: "Volkswagen Gol 2018"
+                }
+            ];
 
-Te envío las cotizaciones que solicitaste para tu ${quote.marca} ${quote.modelo} ${quote.anio}.
+            // Guardar cotización en storage persistente + Google Sheets
+            const saveQuoteToStorage = async (quote) => {
+                try {
+                    const quoteWithId = {
+                        ...quote,
+                        id: Date.now(),
+                        status: 'nueva',
+                        createdAt: new Date().toISOString(),
+                        notes: '',
+                        contactHistory: [],
+                        headlineVersion: headlineVersion // Trackear qué versión convirtió
+                    };
+                    
+                    // Guardar en localStorage
+                    const existingQuotes = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
+                    existingQuotes.push(quoteWithId);
+                    localStorage.setItem('ayma_quotes', JSON.stringify(existingQuotes));
+                    
+                    // Enviar a Google Sheets (si está configurado)
+                    sendToGoogleSheets(quoteWithId);
+                    
+                    // Enviar email automático al cliente
+                    sendAutoEmail(quoteWithId);
+                    
+                    console.log('Cotización guardada:', quoteWithId);
+                } catch (error) {
+                    console.error('Error guardando cotización:', error);
+                }
+            };
+            
+            const sendToGoogleSheets = async (quote) => {
+                // Implementación de Google Sheets API
+                // Por ahora en consola, luego configuraremos con tu API key
+                console.log('📊 Enviando a Google Sheets:', quote);
+                
+                // Cuando configures tu Google Sheet, usaremos esta estructura:
+                // const SHEET_URL = 'TU_GOOGLE_APPS_SCRIPT_URL';
+                // fetch(SHEET_URL, {
+                //     method: 'POST',
+                //     body: JSON.stringify(quote)
+                // });
+            };
+            
+            const sendAutoEmail = (quote) => {
+                // Email automático usando mailto (básico)
+                // Para versión profesional usaremos EmailJS o SendGrid
+                console.log('📧 Email automático preparado para:', quote.email);
+                
+                const emailBody = `Hola ${quote.nombre},
 
-[Aquí adjuntarías las propuestas]
+¡Gracias por cotizar con Ayma Advisors!
 
-Quedamos a tu disposición para cualquier consulta.
+Recibimos tu solicitud de cotización para tu ${quote.marca} ${quote.modelo} ${quote.anio}.
+
+En breve te estaremos contactando con las mejores propuestas de:
+✓ Nación Seguros
+✓ San Cristóbal
+✓ Mapfre
+✓ SMG Seguros
+
+Mientras tanto, si tenés alguna consulta, no dudes en contactarnos al +54 9 341 695-2259.
 
 Saludos,
-Ayma Advisors`);
-            };
-            
-            const sendEmail = (quoteId) => {
-                if (!emailSubject.trim() || !emailBody.trim()) {
-                    alert('Por favor completá asunto y mensaje');
-                    return;
-                }
-                
-                const updatedQuotes = quotes.map(q => {
-                    if (q.id === quoteId) {
-                        const newEmail = {
-                            subject: emailSubject,
-                            body: emailBody,
-                            timestamp: new Date().toISOString(),
-                            id: Date.now()
-                        };
-                        return {
-                            ...q,
-                            emailHistory: [...(q.emailHistory || []), newEmail],
-                            contactHistory: [...(q.contactHistory || []), {
-                                text: `📧 Email enviado: ${emailSubject}`,
-                                timestamp: new Date().toISOString(),
-                                id: Date.now()
-                            }]
-                        };
-                    }
-                    return q;
-                });
-                
-                saveQuotes(updatedQuotes);
-                
-                // Abrir cliente de email
-                const mailtoLink = `mailto:${selectedQuote.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-                window.open(mailtoLink);
-                
-                setShowEmailModal(false);
-            };
-            
-            const openCallModal = (quote) => {
-                setSelectedQuote(quote);
-                setShowCallModal(true);
-                setCallNotes('');
-            };
-            
-            const logCall = (quoteId) => {
-                if (!callNotes.trim()) {
-                    alert('Por favor agregá notas de la llamada');
-                    return;
-                }
-                
-                const updatedQuotes = quotes.map(q => {
-                    if (q.id === quoteId) {
-                        const newCall = {
-                            notes: callNotes,
-                            timestamp: new Date().toISOString(),
-                            id: Date.now()
-                        };
-                        return {
-                            ...q,
-                            callHistory: [...(q.callHistory || []), newCall],
-                            contactHistory: [...(q.contactHistory || []), {
-                                text: `📞 Llamada: ${callNotes}`,
-                                timestamp: new Date().toISOString(),
-                                id: Date.now()
-                            }]
-                        };
-                    }
-                    return q;
-                });
-                
-                saveQuotes(updatedQuotes);
-                setShowCallModal(false);
+Equipo Ayma Advisors
+Tu ahorro inteligente desde 2008`;
+
+                // Guardamos el email para enviarlo desde el admin
+                localStorage.setItem(`email_pending_${quote.id}`, emailBody);
             };
 
-            const addReminder = (quoteId) => {
-                if (!reminderDate || !reminderTime) {
-                    alert('Por favor completá fecha y hora');
-                    return;
+            const sendAdminNotification = (quote) => {
+                // Construir mensaje para notificación automática
+                const message = `🆕 *NUEVA COTIZACIÓN - AYMA ADVISORS*
+
+*Cliente:* ${quote.nombre}
+*CP:* ${quote.codigoPostal}
+*Vehículo:* ${quote.marca} ${quote.modelo} (${quote.anio})
+*Cobertura:* ${quote.cobertura}
+
+⏰ ${new Date().toLocaleString('es-AR')}
+
+Ver en panel: ayma-seguros.netlify.app/admin.html`;
+                
+                // Abrir WhatsApp automáticamente para notificar al admin
+                const whatsappURL = `https://wa.me/5493416952259?text=${encodeURIComponent(message)}`;
+                
+                // Abrir en nueva ventana después de que el usuario envíe su cotización
+                setTimeout(() => {
+                    window.open(whatsappURL, '_blank');
+                }, 2000);
+            };
+
+            const scrollToBottom = () => {
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            };
+
+            useEffect(() => {
+                scrollToBottom();
+            }, [messages, isTyping]);
+
+            useEffect(() => {
+                if (showChat && messages.length === 0) {
+                    addBotMessage("¡Hola! Soy el asistente de Ayma Advisors. Para cotizar tu seguro de auto, necesito algunos datos. ¿Cuál es tu nombre?");
                 }
-                
-                const updatedQuotes = quotes.map(q => {
-                    if (q.id === quoteId) {
-                        const newReminder = {
-                            date: reminderDate,
-                            time: reminderTime,
-                            type: reminderType,
-                            notes: reminderNotes,
-                            completed: false,
-                            id: Date.now(),
-                            createdAt: new Date().toISOString()
-                        };
-                        return {
-                            ...q,
-                            reminders: [...(q.reminders || []), newReminder]
-                        };
-                    }
-                    return q;
-                });
-                
-                saveQuotes(updatedQuotes);
-                setShowReminderModal(false);
+            }, [showChat]);
+
+            const addBotMessage = (text) => {
+                setIsTyping(true);
+                setTimeout(() => {
+                    setMessages(prev => [...prev, { text, sender: 'bot', timestamp: new Date() }]);
+                    setIsTyping(false);
+                }, 800);
             };
 
-            const toggleReminderComplete = (quoteId, reminderId) => {
-                const updatedQuotes = quotes.map(q => {
-                    if (q.id === quoteId && q.reminders) {
-                        return {
-                            ...q,
-                            reminders: q.reminders.map(r => 
-                                r.id === reminderId ? { ...r, completed: !r.completed } : r
-                            )
-                        };
-                    }
-                    return q;
-                });
-                saveQuotes(updatedQuotes);
+            const addUserMessage = (text) => {
+                setMessages(prev => [...prev, { text, sender: 'user', timestamp: new Date() }]);
             };
 
-            const getStatusBadge = (status) => {
-                const badges = {
-                    nueva: { bg: 'bg-blue-100', text: 'text-blue-800', label: '🆕 Nueva' },
-                    cotizada: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: '📧 Cotizada' },
-                    vendida: { bg: 'bg-green-100', text: 'text-green-800', label: '💰 Vendida' },
-                    perdida: { bg: 'bg-red-100', text: 'text-red-800', label: '❌ Perdida' }
-                };
-                const badge = badges[status] || badges.nueva;
+            const handleSend = () => {
+                if (!input.trim()) return;
+                const userInput = input.trim();
+                addUserMessage(userInput);
+                setInput('');
+                processUserInput(userInput);
+            };
+
+            const processUserInput = (userInput) => {
+                switch(currentStep) {
+                    case 'inicio':
+                        setCurrentQuote({ nombre: userInput });
+                        setCurrentStep('codigoPostal');
+                        addBotMessage("Perfecto. ¿Cuál es tu código postal?");
+                        break;
+
+                    case 'codigoPostal':
+                        setCurrentQuote(prev => ({ ...prev, codigoPostal: userInput }));
+                        setCurrentStep('marca');
+                        addBotMessage("Ahora sobre tu auto. ¿Qué marca es?");
+                        break;
+
+                    case 'marca':
+                        setCurrentQuote(prev => ({ ...prev, marca: userInput }));
+                        setCurrentStep('modelo');
+                        addBotMessage("¿Qué modelo?");
+                        break;
+
+                    case 'modelo':
+                        setCurrentQuote(prev => ({ ...prev, modelo: userInput }));
+                        setCurrentStep('anio');
+                        addBotMessage("¿De qué año?");
+                        break;
+
+                    case 'anio':
+                        const anio = parseInt(userInput);
+                        if (isNaN(anio) || anio < 1980 || anio > 2026) {
+                            addBotMessage("Por favor, ingresá un año válido.");
+                            return;
+                        }
+                        setCurrentQuote(prev => ({ ...prev, anio: userInput }));
+                        setCurrentStep('cobertura');
+                        addBotMessage("¿Qué cobertura te interesa? (RC / Terceros Completo / Terceros con Granizo / Todo Riesgo)");
+                        break;
+
+                    case 'cobertura':
+                        const finalQuote = {
+                            ...currentQuote,
+                            cobertura: userInput,
+                            fecha: new Date().toLocaleString('es-AR')
+                        };
+                        setCurrentQuote(finalQuote);
+                        setCurrentStep('finalizado');
+                        setShowSuccess(true);
+                        saveQuoteToStorage(finalQuote);
+                        sendAdminNotification(finalQuote); // Enviar notificación automática
+                        addBotMessage("¡Perfecto! Tu cotización está lista. Enviame tus datos por WhatsApp y te mando las mejores propuestas al instante.");
+                        break;
+
+                    case 'finalizado':
+                        addBotMessage("Tu cotización ya está lista. Hacé clic en el botón verde de WhatsApp para enviármela.");
+                        break;
+                }
+            };
+
+            const sendToWhatsApp = () => {
+                const message = `*SOLICITUD DE COTIZACIÓN - AYMA ADVISORS*
+
+*DATOS:*
+Nombre: ${currentQuote.nombre}
+Código Postal: ${currentQuote.codigoPostal}
+
+*VEHÍCULO:*
+Marca: ${currentQuote.marca}
+Modelo: ${currentQuote.modelo}
+Año: ${currentQuote.anio}
+
+*COBERTURA SOLICITADA:*
+${currentQuote.cobertura}
+
+Quiero recibir las mejores cotizaciones del mercado.`;
+
+                const whatsappURL = `https://wa.me/5493416952259?text=${encodeURIComponent(message)}`;
+                window.open(whatsappURL, '_blank');
+            };
+
+            const startNewQuote = () => {
+                setMessages([]);
+                setCurrentQuote({});
+                setCurrentStep('inicio');
+                setShowSuccess(false);
+                addBotMessage("¡Hola! Soy el asistente de Ayma Advisors. Para cotizar tu seguro de auto, necesito algunos datos. ¿Cuál es tu nombre?");
+            };
+
+            if (!showChat) {
                 return (
-                    <span className={`${badge.bg} ${badge.text} px-3 py-1 rounded-full text-xs font-semibold`}>
-                        {badge.label}
-                    </span>
-                );
-            };
-
-            const getAlertStatus = (quote) => {
-                const now = new Date();
-                const created = new Date(quote.createdAt);
-                const hoursElapsed = (now - created) / (1000 * 60 * 60);
-
-                if (quote.status === 'nueva' && hoursElapsed > 2) {
-                    return { show: true, message: '⚠️ Sin contactar hace más de 2 horas', color: 'text-red-600' };
-                }
-                if (quote.status === 'cotizada' && hoursElapsed > 24) {
-                    return { show: true, message: '⏰ Cotizada hace más de 24 horas', color: 'text-orange-600' };
-                }
-                return { show: false };
-            };
-
-            const getPendingReminders = () => {
-                const today = new Date().toISOString().split('T')[0];
-                return quotes.flatMap(q => 
-                    (q.reminders || [])
-                        .filter(r => !r.completed && r.date <= today)
-                        .map(r => ({ ...r, quote: q }))
-                ).sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
-            };
-
-            const getTodayReminders = () => {
-                const today = new Date().toISOString().split('T')[0];
-                return quotes.flatMap(q => 
-                    (q.reminders || [])
-                        .filter(r => r.date === today)
-                        .map(r => ({ ...r, quote: q }))
-                ).sort((a, b) => a.time.localeCompare(b.time));
-            };
-
-            const getMetrics = () => {
-                const total = quotes.length;
-                const nuevas = quotes.filter(q => q.status === 'nueva').length;
-                const cotizadas = quotes.filter(q => q.status === 'cotizada').length;
-                const vendidas = quotes.filter(q => q.status === 'vendida').length;
-                const perdidas = quotes.filter(q => q.status === 'perdida').length;
-                const conversionRate = total > 0 ? ((vendidas / total) * 100).toFixed(1) : 0;
-                const pendingReminders = getPendingReminders().length;
-
-                return { total, nuevas, cotizadas, vendidas, perdidas, conversionRate, pendingReminders };
-            };
-
-            const filteredQuotes = quotes.filter(quote => {
-                const matchesFilter = filter === 'todas' || quote.status === filter;
-                const matchesSearch = !searchTerm || 
-                    quote.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    quote.marca?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    quote.modelo?.toLowerCase().includes(searchTerm.toLowerCase());
-                return matchesFilter && matchesSearch;
-            });
-
-            const getReminderTypeIcon = (type) => {
-                const icons = {
-                    llamada: '📞',
-                    email: '📧',
-                    whatsapp: '💬',
-                    reunion: '🤝',
-                    cotizacion: '📋',
-                    seguimiento: '🔄'
-                };
-                return icons[type] || '📌';
-            };
-
-            // Login Screen
-            if (!isAuthenticated) {
-                return (
-                    <div className="min-h-screen bg-gradient-to-br from-ayma-blue-dark to-ayma-blue flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+                    <div className="min-h-screen bg-gradient-to-br from-ayma-blue-dark via-ayma-blue to-ayma-blue-light">
+                        <div className="container mx-auto px-4 py-8">
+                            {/* Header con Logo */}
                             <div className="text-center mb-8">
-                                <div className="w-20 h-20 bg-ayma-blue rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                                    <Lock size={40} className="text-white" />
+                                <div className="flex items-center justify-center mb-4">
+                                    <AymaLogo size="normal" />
+                                    <div className="text-left ml-4">
+                                        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">AYMA ADVISORS</h1>
+                                        <p className="text-gray-200 text-sm italic">Ahorro inteligente desde 2008</p>
+                                    </div>
                                 </div>
-                                <h1 className="text-3xl font-bold text-gray-900 mb-2">Ayma Advisors</h1>
-                                <p className="text-gray-600">Panel de Administración v2.0</p>
                             </div>
 
-                            <form onSubmit={handleLogin} className="space-y-6">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Usuario</label>
-                                    <input
-                                        type="text"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue focus:border-transparent"
-                                        placeholder="Ingresá tu usuario"
-                                        required
-                                    />
+                            {/* Banner amarillo SEPARADO */}
+                            <div className="max-w-5xl mx-auto mb-6">
+                                <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 text-center py-4 px-6 rounded-2xl font-black text-lg md:text-xl shadow-2xl border-4 border-yellow-300">
+                                    🔥 OFERTA EXCLUSIVA: Hasta 35% de descuento sobre tu póliza actual
                                 </div>
+                            </div>
 
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue focus:border-transparent"
-                                        placeholder="Ingresá tu contraseña"
-                                        required
-                                    />
-                                </div>
-
-                                {loginError && (
-                                    <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-                                        {loginError}
+                            {/* Card blanca SEPARADA */}
+                            <div className="max-w-5xl mx-auto">
+                                <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+                                    <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 text-center leading-tight">
+                                        {headlines[headlineVersion].main}
+                                    </h2>
+                                    <p className="text-xl text-gray-600 mb-8 text-center">
+                                        {headlines[headlineVersion].sub}
+                                    </p>
+                                    
+                                    <div className="grid md:grid-cols-3 gap-6 mb-8">
+                                        <div className="text-center p-6 bg-green-50 rounded-xl border-2 border-green-200">
+                                            <div className="bg-green-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <TrendingDown size={32} className="text-white" />
+                                            </div>
+                                            <h3 className="font-bold text-gray-800 mb-2 text-xl">Ahorrás hasta 35%</h3>
+                                            <p className="text-gray-600">Comparamos y encontramos el mejor precio del mercado</p>
+                                        </div>
+                                        
+                                        <div className="text-center p-6 bg-blue-50 rounded-xl border-2 border-blue-200">
+                                            <div className="bg-ayma-blue w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <Zap size={32} className="text-white" />
+                                            </div>
+                                            <h3 className="font-bold text-gray-800 mb-2 text-xl">En 2 minutos</h3>
+                                            <p className="text-gray-600">Cotización instantánea sin papeleos ni esperas</p>
+                                        </div>
+                                        
+                                        <div className="text-center p-6 bg-purple-50 rounded-xl border-2 border-purple-200">
+                                            <div className="bg-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <Shield size={32} className="text-white" />
+                                            </div>
+                                            <h3 className="font-bold text-gray-800 mb-2 text-xl">Las Mejores</h3>
+                                            <p className="text-gray-600">Trabajamos con las aseguradoras líderes</p>
+                                        </div>
                                     </div>
-                                )}
 
-                                <button
-                                    type="submit"
-                                    className="w-full bg-ayma-blue hover:bg-ayma-blue-dark text-white font-bold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
-                                >
-                                    Iniciar Sesión
-                                </button>
-                            </form>
+                                    <button
+                                        onClick={() => setShowChat(true)}
+                                        className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all shadow-2xl pulse-glow mb-4"
+                                    >
+                                        ✨ Cotizar Gratis Ahora
+                                    </button>
+                                    <p className="text-center text-sm text-gray-500">✓ Sin compromiso ✓ 100% gratis ✓ Respuesta inmediata</p>
+                                </div>
+                            </div>
 
-                            <div className="mt-6 text-center">
-                                <a href="/" className="text-sm text-ayma-blue hover:text-ayma-blue-dark">
-                                    ← Volver al sitio público
-                                </a>
+                            {/* Por qué elegirnos */}
+                            <div className="max-w-5xl mx-auto mt-12 bg-white/10 backdrop-blur-md rounded-2xl p-8">
+                                <h3 className="text-3xl font-bold text-white text-center mb-8">¿Por qué miles eligen Ayma Advisors?</h3>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div className="flex items-start text-white">
+                                        <CheckCircle className="mr-3 flex-shrink-0 text-green-400" size={24} />
+                                        <div>
+                                            <h4 className="font-bold mb-1">17 años de experiencia</h4>
+                                            <p className="text-blue-100 text-sm">Productores profesionales desde 2008</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start text-white">
+                                        <CheckCircle className="mr-3 flex-shrink-0 text-green-400" size={24} />
+                                        <div>
+                                            <h4 className="font-bold mb-1">Asesoramiento sin costo</h4>
+                                            <p className="text-blue-100 text-sm">Te guiamos en todo el proceso gratis</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start text-white">
+                                        <CheckCircle className="mr-3 flex-shrink-0 text-green-400" size={24} />
+                                        <div>
+                                            <h4 className="font-bold mb-1">Gestionamos tus siniestros</h4>
+                                            <p className="text-blue-100 text-sm">No te preocupés por nada, nosotros lo hacemos</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start text-white">
+                                        <CheckCircle className="mr-3 flex-shrink-0 text-green-400" size={24} />
+                                        <div>
+                                            <h4 className="font-bold mb-1">Comparación objetiva</h4>
+                                            <p className="text-blue-100 text-sm">Te mostramos todas las opciones sin letra chica</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Garantía */}
+                            <div className="max-w-3xl mx-auto mt-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl p-6 text-center shadow-xl">
+                                <Award className="mx-auto mb-3 text-gray-900" size={48} />
+                                <h3 className="text-2xl font-bold text-gray-900 mb-2">Garantía de Ahorro</h3>
+                                <p className="text-gray-900 text-lg">Si no te ahorramos dinero comparado con tu póliza actual, no pagás nada. Sin vueltas.</p>
+                            </div>
+
+                            {/* Aseguradoras */}
+                            <div className="max-w-4xl mx-auto mt-12 bg-white rounded-2xl p-8 shadow-xl">
+                                <h3 className="text-gray-800 text-center font-bold text-xl mb-6">Trabajamos con las mejores aseguradoras:</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-6 rounded-xl font-bold text-ayma-blue text-center shadow-md">Nación Seguros</div>
+                                    <div className="bg-gradient-to-br from-red-50 to-red-100 px-4 py-6 rounded-xl font-bold text-red-900 text-center shadow-md">San Cristóbal</div>
+                                    <div className="bg-gradient-to-br from-green-50 to-green-100 px-4 py-6 rounded-xl font-bold text-green-900 text-center shadow-md">Mapfre</div>
+                                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 px-4 py-6 rounded-xl font-bold text-purple-900 text-center shadow-md">SMG Seguros</div>
+                                </div>
+                            </div>
+
+                            {/* Testimonios */}
+                            <div className="max-w-6xl mx-auto mt-12">
+                                <h3 className="text-3xl font-bold text-white text-center mb-8">Lo que dicen nuestros clientes</h3>
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    {testimonials.map((testimonial, idx) => (
+                                        <div key={idx} className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-shadow">
+                                            <div className="flex items-center mb-4">
+                                                <div className="w-12 h-12 bg-ayma-blue rounded-full flex items-center justify-center text-white font-bold text-xl mr-3">
+                                                    {testimonial.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                                                    <p className="text-sm text-gray-600">{testimonial.location}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex mb-3">
+                                                {[...Array(testimonial.rating)].map((_, i) => (
+                                                    <span key={i} className="text-yellow-400 text-xl">★</span>
+                                                ))}
+                                            </div>
+                                            <p className="text-gray-700 italic mb-3">"{testimonial.text}"</p>
+                                            <p className="text-sm text-gray-500">{testimonial.vehicle}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Social Proof */}
+                            <div className="max-w-4xl mx-auto mt-8 text-center">
+                                <div className="flex items-center justify-center gap-2 text-white mb-2">
+                                    <Users size={24} />
+                                    <span className="text-lg font-semibold">+2.500 clientes confían en nosotros</span>
+                                </div>
+                                <div className="flex justify-center gap-1 mb-2">
+                                    {[...Array(5)].map((_, i) => (
+                                        <span key={i} className="text-yellow-400 text-2xl">★</span>
+                                    ))}
+                                </div>
+                                <p className="text-blue-200">Calificación promedio 4.9/5</p>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="text-center text-white mt-12 pt-8 border-t border-blue-500">
+                                <p className="mb-2 text-lg">📍 Rosario, Santa Fe, Argentina</p>
+                                <p className="mb-2 text-lg">📞 +54 9 341 695-2259</p>
+                                <p className="text-blue-200 mb-4">Atención personalizada por WhatsApp</p>
+                                <a href="/admin.html" className="text-blue-200 text-xs hover:text-white">Admin</a>
                             </div>
                         </div>
                     </div>
                 );
             }
 
-            // Dashboard
-            const metrics = getMetrics();
-            const pendingReminders = getPendingReminders();
-            const todayReminders = getTodayReminders();
-
+            // Vista del Chat
             return (
-                <div className="min-h-screen bg-gray-100">
-                    {/* Header */}
-                    <div className="bg-white shadow-md border-b-4 border-ayma-blue">
-                        <div className="container mx-auto px-4 py-4">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Panel de Administración v2.0</h1>
-                                    <p className="text-sm text-gray-600">Ayma Advisors - Sistema de Gestión</p>
+                <div className="flex h-screen bg-gray-100">
+                    <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full bg-white shadow-2xl">
+                        <div className="bg-gradient-to-r from-ayma-blue-dark to-ayma-blue text-white p-4 shadow-lg">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                    <AymaLogo size="small" />
+                                    <div className="ml-3">
+                                        <h2 className="text-xl font-bold">Ayma Advisors</h2>
+                                        <p className="text-sm text-blue-100">Cotizador Inteligente</p>
+                                    </div>
                                 </div>
-                                <div className="flex gap-3 items-center">
-                                    <button
-                                        onClick={() => setCurrentView('dashboard')}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                                            currentView === 'dashboard' 
-                                                ? 'bg-ayma-blue text-white' 
-                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                        }`}
-                                    >
-                                        <FileText size={18} />
-                                        Dashboard
-                                    </button>
-                                    <button
-                                        onClick={() => setCurrentView('calendar')}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                                            currentView === 'calendar' 
-                                                ? 'bg-ayma-blue text-white' 
-                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                        }`}
-                                    >
-                                        <Calendar size={18} />
-                                        Calendario
-                                        {metrics.pendingReminders > 0 && (
-                                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                                                {metrics.pendingReminders}
-                                            </span>
-                                        )}
-                                    </button>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
-                                    >
-                                        <LogOut size={18} />
-                                        Cerrar Sesión
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={() => setShowChat(false)}
+                                    className="text-white hover:bg-ayma-blue px-3 py-1 rounded transition"
+                                >
+                                    ← Volver
+                                </button>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="container mx-auto px-4 py-8">
-                        {currentView === 'calendar' ? (
-                            // Vista de Calendario
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900 mb-6">📅 Calendario de Seguimientos</h2>
-                                
-                                {/* Recordatorios Pendientes */}
-                                {pendingReminders.length > 0 && (
-                                    <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6 mb-6">
-                                        <h3 className="text-xl font-bold text-red-800 mb-4">⚠️ Recordatorios Vencidos ({pendingReminders.length})</h3>
-                                        <div className="space-y-3">
-                                            {pendingReminders.map(reminder => (
-                                                <div key={reminder.id} className="bg-white rounded-lg p-4 shadow">
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-2 mb-2">
-                                                                <span className="text-2xl">{getReminderTypeIcon(reminder.type)}</span>
-                                                                <span className="font-bold text-gray-900">{reminder.quote.nombre}</span>
-                                                                <span className="text-sm text-gray-600">
-                                                                    {reminder.quote.marca} {reminder.quote.modelo}
-                                                                </span>
-                                                            </div>
-                                                            <p className="text-sm text-gray-700 mb-1">
-                                                                <strong>{reminder.type.charAt(0).toUpperCase() + reminder.type.slice(1)}:</strong> {reminder.notes || 'Sin notas'}
-                                                            </p>
-                                                            <p className="text-xs text-red-600 font-semibold">
-                                                                📅 {reminder.date} ⏰ {reminder.time}
-                                                            </p>
-                                                        </div>
-                                                        <button
-                                                            onClick={() => toggleReminderComplete(reminder.quote.id, reminder.id)}
-                                                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
-                                                        >
-                                                            ✓ Completar
-                                                        </button>
-                                                    </div>
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                            {messages.map((msg, idx) => (
+                                <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`flex items-start max-w-[80%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
+                                        <div className={`flex-shrink-0 ${msg.sender === 'user' ? 'ml-2' : 'mr-2'}`}>
+                                            {msg.sender === 'bot' ? (
+                                                <div className="w-10 h-10 bg-ayma-blue rounded-full flex items-center justify-center">
+                                                    <Bot size={22} className="text-white" />
                                                 </div>
-                                            ))}
+                                            ) : (
+                                                <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
+                                                    <User size={22} className="text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className={`p-3 rounded-2xl ${msg.sender === 'bot' ? 'bg-white border-2 border-blue-200' : 'bg-ayma-blue text-white'}`}>
+                                            <p className="text-sm leading-relaxed">{msg.text}</p>
                                         </div>
                                     </div>
-                                )}
-
-                                {/* Recordatorios de Hoy */}
-                                <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4">📌 Hoy ({todayReminders.length})</h3>
-                                    {todayReminders.length === 0 ? (
-                                        <p className="text-gray-500">No hay recordatorios para hoy</p>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            {todayReminders.map(reminder => (
-                                                <div key={reminder.id} className={`rounded-lg p-4 ${reminder.completed ? 'bg-gray-100' : 'bg-blue-50 border-2 border-blue-200'}`}>
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-2 mb-2">
-                                                                <span className="text-2xl">{getReminderTypeIcon(reminder.type)}</span>
-                                                                <span className={`font-bold ${reminder.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
-                                                                    {reminder.quote.nombre}
-                                                                </span>
-                                                                <span className="text-sm text-gray-600">
-                                                                    {reminder.quote.marca} {reminder.quote.modelo}
-                                                                </span>
-                                                            </div>
-                                                            <p className="text-sm text-gray-700 mb-1">
-                                                                <strong>{reminder.type.charAt(0).toUpperCase() + reminder.type.slice(1)}:</strong> {reminder.notes || 'Sin notas'}
-                                                            </p>
-                                                            <p className="text-xs text-gray-600">
-                                                                ⏰ {reminder.time}
-                                                            </p>
-                                                        </div>
-                                                        <button
-                                                            onClick={() => toggleReminderComplete(reminder.quote.id, reminder.id)}
-                                                            className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                                                                reminder.completed 
-                                                                    ? 'bg-gray-300 text-gray-600 hover:bg-gray-400' 
-                                                                    : 'bg-green-500 text-white hover:bg-green-600'
-                                                            }`}
-                                                        >
-                                                            {reminder.completed ? '↻ Reabrir' : '✓ Completar'}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
                                 </div>
-
-                                {/* Próximos Recordatorios */}
-                                <div className="bg-white rounded-xl shadow-md p-6">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4">🗓️ Próximos Días</h3>
-                                    {quotes.filter(q => q.reminders && q.reminders.length > 0).length === 0 ? (
-                                        <p className="text-gray-500">No hay recordatorios programados</p>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            {quotes
-                                                .filter(q => q.reminders && q.reminders.some(r => !r.completed && r.date > new Date().toISOString().split('T')[0]))
-                                                .map(quote => (
-                                                    <div key={quote.id} className="border-2 border-gray-200 rounded-lg p-4">
-                                                        <h4 className="font-bold text-gray-900 mb-2">
-                                                            {quote.nombre} - {quote.marca} {quote.modelo}
-                                                        </h4>
-                                                        <div className="space-y-2">
-                                                            {quote.reminders
-                                                                .filter(r => !r.completed && r.date > new Date().toISOString().split('T')[0])
-                                                                .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time))
-                                                                .map(reminder => (
-                                                                    <div key={reminder.id} className="flex justify-between items-center bg-gray-50 p-3 rounded">
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span>{getReminderTypeIcon(reminder.type)}</span>
-                                                                            <span className="text-sm">
-                                                                                {reminder.type.charAt(0).toUpperCase() + reminder.type.slice(1)}
-                                                                            </span>
-                                                                            <span className="text-xs text-gray-600">
-                                                                                {reminder.date} {reminder.time}
-                                                                            </span>
-                                                                        </div>
-                                                                        <button
-                                                                            onClick={() => toggleReminderComplete(quote.id, reminder.id)}
-                                                                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-semibold"
-                                                                        >
-                                                                            ✓
-                                                                        </button>
-                                                                    </div>
-                                                                ))}
-                                                        </div>
-                                                    </div>
-                                                ))}
+                            ))}
+                            {isTyping && (
+                                <div className="flex justify-start">
+                                    <div className="flex items-start max-w-[80%]">
+                                        <div className="w-10 h-10 bg-ayma-blue rounded-full flex items-center justify-center mr-2">
+                                            <Bot size={22} className="text-white" />
                                         </div>
-                                    )}
+                                        <div className="p-3 rounded-2xl bg-white border-2 border-blue-200">
+                                            <div className="flex space-x-1">
+                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce"></div>
+                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+
+                        {showSuccess && (
+                            <div className="bg-gradient-to-r from-green-50 to-green-100 border-t-4 border-green-500 p-6 mx-4 mb-4 rounded-lg shadow-lg">
+                                <div className="flex items-center mb-4">
+                                    <CheckCircle size={32} className="text-green-600 mr-3" />
+                                    <div>
+                                        <h3 className="font-bold text-green-800 text-lg">¡Tu cotización está lista! 🎉</h3>
+                                        <p className="text-green-700 text-sm">Enviame tus datos por WhatsApp y te mando las mejores propuestas en minutos</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={sendToWhatsApp}
+                                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shadow-xl mb-3"
+                                >
+                                    <MessageCircle size={24} />
+                                    Enviar por WhatsApp
+                                </button>
+                                <button
+                                    onClick={startNewQuote}
+                                    className="w-full bg-ayma-blue hover:bg-ayma-blue-dark text-white font-semibold py-3 px-6 rounded-xl transition-all"
+                                >
+                                    Nueva Cotización
+                                </button>
                             </div>
-                        ) : (
-                            // Vista Dashboard Original
-                            <>
-                                {/* Métricas */}
-                                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-gray-500">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm text-gray-600 font-semibold">Total</p>
-                                                <p className="text-3xl font-bold text-gray-900">{metrics.total}</p>
-                                            </div>
-                                            <FileText size={40} className="text-gray-400" />
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm text-blue-600 font-semibold">Nuevas</p>
-                                                <p className="text-3xl font-bold text-blue-700">{metrics.nuevas}</p>
-                                            </div>
-                                            <Bell size={40} className="text-blue-400" />
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm text-yellow-600 font-semibold">Cotizadas</p>
-                                                <p className="text-3xl font-bold text-yellow-700">{metrics.cotizadas}</p>
-                                            </div>
-                                            <Clock size={40} className="text-yellow-400" />
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm text-green-600 font-semibold">Vendidas</p>
-                                                <p className="text-3xl font-bold text-green-700">{metrics.vendidas}</p>
-                                            </div>
-                                            <DollarSign size={40} className="text-green-400" />
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-ayma-blue">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm text-ayma-blue font-semibold">Conversión</p>
-                                                <p className="text-3xl font-bold text-ayma-blue-dark">{metrics.conversionRate}%</p>
-                                            </div>
-                                            <BarChart size={40} className="text-ayma-blue-light" />
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm text-purple-600 font-semibold">Recordatorios</p>
-                                                <p className="text-3xl font-bold text-purple-700">{metrics.pendingReminders}</p>
-                                            </div>
-                                            <Calendar size={40} className="text-purple-400" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Filtros */}
-                                <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-                                    <div className="flex flex-col md:flex-row gap-4">
-                                        <div className="flex-1">
-                                            <input
-                                                type="text"
-                                                placeholder="Buscar por nombre, marca o modelo..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
-                                            />
-                                        </div>
-                                        <div className="flex gap-2 flex-wrap">
-                                            {['todas', 'nueva', 'cotizada', 'vendida', 'perdida'].map(f => (
-                                                <button
-                                                    key={f}
-                                                    onClick={() => setFilter(f)}
-                                                    className={`px-4 py-2 rounded-lg font-semibold transition ${
-                                                        filter === f
-                                                            ? 'bg-ayma-blue text-white'
-                                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                                    }`}
-                                                >
-                                                    {f.charAt(0).toUpperCase() + f.slice(1)}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Lista de Cotizaciones */}
-                                <div className="space-y-4">
-                                    {filteredQuotes.length === 0 ? (
-                                        <div className="bg-white rounded-xl shadow-md p-12 text-center">
-                                            <p className="text-gray-500 text-lg">No hay cotizaciones para mostrar</p>
-                                        </div>
-                                    ) : (
-                                        filteredQuotes.map(quote => {
-                                            const alert = getAlertStatus(quote);
-                                            const hasReminders = quote.reminders && quote.reminders.length > 0;
-                                            const pendingQuoteReminders = quote.reminders?.filter(r => !r.completed) || [];
-                                            
-                                            return (
-                                                <div key={quote.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
-                                                    <div className="flex flex-col md:flex-row justify-between gap-4">
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-3 mb-3">
-                                                                <h3 className="text-xl font-bold text-gray-900">{quote.nombre}</h3>
-                                                                {getStatusBadge(quote.status)}
-                                                                {pendingQuoteReminders.length > 0 && (
-                                                                    <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-semibold">
-                                                                        📅 {pendingQuoteReminders.length} recordatorio{pendingQuoteReminders.length > 1 ? 's' : ''}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            
-                                                            {alert.show && (
-                                                                <div className={`${alert.color} text-sm font-semibold mb-2`}>
-                                                                    {alert.message}
-                                                                </div>
-                                                            )}
-
-                                                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                                                <div>
-                                                                    <span className="text-gray-600">CP:</span>
-                                                                    <span className="ml-2 font-semibold">{quote.codigoPostal}</span>
-                                                                </div>
-                                                                <div>
-                                                                    <span className="text-gray-600">Vehículo:</span>
-                                                                    <span className="ml-2 font-semibold">{quote.marca} {quote.modelo} ({quote.anio})</span>
-                                                                </div>
-                                                                <div>
-                                                                    <span className="text-gray-600">Cobertura:</span>
-                                                                    <span className="ml-2 font-semibold">{quote.cobertura}</span>
-                                                                </div>
-                                                                <div>
-                                                                    <span className="text-gray-600">Fecha:</span>
-                                                                    <span className="ml-2 font-semibold">{new Date(quote.createdAt).toLocaleString('es-AR')}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="flex flex-col gap-2">
-                                                            <button
-                                                                onClick={() => openCallModal(quote)}
-                                                                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                            >
-                                                                📞 Llamar
-                                                            </button>
-                                                            <button
-                                                                onClick={() => openEmailModal(quote)}
-                                                                className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                            >
-                                                                📧 Email
-                                                            </button>
-                                                            <button
-                                                                onClick={() => openReminderModal(quote)}
-                                                                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                            >
-                                                                📅 Recordatorio
-                                                            </button>
-                                                            <button
-                                                                onClick={() => openNoteModal(quote)}
-                                                                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                            >
-                                                                📝 Nota
-                                                            </button>
-                                                            <button
-                                                                onClick={() => updateQuoteStatus(quote.id, 'nueva')}
-                                                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                            >
-                                                                🆕 Nueva
-                                                            </button>
-                                                            <button
-                                                                onClick={() => updateQuoteStatus(quote.id, 'cotizada')}
-                                                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                            >
-                                                                📧 Cotizada
-                                                            </button>
-                                                            <button
-                                                                onClick={() => updateQuoteStatus(quote.id, 'vendida')}
-                                                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                            >
-                                                                💰 Vendida
-                                                            </button>
-                                                            <button
-                                                                onClick={() => updateQuoteStatus(quote.id, 'perdida')}
-                                                                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                                                            >
-                                                                ❌ Perdida
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    {/* Recordatorios Activos */}
-                                                    {pendingQuoteReminders.length > 0 && (
-                                                        <div className="mt-4 pt-4 border-t border-gray-200">
-                                                            <h4 className="font-semibold text-gray-700 mb-2">📅 Recordatorios Pendientes:</h4>
-                                                            <div className="space-y-2">
-                                                                {pendingQuoteReminders.map(reminder => (
-                                                                    <div key={reminder.id} className="bg-purple-50 p-3 rounded-lg text-sm flex justify-between items-center">
-                                                                        <div>
-                                                                            <p className="text-gray-800">
-                                                                                <span className="font-semibold">{getReminderTypeIcon(reminder.type)} {reminder.type}:</span> {reminder.notes || 'Sin notas'}
-                                                                            </p>
-                                                                            <p className="text-gray-600 text-xs mt-1">
-                                                                                📅 {reminder.date} ⏰ {reminder.time}
-                                                                            </p>
-                                                                        </div>
-                                                                        <button
-                                                                            onClick={() => toggleReminderComplete(quote.id, reminder.id)}
-                                                                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-semibold"
-                                                                        >
-                                                                            ✓
-                                                                        </button>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Historial de notas */}
-                                                    {quote.contactHistory && quote.contactHistory.length > 0 && (
-                                                        <div className="mt-4 pt-4 border-t border-gray-200">
-                                                            <h4 className="font-semibold text-gray-700 mb-2">📋 Historial de Seguimiento:</h4>
-                                                            <div className="space-y-2">
-                                                                {quote.contactHistory.map(note => (
-                                                                    <div key={note.id} className="bg-gray-50 p-3 rounded-lg text-sm">
-                                                                        <p className="text-gray-800">{note.text}</p>
-                                                                        <p className="text-gray-500 text-xs mt-1">
-                                                                            {new Date(note.timestamp).toLocaleString('es-AR')}
-                                                                        </p>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                            </>
                         )}
-                    </div>
 
-                    {/* Modal de Notas */}
-                    {showNoteModal && selectedQuote && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                                    📝 Agregar Nota - {selectedQuote.nombre}
-                                </h3>
-                                
-                                <div className="mb-4">
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        {selectedQuote.marca} {selectedQuote.modelo} ({selectedQuote.anio})
-                                    </p>
-                                </div>
-
-                                <textarea
-                                    value={noteText}
-                                    onChange={(e) => setNoteText(e.target.value)}
-                                    placeholder="Ej: Llamé al cliente, le interesa la cobertura de Nación Seguros. Volver a contactar mañana..."
-                                    className="w-full h-32 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue resize-none"
+                        <div className="bg-white border-t-2 border-gray-200 p-4" style={{marginBottom: '60px'}}>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                    placeholder="Escribe tu respuesta aquí..."
+                                    className="flex-1 p-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue focus:border-transparent"
+                                    disabled={currentStep === 'finalizado'}
                                 />
-
-                                <div className="flex gap-3 mt-4">
-                                    <button
-                                        onClick={() => addNote(selectedQuote.id)}
-                                        className="flex-1 bg-ayma-blue hover:bg-ayma-blue-dark text-white font-bold py-3 px-4 rounded-xl transition"
-                                    >
-                                        Guardar Nota
-                                    </button>
-                                    <button
-                                        onClick={() => setShowNoteModal(false)}
-                                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl transition"
-                                    >
-                                        Cancelar
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={handleSend}
+                                    disabled={currentStep === 'finalizado'}
+                                    className="bg-ayma-blue text-white p-3 rounded-xl hover:bg-ayma-blue-dark disabled:bg-gray-300 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+                                >
+                                    <Send size={24} />
+                                </button>
                             </div>
                         </div>
-                    )}
-
-                    {/* Modal de Recordatorios */}
-                    {showReminderModal && selectedQuote && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                                    📅 Programar Recordatorio - {selectedQuote.nombre}
-                                </h3>
-                                
-                                <div className="mb-4">
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        {selectedQuote.marca} {selectedQuote.modelo} ({selectedQuote.anio})
-                                    </p>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Fecha</label>
-                                            <input
-                                                type="date"
-                                                value={reminderDate}
-                                                onChange={(e) => setReminderDate(e.target.value)}
-                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
-                                                min={new Date().toISOString().split('T')[0]}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Hora</label>
-                                            <input
-                                                type="time"
-                                                value={reminderTime}
-                                                onChange={(e) => setReminderTime(e.target.value)}
-                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de recordatorio</label>
-                                        <select
-                                            value={reminderType}
-                                            onChange={(e) => setReminderType(e.target.value)}
-                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ayma-blue"
-                                        >
-                                            <option value="llamada">📞 Llamada</option>
-                                            <option value="email">📧 Email</option>
-                                            <option value="whatsapp">💬 WhatsApp</option>
-                                            <option value="reunion">🤝 Reunión</option>
-                                            <option value="cotizacion">📋 Enviar Cotización</option>
-                                            <option value="seguimiento">🔄 Seguimiento General</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Notas (opcional)</label>
-                                        <textarea
-                                            value={reminderNotes}
-                                            onChange={(e) => setReminderNotes(e.target.value)}
-                                            placeholder="Ej: Llamar para confirmar interés en póliza de Nación Seguros..."
-                                            className="w-full h-24 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue resize-none"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-3 mt-6">
-                                    <button
-                                        onClick={() => addReminder(selectedQuote.id)}
-                                        className="flex-1 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-xl transition"
-                                    >
-                                        Programar Recordatorio
-                                    </button>
-                                    <button
-                                        onClick={() => setShowReminderModal(false)}
-                                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl transition"
-                                    >
-                                        Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    </div>
                 </div>
             );
         };
 
-        ReactDOM.render(<AymaAdminPanel />, document.getElementById('root'));
+        ReactDOM.render(<AymaAdvisorsApp />, document.getElementById('root'));
     </script>
 </body>
 </html>
