@@ -69,7 +69,7 @@
                 
                 // BACKUP AUTOMÁTICO A GOOGLE SHEETS
                 // Cuando configures Google Sheets, descomentá esto:
-                // sendToGoogleSheets(newQuotes);
+                 sendToGoogleSheets(newQuotes);
             }
 
 
@@ -78,7 +78,7 @@
             async function sendToGoogleSheets(quotesData) {
                 try {
                     // Reemplazar con tu URL de Google Apps Script
-                    const GOOGLE_SCRIPT_URL = 'TU_URL_AQUI';
+                    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/library/d/1Hg2ElbPkO-RZZajzkgbmd_LTJvO3qTi7fNaninrYzxSWL5YHZRi-qMch/1';
                     
                     const response = await fetch(GOOGLE_SCRIPT_URL, {
                         method: 'POST',
