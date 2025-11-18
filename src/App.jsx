@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
-// Iconos SVG como componentes
+// Iconos SVG
 const TrendingDown = ({ size = 24, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
     <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
@@ -27,7 +27,6 @@ const MessageCircle = ({ size = 24, className = "" }) => (
   </svg>
 )
 
-// Logo AYMA
 const AymaLogo = ({ size = "normal" }) => {
   const dimensions = {
     small: { circle: 50, text: 30 },
@@ -48,10 +47,6 @@ function App() {
     0: {
       main: "Ahorrá hasta 35% en tu seguro de auto hoy",
       sub: "Miles de clientes ya ahorraron. Cotización gratis en 2 minutos sin compromiso"
-    },
-    1: {
-      main: "Dejá de pagar de más por tu seguro de auto",
-      sub: "Comparamos las mejores aseguradoras y te conseguimos el mejor precio en menos de 2 minutos"
     }
   }
 
@@ -66,9 +61,8 @@ Quiero recibir las mejores cotizaciones del mercado.`
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ayma-blue-dark via-ayma-blue to-ayma-blue-light">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header con Logo */}
-        <div className="text-center mb-8">
+      <main className="container mx-auto px-4 py-8">
+        <header className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <AymaLogo size="normal" />
             <div className="text-left ml-4">
@@ -76,17 +70,15 @@ Quiero recibir las mejores cotizaciones del mercado.`
               <p className="text-gray-200 text-sm italic">Ahorro inteligente desde 2008</p>
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Banner amarillo */}
         <div className="max-w-5xl mx-auto mb-6">
           <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 text-center py-4 px-6 rounded-2xl font-black text-lg md:text-xl shadow-2xl border-4 border-yellow-300">
             🔥 OFERTA EXCLUSIVA: Hasta 35% de descuento sobre tu póliza actual
           </div>
         </div>
 
-        {/* Card blanca */}
-        <div className="max-w-5xl mx-auto">
+        <article className="max-w-5xl mx-auto">
           <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 text-center leading-tight">
               {headlines[headlineVersion].main}
@@ -126,7 +118,7 @@ Quiero recibir las mejores cotizaciones del mercado.`
               className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all shadow-2xl pulse-glow mb-4"
             >
               <MessageCircle size={28} className="inline mr-3" />
-              + Cotizar Gratis Ahora
+              Cotizar Gratis Ahora
             </button>
 
             <p className="text-center text-gray-500 text-sm">
@@ -134,8 +126,7 @@ Quiero recibir las mejores cotizaciones del mercado.`
             </p>
           </div>
 
-          {/* Aseguradoras */}
-          <div className="max-w-3xl mx-auto mt-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl p-6 text-center shadow-xl">
+          <section className="max-w-3xl mx-auto mt-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl p-6 text-center shadow-xl" aria-label="Aseguradoras asociadas">
             <h3 className="text-2xl font-black text-gray-900 mb-4">
               🏆 TRABAJAMOS CON LAS MEJORES ASEGURADORAS
             </h3>
@@ -146,9 +137,9 @@ Quiero recibir las mejores cotizaciones del mercado.`
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
+          </section>
+        </article>
+      </main>
     </div>
   )
 }

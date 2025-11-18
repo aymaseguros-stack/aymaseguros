@@ -5,10 +5,19 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(30, 64, 175, 0.5); }
-  50% { box-shadow: 0 0 40px rgba(30, 64, 175, 0.8); }
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(30, 64, 175, 0.5);
+    transform: translateZ(0);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(30, 64, 175, 0.8);
+    transform: translateZ(0);
+  }
 }
 
 .pulse-glow {
   animation: pulse-glow 2s infinite;
+  will-change: box-shadow;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
