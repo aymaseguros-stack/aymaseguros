@@ -218,6 +218,13 @@
             const [showSuccess, setShowSuccess] = useState(false);
             const messagesEndRef = useRef(null);
             
+            // Inicializar conversación cuando se abre el chat
+            useEffect(() => {
+                if (showChat && messages.length === 0) {
+                    startNewQuote();
+                }
+            }, [showChat]);
+            
             // A/B Testing: Alterna entre dos versiones de headline
             const [headlineVersion] = useState(Math.random() > 0.5 ? 'A' : 'B');
             
