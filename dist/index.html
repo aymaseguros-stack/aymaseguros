@@ -11,12 +11,13 @@
     .pulse-glow{animation:pulse-glow 2s infinite;will-change:box-shadow;transform:translateZ(0);backface-visibility:hidden}
     </style>
     
-    <!-- Preconnect -->
-    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <!-- Preconnect (orden optimizado) -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     
     <!-- Preload critical resources -->
-    <link rel="modulepreload" href="data:text/jsx;base64,aW1wb3J0IFJlYWN0IGZyb20gJ3JlYWN0JwppbXBvcnQgUmVhY3RET00gZnJvbSAncmVhY3QtZG9tL2NsaWVudCcKaW1wb3J0IEFwcCBmcm9tICcuL0FwcCcKaW1wb3J0ICcuL2luZGV4LmNzcycKClJlYWN0RE9NLmNyZWF0ZVJvb3QoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Jvb3QnKSkucmVuZGVyKAogIDxSZWFjdC5TdHJpY3RNb2RlPgogICAgPEFwcCAvPgogIDwvUmVhY3QuU3RyaWN0TW9kZT4KKQo=">
+    <link rel="modulepreload" href="data:text/jsx;base64,aW1wb3J0IFJlYWN0IGZyb20gJ3JlYWN0JwppbXBvcnQgUmVhY3RET00gZnJvbSAncmVhY3QtZG9tL2NsaWVudCcKaW1wb3J0IEFwcCBmcm9tICcuL0FwcCcKaW1wb3J0ICcuL2luZGV4LmNzcycKClJlYWN0RE9NLmNyZWF0ZVJvb3QoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Jvb3QnKSkucmVuZGVyKAogIDxSZWFjdC5TdHJpY3RNb2RlPgogICAgPEFwcCAvPgogIDwvUmVhY3QuU3RyaWN0TW9kZT4KKQo=" fetchpriority="high">
     
     <!-- Tailwind CSS - Deferred -->
     <link rel="preload" href="/tailwind.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -30,13 +31,20 @@
     <!-- Google Verification -->
     <meta name="google-site-verification" content="K_sOr3bWUNCN7NOMd-e28BHHdHenwaBZsZbH6wEPHIM" />
 
-    <!-- Google Analytics GA4 - Async -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VY9N1CNKZ0"></script>
+    <!-- Google Analytics GA4 - Deferred -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-VY9N1CNKZ0');
+      gtag('config', 'G-VY9N1CNKZ0', {'send_page_view': false});
+      
+      window.addEventListener('load', function() {
+        gtag('event', 'page_view');
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-VY9N1CNKZ0';
+        document.head.appendChild(script);
+      });
     </script>
     
     <!-- Open Graph -->
@@ -44,9 +52,6 @@
     <meta property="og:description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras. Ahorrá hasta 35% en tu seguro.">
     <meta property="og:image" content="https://aymaseguros.vercel.app/og-image.jpg">
     <meta property="og:locale" content="es_AR">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
   <script type="module" crossorigin src="/assets/index-Cmw_MMGw.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/react-vendor-DtX1tuCI.js">
   <link rel="stylesheet" crossorigin href="/assets/index-DXUOR8Lp.css">

@@ -11,12 +11,13 @@
     .pulse-glow{animation:pulse-glow 2s infinite;will-change:box-shadow;transform:translateZ(0);backface-visibility:hidden}
     </style>
     
-    <!-- Preconnect -->
-    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <!-- Preconnect (orden optimizado) -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     
     <!-- Preload critical resources -->
-    <link rel="modulepreload" href="/src/main.jsx">
+    <link rel="modulepreload" href="/src/main.jsx" fetchpriority="high">
     
     <!-- Tailwind CSS - Deferred -->
     <link rel="preload" href="/tailwind.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -30,13 +31,20 @@
     <!-- Google Verification -->
     <meta name="google-site-verification" content="K_sOr3bWUNCN7NOMd-e28BHHdHenwaBZsZbH6wEPHIM" />
 
-    <!-- Google Analytics GA4 - Async -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VY9N1CNKZ0"></script>
+    <!-- Google Analytics GA4 - Deferred -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-VY9N1CNKZ0');
+      gtag('config', 'G-VY9N1CNKZ0', {'send_page_view': false});
+      
+      window.addEventListener('load', function() {
+        gtag('event', 'page_view');
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-VY9N1CNKZ0';
+        document.head.appendChild(script);
+      });
     </script>
     
     <!-- Open Graph -->
@@ -44,9 +52,6 @@
     <meta property="og:description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras. Ahorrá hasta 35% en tu seguro.">
     <meta property="og:image" content="https://aymaseguros.vercel.app/og-image.jpg">
     <meta property="og:locale" content="es_AR">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
 </head>
 <body>
     <div id="root"></div>
