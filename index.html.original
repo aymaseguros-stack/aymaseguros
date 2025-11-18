@@ -1,75 +1,10 @@
 <!DOCTYPE html>
-<html lang="es-AR">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO Meta Tags -->
-    <title>Seguros de Auto, Hogar y Vida en Rosario | Ahorrá hasta 35% - Ayma Advisors</title>
-    <meta name="description" content="Seguros de auto, hogar, vida y salud en Rosario, Santa Fe. Cotización gratuita en 2 minutos. Comparamos San Cristóbal, Nación Seguros, Mapfre. Ahorrá hasta 35%.">
-    <meta name="keywords" content="seguros auto Rosario, seguro hogar Santa Fe, seguros baratos Rosario Argentina, cotizar seguros auto cerca de mi, mejor seguro vehiculo Rosario, seguros contra robos hogar Rosario, seguro vida familiar Rosario, ART empresas Santa Fe, seguros automotor Rosario Santa Fe">
-    <meta name="author" content="Ayma Advisors - Productores Asesores de Seguros">
-    <link rel="canonical" href="https://aymaseguros.vercel.app/">
-    
-    <!-- Geo Tags -->
-    <meta name="geo.region" content="AR-S">
-    <meta name="geo.placename" content="Rosario, Santa Fe">
-    <meta name="geo.position" content="-32.9468;-60.6393">
-    <meta name="ICBM" content="-32.9468, -60.6393">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://aymaseguros.vercel.app/">
-    <meta property="og:title" content="Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors">
-    <meta property="og:description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras. Ahorrá hasta 35% en tu seguro.">
-    <meta property="og:image" content="https://aymaseguros.vercel.app/og-image.jpg">
-    <meta property="og:locale" content="es_AR">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://aymaseguros.vercel.app/">
-    <meta name="twitter:title" content="Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors">
-    <meta name="twitter:description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras.">
-    
-    <!-- Structured Data JSON-LD -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "InsuranceAgency",
-      "name": "Ayma Advisors",
-      "description": "Productores Asesores de Seguros en Rosario, Santa Fe",
-      "url": "https://aymaseguros.vercel.app",
-      "telephone": "+54-341-695-2259",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Rosario",
-        "addressLocality": "Rosario",
-        "addressRegion": "Santa Fe",
-        "addressCountry": "AR"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": -32.9468,
-        "longitude": -60.6393
-      },
-      "areaServed": {
-        "@type": "City",
-        "name": "Rosario",
-        "containedInPlace": {
-          "@type": "State",
-          "name": "Santa Fe"
-        }
-      },
-      "priceRange": "$$",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "reviewCount": "127"
-      }
-    }
-    </script>
-    
-    <!-- React & Tailwind -->
+    <meta name="description" content="Ahorrá hasta 35% en tu seguro de auto. Comparamos las mejores aseguradoras. Cotización en 2 minutos. Rosario, Santa Fe.">
+    <title>Ayma Advisors - Ahorrá hasta 35% en tu Seguro de Auto | Rosario</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
