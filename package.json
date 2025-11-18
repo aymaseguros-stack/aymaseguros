@@ -1,19 +1,19 @@
 {
   "name": "aymaseguros-landing",
   "version": "2.0.0",
-  "description": "Landing AYMA Advisors con Tailwind CLI",
+  "type": "module",
   "scripts": {
-    "build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
-    "watch:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "keywords": [
-    "tailwind",
-    "landing",
-    "seguros"
-  ],
-  "author": "AYMA Advisors",
-  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
   "devDependencies": {
-    "tailwindcss": "^4.1.17"
+    "@vitejs/plugin-react": "^4.2.1",
+    "terser": "^5.44.1",
+    "vite": "^5.0.0"
   }
 }
