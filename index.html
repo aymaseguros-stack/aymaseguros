@@ -11,9 +11,8 @@
     .pulse-glow{animation:pulse-glow 2s infinite;will-change:box-shadow;transform:translateZ(0);backface-visibility:hidden}
     </style>
     
-    <!-- Preconnect (orden optimizado) -->
+    <!-- Preconnect (solo GTM) -->
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     
     <!-- Preload critical resources -->
@@ -31,20 +30,33 @@
     <!-- Google Verification -->
     <meta name="google-site-verification" content="K_sOr3bWUNCN7NOMd-e28BHHdHenwaBZsZbH6wEPHIM" />
 
-    <!-- Google Analytics GA4 - Deferred -->
+    <!-- Google Analytics GA4 - Ultra Lazy (solo si usuario interactúa) -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VY9N1CNKZ0', {'send_page_view': false});
       
-      window.addEventListener('load', function() {
-        gtag('event', 'page_view');
+      var gaLoaded = false;
+      function loadGA() {
+        if (gaLoaded) return;
+        gaLoaded = true;
+        
         var script = document.createElement('script');
         script.async = true;
         script.src = 'https://www.googletagmanager.com/gtag/js?id=G-VY9N1CNKZ0';
         document.head.appendChild(script);
+        
+        script.onload = function() {
+          gtag('js', new Date());
+          gtag('config', 'G-VY9N1CNKZ0');
+        };
+      }
+      
+      // Cargar GA4 solo si usuario interactúa O después de 3 segundos
+      var events = ['mousedown', 'touchstart', 'scroll', 'keydown'];
+      events.forEach(function(e) {
+        window.addEventListener(e, loadGA, {once: true, passive: true});
       });
+      setTimeout(loadGA, 3000);
     </script>
     
     <!-- Open Graph -->
