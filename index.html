@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="/tailwind.css">
+    <!-- Critical CSS Inline -->
+    <style>
+    body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+    @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(30,64,175,.5)}50%{box-shadow:0 0 40px rgba(30,64,175,.8)}}
+    .pulse-glow{animation:pulse-glow 2s infinite}
+    </style>
+    
+    <!-- Preconnect a Google Analytics -->
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    
+    <!-- Tailwind CSS - Deferred -->
+    <link rel="preload" href="/tailwind.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/tailwind.css"></noscript>
     
     <!-- SEO -->
     <title>Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors</title>
@@ -15,7 +27,7 @@
     <!-- Google Verification -->
     <meta name="google-site-verification" content="K_sOr3bWUNCN7NOMd-e28BHHdHenwaBZsZbH6wEPHIM" />
 
-    <!-- Google Analytics GA4 -->
+    <!-- Google Analytics GA4 - Async -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VY9N1CNKZ0"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
