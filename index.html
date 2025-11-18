@@ -245,6 +245,75 @@
             );
         };
 
+        const FAQSection = () => {
+            const [openIndex, setOpenIndex] = React.useState(null);
+
+            const faqs = [
+                {
+                    question: "¿Cuánto tiempo tarda la cotización?",
+                    answer: "Solo 2 minutos. Completá el formulario y recibís las mejores opciones de inmediato por WhatsApp."
+                },
+                {
+                    question: "¿Realmente puedo ahorrar hasta 35%?",
+                    answer: "Sí. Al comparar entre múltiples aseguradoras de primera línea, encontramos el mejor precio para tu perfil. El ahorro promedio de nuestros clientes es del 28%."
+                },
+                {
+                    question: "¿El servicio tiene algún costo?",
+                    answer: "Absolutamente gratis. Somos productores asesores, cobramos comisión directamente de las aseguradoras. Vos pagás lo mismo que si lo contratás directo, pero con nuestro asesoramiento sin cargo."
+                },
+                {
+                    question: "¿Con qué aseguradoras trabajan?",
+                    answer: "Trabajamos con las mejores: Nación Seguros, San Cristóbal, Mapfre, SMG Seguros y más. Elegimos las más confiables del mercado argentino."
+                },
+                {
+                    question: "¿Qué documentación necesito?",
+                    answer: "Solo necesitás: DNI del titular, datos del vehículo (marca, modelo, año) y código postal. Todo muy simple para que puedas cotizar al instante."
+                },
+                {
+                    question: "¿Cómo funcionan los tipos de cobertura?",
+                    answer: "Responsabilidad Civil cubre daños a terceros, Terceros Completo suma robo e incendio, y Todo Riesgo cubre daños propios. Te asesoramos para elegir la mejor según tus necesidades."
+                },
+                {
+                    question: "¿Puedo cambiar de aseguradora si ya tengo un seguro?",
+                    answer: "Sí, podés cambiar cuando quieras. Te ayudamos con la baja de tu seguro actual y alta del nuevo sin complicaciones ni periodos de descubierto."
+                },
+                {
+                    question: "¿Atienden en Rosario solamente?",
+                    answer: "Atendemos en todo el país. Si bien estamos en Rosario, trabajamos con clientes de toda Argentina mediante WhatsApp, llamadas y email."
+                }
+            ];
+
+            const toggleFAQ = (index) => {
+                setOpenIndex(openIndex === index ? null : index);
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto mt-12 px-4">
+                    <h3 className="text-3xl font-bold text-white text-center mb-8">Preguntas Frecuentes</h3>
+                    <div className="space-y-4">
+                        {faqs.map((faq, index) => (
+                            <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                                <button
+                                    onClick={() => toggleFAQ(index)}
+                                    className="w-full px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition-all"
+                                >
+                                    <span className="font-semibold text-gray-900 text-left">{faq.question}</span>
+                                    <span className={`text-2xl text-ayma-blue transform transition-transform ${openIndex === index ? 'rotate-180' : ''}`}>
+                                        {openIndex === index ? '−' : '+'}
+                                    </span>
+                                </button>
+                                {openIndex === index && (
+                                    <div className="px-6 py-4 bg-blue-50 border-t border-blue-100">
+                                        <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
         const AymaAdvisorsApp = () => {
             const [showChat, setShowChat] = useState(false);
             const [messages, setMessages] = useState([]);
@@ -253,8 +322,10 @@
             const [currentQuote, setCurrentQuote] = useState({});
             const [isTyping, setIsTyping] = useState(false);
             const [showSuccess, setShowSuccess] = useState(false);
+            const [isLoading, setIsLoading] = useState(false);
+            const [loadingMessage, setLoadingMessage] = useState('');
             const messagesEndRef = useRef(null);
-            
+
             // A/B Testing: Alterna entre dos versiones de headline
             const [headlineVersion] = useState(Math.random() > 0.5 ? 'A' : 'B');
             
@@ -441,7 +512,11 @@ Tu ahorro inteligente desde 2008`;
             };
 
             const sendToWhatsApp = () => {
-                const message = `*SOLICITUD DE COTIZACIÓN - AYMA ADVISORS*
+                try {
+                    setIsLoading(true);
+                    setLoadingMessage('Preparando mensaje de WhatsApp...');
+
+                    const message = `*SOLICITUD DE COTIZACIÓN - AYMA ADVISORS*
 
 *DATOS:*
 Nombre: ${currentQuote.nombre}
@@ -456,8 +531,19 @@ ${currentQuote.cobertura}
 
 Quiero recibir las mejores cotizaciones del mercado.`;
 
-                const whatsappURL = `https://wa.me/5493416952259?text=${encodeURIComponent(message)}`;
-                window.open(whatsappURL, '_blank');
+                    const whatsappURL = `https://wa.me/5493416952259?text=${encodeURIComponent(message)}`;
+
+                    setTimeout(() => {
+                        window.open(whatsappURL, '_blank');
+                        setIsLoading(false);
+                        setLoadingMessage('');
+                    }, 800);
+                } catch (error) {
+                    console.error('Error al enviar WhatsApp:', error);
+                    alert('Ocurrió un error al preparar el mensaje. Por favor, intentá nuevamente.');
+                    setIsLoading(false);
+                    setLoadingMessage('');
+                }
             };
 
             const startNewQuote = () => {
@@ -630,6 +716,9 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                                 <p className="text-blue-200">Calificación promedio 4.9/5</p>
                             </div>
 
+                            {/* Preguntas Frecuentes */}
+                            <FAQSection />
+
                             {/* Footer */}
                             <div className="text-center text-white mt-12 pt-8 border-t border-blue-500">
                                 <p className="mb-2 text-lg">📍 Rosario, Santa Fe, Argentina</p>
@@ -702,6 +791,15 @@ Quiero recibir las mejores cotizaciones del mercado.`;
                             )}
                             <div ref={messagesEndRef} />
                         </div>
+
+                        {isLoading && (
+                            <div className="bg-blue-50 border-t-4 border-blue-500 p-6 mx-4 mb-4 rounded-lg shadow-lg">
+                                <div className="flex items-center justify-center">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ayma-blue mr-3"></div>
+                                    <span className="text-ayma-blue font-semibold">{loadingMessage}</span>
+                                </div>
+                            </div>
+                        )}
 
                         {showSuccess && (
                             <div className="bg-gradient-to-r from-green-50 to-green-100 border-t-4 border-green-500 p-6 mx-4 mb-4 rounded-lg shadow-lg">
