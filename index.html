@@ -223,16 +223,26 @@
             };
             
             const sendToGoogleSheets = async (quote) => {
-                // Implementación de Google Sheets API
-                // Por ahora en consola, luego configuraremos con tu API key
-                console.log('📊 Enviando a Google Sheets:', quote);
-                
-                // Cuando configures tu Google Sheet, usaremos esta estructura:
-                // const SHEET_URL = 'TU_GOOGLE_APPS_SCRIPT_URL';
-                // fetch(SHEET_URL, {
-                //     method: 'POST',
-                //     body: JSON.stringify(quote)
-                // });
+                try {
+                    // Google Apps Script URL configured for automatic backup
+                    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyswrAaKIMFD6_cKmj74RcPggQJUVf_m7fvRFZzSgseVUl1RGr7Au_4dlPUu5CXLf_5/exec';
+
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            quote: quote,
+                            timestamp: new Date().toISOString()
+                        })
+                    });
+
+                    console.log('✅ Backup en Google Sheets exitoso');
+                } catch (error) {
+                    console.error('❌ Error en backup:', error);
+                }
             };
             
             const sendAutoEmail = (quote) => {
