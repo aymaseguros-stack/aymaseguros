@@ -1,0 +1,36 @@
+# robots.txt para Ayma Seguros
+
+# Permitir acceso a todos los crawlers
+User-agent: *
+Allow: /
+
+# Bloquear acceso al panel administrativo
+Disallow: /admin.html
+Disallow: /admin
+Disallow: /admin/
+
+# Bloquear archivos temporales y backups
+Disallow: /*.backup$
+Disallow: /*.old$
+Disallow: /*.bak$
+Disallow: /index.html.original
+
+# Crawlers específicos
+
+# Google
+User-agent: Googlebot
+Allow: /
+Disallow: /admin.html
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /admin.html
+
+# Yandex
+User-agent: Yandex
+Allow: /
+Disallow: /admin.html
+
+# Sitemap
+Sitemap: https://aymaseguros.vercel.app/sitemap.xml

@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin - Ayma Advisors</title>
+
+    <!-- Google Analytics 4 -->
+    <!-- TODO: Reemplazar G-XXXXXXXXXX con tu Google Analytics 4 Measurement ID -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    -->
+
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -30,6 +43,8 @@
             const [reminderTime, setReminderTime] = React.useState('');
             const [reminderType, setReminderType] = React.useState('llamada');
             const [reminderNotes, setReminderNotes] = React.useState('');
+            const [searchTerm, setSearchTerm] = React.useState('');
+            const [statusFilter, setStatusFilter] = React.useState('todas');
             // Refs para los gráficos
             const pieChartRef = React.useRef(null);
             const barChartRef = React.useRef(null);
@@ -100,7 +115,15 @@
 
             function handleLogin(e) {
                 e.preventDefault();
-                if (username === 'ayma' && password === 'Mimamamemima14') {
+
+                // ⚠️ IMPORTANTE: Estas credenciales son temporales y deben cambiarse
+                // TODO: Migrar a autenticación con backend real (Firebase, Auth0, JWT)
+                // TODO: Mover credenciales a variables de entorno (.env)
+                // Credenciales temporales (CAMBIAR INMEDIATAMENTE en producción):
+                const TEMP_ADMIN_USER = 'admin_ayma';
+                const TEMP_ADMIN_PASS = 'AymaAdvisors2025!SecureTemp';
+
+                if (username === TEMP_ADMIN_USER && password === TEMP_ADMIN_PASS) {
                     setIsAuth(true);
                     setLoginError('');
                 } else {
@@ -180,11 +203,172 @@
 
             function getTodayReminders() {
                 const today = new Date().toISOString().split('T')[0];
-                return quotes.flatMap(q => 
+                return quotes.flatMap(q =>
                     (q.reminders || [])
                         .filter(r => r.date === today)
                         .map(r => ({...r, quote: q}))
                 ).sort((a, b) => a.time.localeCompare(b.time));
+            }
+
+            function exportToCSV() {
+                // Generar CSV con cotizaciones
+                const headers = ['Fecha', 'Nombre', 'Código Postal', 'Vehículo', 'Año', 'Cobertura', 'Estado', 'Notas'];
+                const rows = quotes.map(q => [
+                    new Date(q.timestamp).toLocaleString('es-AR'),
+                    q.nombre,
+                    q.codigoPostal,
+                    `${q.marca} ${q.modelo}`,
+                    q.anio,
+                    q.cobertura,
+                    q.status || 'nueva',
+                    (q.contactHistory || []).length + ' contactos'
+                ]);
+
+                const csvContent = [
+                    headers.join(','),
+                    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+                ].join('\n');
+
+                // Crear y descargar archivo
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                const filename = `cotizaciones_ayma_${new Date().toISOString().split('T')[0]}.csv`;
+
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                alert('✅ Archivo CSV exportado correctamente');
+            }
+
+            function exportRemindersToCSV() {
+                const allReminders = quotes.flatMap(q =>
+                    (q.reminders || []).map(r => ({...r, quote: q}))
+                );
+
+                const headers = ['Fecha', 'Hora', 'Tipo', 'Cliente', 'Vehículo', 'Notas', 'Estado'];
+                const rows = allReminders.map(r => [
+                    r.date,
+                    r.time,
+                    r.type,
+                    r.quote.nombre,
+                    `${r.quote.marca} ${r.quote.modelo}`,
+                    r.notes || '',
+                    r.completed ? 'Completado' : 'Pendiente'
+                ]);
+
+                const csvContent = [
+                    headers.join(','),
+                    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+                ].join('\n');
+
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                const filename = `recordatorios_ayma_${new Date().toISOString().split('T')[0]}.csv`;
+
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                alert('✅ Recordatorios exportados correctamente');
+            }
+
+            function updateCharts() {
+                if (typeof Chart === 'undefined') return;
+
+                // Datos para gráficos
+                const statusCount = {
+                    nueva: quotes.filter(q => (q.status || 'nueva') === 'nueva').length,
+                    cotizada: quotes.filter(q => q.status === 'cotizada').length,
+                    vendida: quotes.filter(q => q.status === 'vendida').length,
+                    perdida: quotes.filter(q => q.status === 'perdida').length
+                };
+
+                const coverageCount = {};
+                quotes.forEach(q => {
+                    coverageCount[q.cobertura] = (coverageCount[q.cobertura] || 0) + 1;
+                });
+
+                // Limpiar gráficos anteriores
+                if (pieChartInstance.current) pieChartInstance.current.destroy();
+                if (barChartInstance.current) barChartInstance.current.destroy();
+
+                // Gráfico de Estado (Pie Chart)
+                if (pieChartRef.current) {
+                    pieChartInstance.current = new Chart(pieChartRef.current, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Nuevas', 'Cotizadas', 'Vendidas', 'Perdidas'],
+                            datasets: [{
+                                data: [statusCount.nueva, statusCount.cotizada, statusCount.vendida, statusCount.perdida],
+                                backgroundColor: ['#3B82F6', '#FBBF24', '#10B981', '#EF4444'],
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Distribución por Estado',
+                                    font: { size: 16, weight: 'bold' }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Gráfico de Coberturas (Bar Chart)
+                if (barChartRef.current) {
+                    barChartInstance.current = new Chart(barChartRef.current, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(coverageCount),
+                            datasets: [{
+                                label: 'Cantidad de Cotizaciones',
+                                data: Object.values(coverageCount),
+                                backgroundColor: '#3B82F6',
+                                borderColor: '#1E40AF',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Cotizaciones por Tipo de Cobertura',
+                                    font: { size: 16, weight: 'bold' }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
             }
 
             if (!isAuth) {
@@ -252,6 +436,20 @@
                 return icons[type] || '📌';
             };
 
+            // Filtrar cotizaciones basado en búsqueda y estado
+            const filteredQuotes = quotes.filter(q => {
+                const matchesSearch = searchTerm === '' ||
+                    q.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    q.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    q.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    q.codigoPostal.includes(searchTerm);
+
+                const matchesStatus = statusFilter === 'todas' ||
+                    (q.status || 'nueva') === statusFilter;
+
+                return matchesSearch && matchesStatus;
+            });
+
             return (
                 <div className="min-h-screen bg-gray-100">
                     <div className="bg-white shadow-md border-b-4 border-blue-700">
@@ -278,6 +476,13 @@
                                                 {pendingReminders.length}
                                             </span>
                                         )}
+                                    </button>
+                                    <button
+                                        onClick={exportToCSV}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold"
+                                        title="Exportar cotizaciones a CSV"
+                                    >
+                                        📥 Exportar CSV
                                     </button>
                                     <button
                                         onClick={() => setIsAuth(false)}
@@ -376,13 +581,70 @@
                                     </div>
                                 </div>
 
+                                {/* Búsqueda y Filtros */}
+                                <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">🔍 Buscar</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Buscar por nombre, marca, modelo o código postal..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">📊 Filtrar por Estado</label>
+                                            <select
+                                                value={statusFilter}
+                                                onChange={(e) => setStatusFilter(e.target.value)}
+                                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700"
+                                            >
+                                                <option value="todas">Todas</option>
+                                                <option value="nueva">Nuevas</option>
+                                                <option value="cotizada">Cotizadas</option>
+                                                <option value="vendida">Vendidas</option>
+                                                <option value="perdida">Perdidas</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {(searchTerm || statusFilter !== 'todas') && (
+                                        <div className="mt-4 flex items-center gap-2">
+                                            <p className="text-sm text-gray-600">
+                                                Mostrando <span className="font-bold">{filteredQuotes.length}</span> de {quotes.length} cotizaciones
+                                            </p>
+                                            <button
+                                                onClick={() => { setSearchTerm(''); setStatusFilter('todas'); }}
+                                                className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
+                                            >
+                                                Limpiar filtros
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Gráficos */}
+                                {quotes.length > 0 && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                        <div className="bg-white rounded-xl shadow-md p-6">
+                                            <canvas ref={pieChartRef} style={{maxHeight: '300px'}}></canvas>
+                                        </div>
+                                        <div className="bg-white rounded-xl shadow-md p-6">
+                                            <canvas ref={barChartRef} style={{maxHeight: '300px'}}></canvas>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="space-y-4">
-                                    {quotes.length === 0 ? (
+                                    {filteredQuotes.length === 0 ? (
                                         <div className="bg-white rounded-xl shadow-md p-12 text-center">
-                                            <p className="text-gray-500 text-lg">No hay cotizaciones</p>
+                                            <p className="text-gray-500 text-lg">
+                                                {quotes.length === 0 ? 'No hay cotizaciones' : 'No se encontraron cotizaciones con los filtros aplicados'}
+                                            </p>
                                         </div>
                                     ) : (
-                                        quotes.map(q => {
+                                        filteredQuotes.map(q => {
                                             const pendingQuoteReminders = q.reminders?.filter(r => !r.completed) || [];
                                             return (
                                                 <div key={q.id} className="bg-white rounded-xl shadow-md p-6">

@@ -1,0 +1,34 @@
+# Prettier Ignore
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Misc
+*.log
+.DS_Store
+.env*
+.vercel
+
+# Archivos que no deben formatearse
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.min.js
+*.min.css
+
+# Backups
+*.backup
+*.old
+index.html.original
