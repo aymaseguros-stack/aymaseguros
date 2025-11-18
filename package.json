@@ -1,0 +1,19 @@
+{
+  "name": "aymaseguros-landing",
+  "version": "2.0.0",
+  "description": "Landing AYMA Advisors con Tailwind CLI",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch"
+  },
+  "keywords": [
+    "tailwind",
+    "landing",
+    "seguros"
+  ],
+  "author": "AYMA Advisors",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^4.1.17"
+  }
+}

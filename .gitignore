@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+
+# Backups
+*.backup
+
+# Sistema
+.DS_Store
+.venv/
+venv/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+
+# Binarios locales
+tailwindcss
