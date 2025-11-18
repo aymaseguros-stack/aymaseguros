@@ -30,33 +30,28 @@
     <!-- Google Verification -->
     <meta name="google-site-verification" content="K_sOr3bWUNCN7NOMd-e28BHHdHenwaBZsZbH6wEPHIM" />
 
-    <!-- Google Analytics GA4 - Ultra Lazy (solo si usuario interactúa) -->
+    <!-- Google Tag Manager - Ultra Lazy -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
       
-      var gaLoaded = false;
-      function loadGA() {
-        if (gaLoaded) return;
-        gaLoaded = true;
+      var gtmLoaded = false;
+      function loadGTM() {
+        if (gtmLoaded) return;
+        gtmLoaded = true;
         
-        var script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-VY9N1CNKZ0';
-        document.head.appendChild(script);
-        
-        script.onload = function() {
-          gtag('js', new Date());
-          gtag('config', 'G-VY9N1CNKZ0');
-        };
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-PKN9BQ37');
       }
       
-      // Cargar GA4 solo si usuario interactúa O después de 3 segundos
+      // Cargar GTM solo si usuario interactúa O después de 3 segundos
       var events = ['mousedown', 'touchstart', 'scroll', 'keydown'];
       events.forEach(function(e) {
-        window.addEventListener(e, loadGA, {once: true, passive: true});
+        window.addEventListener(e, loadGTM, {once: true, passive: true});
       });
-      setTimeout(loadGA, 3000);
+      setTimeout(loadGTM, 3000);
     </script>
     
     <!-- Open Graph -->
@@ -69,6 +64,10 @@
   <link rel="stylesheet" crossorigin href="/assets/index-DXUOR8Lp.css">
 </head>
 <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKN9BQ37"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    
     <div id="root"></div>
 </body>
 </html>

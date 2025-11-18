@@ -19,3 +19,4 @@ npm-debug.log*
 
 # Binarios locales
 tailwindcss
+lighthouse-*.html
