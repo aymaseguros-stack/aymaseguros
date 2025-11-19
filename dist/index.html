@@ -1,37 +1,27 @@
-<!DOCTYPE html>
+
+html<!DOCTYPE html>
 <html lang="es-AR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Critical CSS Inline -->
-    <style>
+<style>
     body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
     @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(30,64,175,.5);transform:translateZ(0)}50%{box-shadow:0 0 40px rgba(30,64,175,.8);transform:translateZ(0)}}
     .pulse-glow{animation:pulse-glow 2s infinite;will-change:box-shadow;transform:translateZ(0);backface-visibility:hidden}
     </style>
-    
-    <!-- Preconnect (solo GTM) -->
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+ <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-    
-    <!-- Preload critical resources -->
-    <link rel="modulepreload" href="data:text/jsx;base64,aW1wb3J0IFJlYWN0IGZyb20gJ3JlYWN0JwppbXBvcnQgUmVhY3RET00gZnJvbSAncmVhY3QtZG9tL2NsaWVudCcKaW1wb3J0IEFwcCBmcm9tICcuL0FwcCcKaW1wb3J0ICcuL2luZGV4LmNzcycKClJlYWN0RE9NLmNyZWF0ZVJvb3QoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Jvb3QnKSkucmVuZGVyKAogIDxSZWFjdC5TdHJpY3RNb2RlPgogICAgPEFwcCAvPgogIDwvUmVhY3QuU3RyaWN0TW9kZT4KKQo=" fetchpriority="high">
-    
-    <!-- Tailwind CSS - Deferred -->
-    <link rel="preload" href="/tailwind.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="dns-prefetch" href="https://connect.facebook.net">
+<link rel="modulepreload" href="data:text/jsx;base64,aW1wb3J0IFJlYWN0IGZyb20gJ3JlYWN0JwppbXBvcnQgUmVhY3RET00gZnJvbSAncmVhY3QtZG9tL2NsaWVudCcKaW1wb3J0IEFwcCBmcm9tICcuL0FwcCcKaW1wb3J0ICcuL2luZGV4LmNzcycKClJlYWN0RE9NLmNyZWF0ZVJvb3QoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Jvb3QnKSkucmVuZGVyKAogIDxSZWFjdC5TdHJpY3RNb2RlPgogICAgPEFwcCAvPgogIDwvUmVhY3QuU3RyaWN0TW9kZT4KKQo=" fetchpriority="high">
+<link rel="preload" href="/tailwind.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/tailwind.css"></noscript>
-    
-    <!-- SEO -->
-    <title>Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors</title>
+<title>Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors</title>
     <meta name="description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras. Ahorrá hasta 35% en tu seguro.">
     <link rel="canonical" href="https://aymaseguros.vercel.app/">
-    
-    <!-- Google Verification -->
-    <meta name="google-site-verification" content="K_sOr3bWUNCN7NOMd-e28BHHdHenwaBZsZbH6wEPHIM" />
+ <meta name="google-site-verification" content="K_sOr3bWUNCN7NOMd-e28BHHdHenwaBZsZbH6wEPHIM" />
 
-    <!-- Google Tag Manager - Ultra Lazy -->
-    <script>
+ <script>
       window.dataLayer = window.dataLayer || [];
       
       var gtmLoaded = false;
@@ -46,16 +36,39 @@
         })(window,document,'script','dataLayer','GTM-PKN9BQ37');
       }
       
-      // Cargar GTM solo si usuario interactúa O después de 3 segundos
       var events = ['mousedown', 'touchstart', 'scroll', 'keydown'];
       events.forEach(function(e) {
         window.addEventListener(e, loadGTM, {once: true, passive: true});
       });
       setTimeout(loadGTM, 3000);
     </script>
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors">
+
+ <script>
+      var fbqLoaded = false;
+      function loadFBQ() {
+        if (fbqLoaded) return;
+        fbqLoaded = true;
+        
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        
+        fbq('init', '1174720694055871');
+        fbq('track', 'PageView');
+      }
+      
+      var eventsFB = ['mousedown', 'touchstart', 'scroll', 'keydown'];
+      eventsFB.forEach(function(e) {
+        window.addEventListener(e, loadFBQ, {once: true, passive: true});
+      });
+      setTimeout(loadFBQ, 5000);
+    </script>
+ <meta property="og:title" content="Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors">
     <meta property="og:description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras. Ahorrá hasta 35% en tu seguro.">
     <meta property="og:image" content="https://aymaseguros.vercel.app/og-image.jpg">
     <meta property="og:locale" content="es_AR">
@@ -64,9 +77,11 @@
   <link rel="stylesheet" crossorigin href="/assets/index-DXUOR8Lp.css">
 </head>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKN9BQ37"
+ <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKN9BQ37"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1174720694055871&ev=PageView&noscript=1"
+    /></noscript>
     
     <div id="root"></div>
 </body>
