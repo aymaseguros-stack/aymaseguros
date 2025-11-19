@@ -21,3 +21,6 @@ npm-debug.log*
 tailwindcss
 lighthouse-*.html
 .vercel
+
+# Test coverage
+coverage/
