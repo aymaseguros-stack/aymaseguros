@@ -1,0 +1,337 @@
+{
+  "Bronco": [
+    "AT8 (184cv) (L25)",
+    "AT8 (253cv) (L25)"
+  ],
+  "Big Bend AT8": [
+    "DISCONTINUO"
+  ],
+  "Wildtrack AT8": [
+    "DISCONTINUO",
+    "Badlands (334cv)"
+  ],
+  "Wildtrak (334cv)": [
+    "DISCONTINUO"
+  ],
+  "Courier": [
+    "Pick-up 1.6 N Base",
+    "Pick-up 1.6 N Plus"
+  ],
+  "EcoSport": [
+    "(L08)",
+    "(L08)",
+    "(L08)",
+    "1.6 XLS MP3 (L08)",
+    "(L08)",
+    "2.0 XLS (L08)",
+    "(L08)",
+    "Cuero (L08)",
+    "Cuero (L08)",
+    "(L08)"
+  ],
+  "EcoSport KD": [
+    "(L18)",
+    "(L18)",
+    "(L18)",
+    "(123cv) (L18)",
+    "(123cv) (L18)",
+    "(123cv) (L18)",
+    "(L18)",
+    "(170cv) (L18)",
+    "AT (170cv) (L18)",
+    "(L18)",
+    "(170cv) (L18)",
+    "(170cv) (L18)",
+    "1.6 S MT (110cv)",
+    "1.6 SE MT (110cv)",
+    "(110cv)",
+    "(110cv)",
+    "2.0 SE MT (143cv)",
+    "(143cv)",
+    "(143cv)",
+    "(143cv)",
+    "(90cv)",
+    "(90cv)",
+    "XL Plus",
+    "XLT",
+    "XL Plus",
+    "XLT",
+    "XLT",
+    "XL Plus",
+    "XLT",
+    "Luxury (400cv)"
+  ],
+  "Precios al: 12/11/2025  Importes en pesos redondeados sin decimales    Guía Oficial de Precios": [],
+  "Lariat Luxury 3.5L V6": [
+    "(400cv-45cv)",
+    "AT 4x4 (456cv)",
+    "(400cv)"
+  ],
+  "Fiesta KD": [
+    "4Ptas.",
+    "(120cv) 4Ptas.",
+    "(120cv) 4Ptas."
+  ],
+  "Powershift (120cv)": [
+    "4Ptas.",
+    "(120cv) 4Ptas.",
+    "4Ptas.",
+    "5Ptas.",
+    "(120cv) 5Ptas.",
+    "5Ptas.",
+    "(120cv) 5Ptas.",
+    "(120cv) 5Ptas.",
+    "5Ptas.",
+    "(120cv) 5Ptas.",
+    "5Ptas.",
+    "4Ptas. (L10)",
+    "(120cv) 4Ptas. (L10)",
+    "5Ptas. (L10)",
+    "5Ptas. (L10)"
+  ],
+  "Fiesta": [
+    "Fresh"
+  ],
+  "Focus III": [
+    "(170cv) 4Ptas.",
+    "5Ptas.",
+    "5Ptas.",
+    "(170cv) 5Ptas.",
+    "(170cv) 5Ptas.",
+    "(170cv) 5Ptas.",
+    "(170cv) 5Ptas."
+  ],
+  "KA": [
+    "4Ptas. (L18)",
+    "4Ptas. (L18)",
+    "4Ptas. (L18)",
+    "4Ptas. (L18)",
+    "4Ptas. (L18)",
+    "5Ptas. (L18)",
+    "5Ptas. (L18)",
+    "5Ptas. (L18)",
+    "5Ptas. (L18)",
+    "5Ptas. (L18)",
+    "(123cv) 5Ptas. (L18)",
+    "(L18)",
+    "(123cv) 5Ptas. (L18)",
+    "1.5 S (105cv) 4Ptas.",
+    "4Ptas.",
+    "4Ptas.",
+    "1.5 S (105cv) 5Ptas.",
+    "5Ptas.",
+    "5Ptas.",
+    "1.0 Fly (L/08)",
+    "1.0 Fly Viral (L/08)",
+    "1.0 Fly Plus (L/08)",
+    "1.6 Fly Viral (L/08)",
+    "1.6 Pulse (L/08)",
+    "1.6 Top Pulse (L/08)"
+  ],
+  "Kuga": [],
+  "Hybrid eCVT 2WD": [
+    "130cv/203cv) (L20)"
+  ],
+  "Platinum (2.5/e)": [
+    "(L23)"
+  ],
+  "Titanium (2.5/e)": [
+    "(L20)",
+    "(150cv)",
+    "(182cv)",
+    "AWD (182cv)",
+    "(240cv) (L17)",
+    "(240cv) (L17)",
+    "(L17)",
+    "Sec. AWD (240cv)",
+    "(200cv)",
+    "4x4 (200cv)",
+    "4x4 Cuero (200cv)",
+    "eléct. (200cv)"
+  ],
+  "Maverick": [
+    "AT8 4WD (253cv)",
+    "AT8 AWD (253cv)"
+  ],
+  "Ranger": [
+    "4x4 AT10 (397cv)",
+    "(L20)",
+    "(L20)",
+    "(L20)",
+    "(L20)",
+    "(L20)",
+    "(L20)",
+    "(L20)",
+    "(L20)",
+    "(200cv) (L20)",
+    "(L20)",
+    "(200cv) (L20)",
+    "(L20)",
+    "(200cv) (L20)",
+    "(200cv) (L20)",
+    "(L20)",
+    "(L20)",
+    "(200cv) (L20)",
+    "(200cv) (L20)",
+    "6AT (200cv) (L20)",
+    "4x4 AT (213cv)u",
+    "4x2 XL (L12)",
+    "4x2 XL (L12)",
+    "(L12)",
+    "(L12)",
+    "6MT 4x2 XL (L12)",
+    "(L12)",
+    "(L12)",
+    "6MT 4x2 XLS (L12)",
+    "(L12)",
+    "6MT 4x2 XLT (L12)",
+    "(L12)",
+    "6MT 4x4 XLS (L12)",
+    "6MT 4x4 XLT (L12)",
+    "(L12)",
+    "6MT 4x4 LTD (L12)",
+    "6AT 4x4 LTD (L12)"
+  ],
+  "Cargo": [
+    "712/28 (L07) u",
+    "712/39 (L07) u",
+    "915e (L07) u",
+    "916 EU5 u",
+    "1119/39 EU5 u",
+    "1119/42 EU5 u",
+    "1317/48 (L12) u",
+    "1517/35 (L12) u",
+    "1517/48 (L12) u",
+    "1519/35 EU5 u",
+    "Automatizadou",
+    "1519/48 EU5 u",
+    "Automatizadou",
+    "(L12)u",
+    "(L12)u",
+    "1722/43 (L12) u",
+    "Fuerza (L12)u",
+    "1722/43 CD (L12) u",
+    "1722/48 (L12) u",
+    "1722/48 CD (L12) u",
+    "1722e 6x2 C (L07) u",
+    "1722e 6x2 L (L07) u",
+    "1722/53 6x2 (L12) u",
+    "1723/37 4X2 EU5 u",
+    "EU5u",
+    "Automatica EU5u",
+    "Automatica EU5u",
+    "1723/43 4X2 EU5 u",
+    "EU5u",
+    "Automatica EU5u",
+    "Automatica EU5u",
+    "1723/48 4X2 EU5 u",
+    "EU5u",
+    "Automatica EU5u",
+    "Automatica EU5u",
+    "1723/48 6X2 EU5 u",
+    "Automatica EU5u",
+    "EU5u",
+    "Automatica EU5u",
+    "1723/53 6X2 EU5 u",
+    "Automatica EU5u",
+    "EU5u",
+    "Automatica EU5u",
+    "1729/37 EU5 u",
+    "1729/37 CD EU5 u",
+    "EU5u",
+    "Automatica EU5u",
+    "1729/43 EU5 u",
+    "EU5u",
+    "1729/48 EU5 u",
+    "1729/48 CD EU5 u",
+    "EU5u",
+    "Automatica EU5u",
+    "1729/48 6X2 EU5 u",
+    "Automatizado EU5u",
+    "EU5u",
+    "Automatica EU5u",
+    "1729/53 6X2 EU5 u",
+    "CDu",
+    "Automatica EU5u",
+    "Automatica EU5u",
+    "Automatizado EU5u",
+    "Automatizado EU5u",
+    "1832/37e (L07) u",
+    "1832/48e (L07) u",
+    "E/Vertical EU5u",
+    "E/Horizontal EU5u",
+    "E/Vertical EU5u",
+    "TDI AAu",
+    "AA ABSu",
+    "Chasis Largou",
+    "925 F 4x4 u",
+    "L39A / G39A / A32Au",
+    "L35A / G35A / A34Au"
+  ],
+  "Livianos - Ultralivianos": [],
+  "Ult.Liviano - TM1 1.5": [
+    "MT C/Simple (110cv)u",
+    "MT C/Doble (110cv)u"
+  ],
+  "MT C/Simple Box": [
+    "(110cv)u",
+    "Refrigerado (110cv)u"
+  ],
+  "Ult.Liviano - TM2 1.6": [
+    "MT C/Simple (120cv)",
+    "MT C/Doble (120cv)",
+    "614 Chasisu"
+  ],
+  "Livianos - Aumark S1": [
+    "614 Caja Flat Bedu",
+    "614 Cargo Boxu"
+  ],
+  "Livianos - Aumark S3": [
+    "815 Chasisu",
+    "815 Caja Flat Bedu",
+    "815 Cargo Boxu",
+    "916 Cargo Boxu"
+  ],
+  "Medianos": [
+    "C/Simple King/cab.",
+    "King Cab."
+  ],
+  "Camión liviano": [
+    "Serie 300 514 u",
+    "Serie 300 616 u",
+    "Serie 300 716 u",
+    "Serie 300 816 u",
+    "Serie 300 816 Largo u",
+    "Automáticau",
+    "Cabinau",
+    "24+1 Turismou"
+  ],
+  "Camion Pesado": [
+    "Serie 500 SG350 u",
+    "Serie 500 GH280 u",
+    "Serie 500 FM280 u"
+  ],
+  "extralargo 130cv": [
+    "(L17)u",
+    "(L17)u"
+  ],
+  "GLS Chasis": [
+    "C/Cabina - 1Ton.u"
+  ],
+  "C/Cabina + duales -": [
+    "1Ton.u",
+    "1Ton.u"
+  ],
+  "GLS Cabina C/Caja": [
+    "+ AA - 1Ton.u"
+  ],
+  "Furgon Largo -": [
+    "T/Elevado (150hp)u",
+    "Largo s/caja u",
+    "Largo s/caja AA u",
+    "Largo c/caja u",
+    "Largo c/caja AA u",
+    "Chasis Doble Cabina u"
+  ],
+  "Chasis Doble Cabina": []
+}
