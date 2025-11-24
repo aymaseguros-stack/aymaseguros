@@ -1,3 +1,42 @@
+claude/improve-test-coverage-01XEwPX7GRSgfXnYKXumychc
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+*.log
+
+# Build outputs
+dist/
+build/
+.cache/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.test
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Playwright
+/test-results/
+/playwright/.cache/
+
+# Vitest
+.vitest/
+=======
 # Node modules
 node_modules/
 
@@ -21,3 +60,4 @@ npm-debug.log*
 tailwindcss
 lighthouse-*.html
 .vercel
+main
