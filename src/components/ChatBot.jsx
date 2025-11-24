@@ -24,7 +24,7 @@ const ChatBot = () => {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      
+      setTimeout(() => {
         addBotMessage('¡Hola! 👋 Soy el asistente de AYMA Advisors.\n\nEn 2 minutos te ayudo a cotizar tu seguro.\n\n¿Cuál es tu nombre?')
         setStep('nombre')
       }, 500)
@@ -33,7 +33,7 @@ const ChatBot = () => {
 
   const addBotMessage = (text) => {
     setIsTyping(true)
-    
+    setTimeout(() => {
       setMessages(prev => [...prev, { type: 'bot', text }])
       setIsTyping(false)
     }, 800)
@@ -229,9 +229,9 @@ Cobertura: ${coberturaSeleccionada.nombre}`
           botResponse = `¡Listo ${leadCompleto.nombre}! ✅\n\nTu solicitud fue registrada.\n\nTe contactaremos pronto.`
           nextStep = 'finalizado'
           
-          
+          setTimeout(() => {
             window.open(`https://wa.me/5493416952259?text=${encodeURIComponent(mensajeWA)}`, '_blank')
-          
+          }, 2000)
         }
         break
 
