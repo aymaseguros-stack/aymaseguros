@@ -1,0 +1,13 @@
+# robots.txt v2.0 - AYMA Advisors
+
+User-agent: *
+Allow: /
+
+Sitemap: https://aymaseguros.vercel.app/sitemap.xml
+
+# Bloqueos específicos
+Disallow: /node_modules/
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /vercel.json
+Disallow: /admin/

@@ -1,4 +1,5 @@
 {
+claude/improve-test-coverage-01XEwPX7GRSgfXnYKXumychc
   "name": "ayma-advisors",
   "version": "1.0.0",
   "description": "Sistema de cotización de seguros con CRM - Ayma Advisors",
@@ -44,5 +45,26 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
+=======
+  "name": "aymaseguros-landing",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-react": "^0.554.0",
+    "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^5.4.394",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "terser": "^5.44.1",
+    "vite": "^5.0.0"
+main
   }
 }

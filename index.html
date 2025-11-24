@@ -1,722 +1,109 @@
-<!DOCTYPE html>
+
+html<!DOCTYPE html>
 <html lang="es-AR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO Meta Tags -->
-    <title>Seguros de Auto, Hogar y Vida en Rosario | Ahorrá hasta 35% - Ayma Advisors</title>
-    <meta name="description" content="Seguros de auto, hogar, vida y salud en Rosario, Santa Fe. Cotización gratuita en 2 minutos. Comparamos San Cristóbal, Nación Seguros, Mapfre. Ahorrá hasta 35%.">
-    <meta name="keywords" content="seguros auto Rosario, seguro hogar Santa Fe, seguros baratos Rosario Argentina, cotizar seguros auto cerca de mi, mejor seguro vehiculo Rosario, seguros contra robos hogar Rosario, seguro vida familiar Rosario, ART empresas Santa Fe, seguros automotor Rosario Santa Fe">
-    <meta name="author" content="Ayma Advisors - Productores Asesores de Seguros">
+<style>
+    body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+    @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(30,64,175,.5);transform:translateZ(0)}50%{box-shadow:0 0 40px rgba(30,64,175,.8);transform:translateZ(0)}}
+    .pulse-glow{animation:pulse-glow 2s infinite;will-change:box-shadow;transform:translateZ(0);backface-visibility:hidden}
+    </style>
+ <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://connect.facebook.net">
+<link rel="modulepreload" href="/src/main.jsx" fetchpriority="high">
+<link rel="preload" href="/tailwind.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/tailwind.css"></noscript>
+<title>Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors</title>
+    <meta name="description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras. Ahorrá hasta 35% en tu seguro.">
     <link rel="canonical" href="https://aymaseguros.vercel.app/">
-    
-    <!-- Geo Tags -->
-    <meta name="geo.region" content="AR-S">
-    <meta name="geo.placename" content="Rosario, Santa Fe">
-    <meta name="geo.position" content="-32.9468;-60.6393">
-    <meta name="ICBM" content="-32.9468, -60.6393">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://aymaseguros.vercel.app/">
-    <meta property="og:title" content="Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors">
+ <meta name="google-site-verification" content="K_sOr3bWUNCN7NOMd-e28BHHdHenwaBZsZbH6wEPHIM" />
+
+ <script>
+      window.dataLayer = window.dataLayer || [];
+      
+      var gtmLoaded = false;
+      function loadGTM() {
+        if (gtmLoaded) return;
+        gtmLoaded = true;
+        
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-PKN9BQ37');
+      }
+      
+      var events = ['mousedown', 'touchstart', 'scroll', 'keydown'];
+      events.forEach(function(e) {
+        window.addEventListener(e, loadGTM, {once: true, passive: true});
+      });
+      setTimeout(loadGTM, 3000);
+    </script>
+
+ <script>
+      var fbqLoaded = false;
+      function loadFBQ() {
+        if (fbqLoaded) return;
+        fbqLoaded = true;
+        
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        
+        fbq('init', '1174720694055871');
+        fbq('track', 'PageView');
+      }
+      
+      var eventsFB = ['mousedown', 'touchstart', 'scroll', 'keydown'];
+      eventsFB.forEach(function(e) {
+        window.addEventListener(e, loadFBQ, {once: true, passive: true});
+      });
+      setTimeout(loadFBQ, 5000);
+    </script>
+ <meta property="og:title" content="Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors">
     <meta property="og:description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras. Ahorrá hasta 35% en tu seguro.">
     <meta property="og:image" content="https://aymaseguros.vercel.app/og-image.jpg">
     <meta property="og:locale" content="es_AR">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://aymaseguros.vercel.app/">
-    <meta name="twitter:title" content="Seguros de Auto, Hogar y Vida en Rosario | Ayma Advisors">
-    <meta name="twitter:description" content="Cotización gratuita en 2 minutos. Comparamos las mejores aseguradoras.">
-    
-    <!-- Structured Data JSON-LD -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "InsuranceAgency",
-      "name": "Ayma Advisors",
-      "description": "Productores Asesores de Seguros en Rosario, Santa Fe",
-      "url": "https://aymaseguros.vercel.app",
-      "telephone": "+54-341-695-2259",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Rosario",
-        "addressLocality": "Rosario",
-        "addressRegion": "Santa Fe",
-        "addressCountry": "AR"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": -32.9468,
-        "longitude": -60.6393
-      },
-      "areaServed": {
-        "@type": "City",
-        "name": "Rosario",
-        "containedInPlace": {
-          "@type": "State",
-          "name": "Santa Fe"
-        }
-      },
-      "priceRange": "$$",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "reviewCount": "127"
-      }
-    }
-    </script>
-    
-    <!-- React & Tailwind -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'ayma-blue': '#1e40af',
-                        'ayma-blue-dark': '#1e3a8a',
-                        'ayma-blue-light': '#3b82f6',
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(30, 64, 175, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(30, 64, 175, 0.8); }
-        }
-        .pulse-glow {
-            animation: pulse-glow 2s infinite;
-        }
-    </style>
 </head>
 <body>
-    <div id="root"></div>
+<!-- META PIXEL FACEBOOK - AYMA ADVISORS -->
+<script>
+(function() {
+  "use strict";
+  let pixelLoaded = false;
+  function loadMetaPixel() {
+    if (pixelLoaded) return;
+    pixelLoaded = true;
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
+    fbq("track", "PageView");
+    console.log("✅ Meta Pixel cargado");
+  }
+  setTimeout(loadMetaPixel, 3000);
+  let scrolled = false;
+  window.addEventListener("scroll", function() {
+    if (!scrolled) {
+      scrolled = true;
+      loadMetaPixel();
+    }
+  }, { passive: true, once: true });
+})();
+</script>
+
+ <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PKN9BQ37"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1174720694055871&ev=PageView&noscript=1"
+    /></noscript>
     
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-
-        // Iconos SVG
-        const Shield = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-        );
-
-        const Clock = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-        );
-
-        const TrendingDown = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-                <polyline points="17 18 23 18 23 12"></polyline>
-            </svg>
-        );
-
-        const Award = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <circle cx="12" cy="8" r="7"></circle>
-                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-            </svg>
-        );
-
-        const CheckCircle = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        );
-
-        const Users = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-        );
-
-        const Bot = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                <circle cx="12" cy="5" r="2"></circle>
-                <path d="M12 7v4"></path>
-                <line x1="8" y1="16" x2="8" y2="16"></line>
-                <line x1="16" y1="16" x2="16" y2="16"></line>
-            </svg>
-        );
-
-        const User = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-        );
-
-        const Send = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-        );
-
-        const MessageCircle = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-            </svg>
-        );
-
-        const Zap = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-        );
-
-        // Logo Component
-        const AymaLogo = ({ size = "normal" }) => {
-            const sizes = {
-                small: { circle: 40, text: "text-lg", subtext: "text-[6px]" },
-                normal: { circle: 64, text: "text-3xl", subtext: "text-[8px]" },
-                large: { circle: 80, text: "text-4xl", subtext: "text-[10px]" }
-            };
-            const s = sizes[size];
-            
-            return (
-                <div className={`w-${s.circle} h-${s.circle} bg-ayma-blue rounded-full flex items-center justify-center shadow-xl border-4 border-white`} style={{width: s.circle + 'px', height: s.circle + 'px'}}>
-                    <div className="text-center">
-                        <div className={`${s.text} font-black text-white leading-none`}>A</div>
-                        <div className={`${s.subtext} text-white uppercase tracking-wider font-bold opacity-90`}>SEGUROS</div>
-                    </div>
-                </div>
-            );
-        };
-
-        const AymaAdvisorsApp = () => {
-            const [showChat, setShowChat] = useState(false);
-            const [messages, setMessages] = useState([]);
-            const [input, setInput] = useState('');
-            const [currentStep, setCurrentStep] = useState('inicio');
-            const [currentQuote, setCurrentQuote] = useState({});
-            const [isTyping, setIsTyping] = useState(false);
-            const [showSuccess, setShowSuccess] = useState(false);
-            const messagesEndRef = useRef(null);
-            
-            // A/B Testing: Alterna entre dos versiones de headline
-            const [headlineVersion] = useState(Math.random() > 0.5 ? 'A' : 'B');
-            
-            const headlines = {
-                A: {
-                    main: "Dejá de pagar de más por tu seguro de auto",
-                    sub: "Comparamos las mejores aseguradoras y te conseguimos el mejor precio en menos de 2 minutos"
-                },
-                B: {
-                    main: "Ahorrá hasta 35% en tu seguro de auto hoy",
-                    sub: "Miles de clientes ya ahorraron. Cotización gratis en 2 minutos sin compromiso"
-                }
-            };
-            
-            // Testimonios reales
-            const testimonials = [
-                {
-                    name: "María González",
-                    location: "Rosario Centro",
-                    text: "Me ahorraron $15.000 por mes en mi seguro. El servicio es excelente, siempre atentos.",
-                    rating: 5,
-                    vehicle: "Honda Civic 2019"
-                },
-                {
-                    name: "Carlos Fernández",
-                    location: "Fisherton",
-                    text: "Rápido y sin vueltas. En 10 minutos tenía 3 cotizaciones y elegí la mejor. Súper recomendable.",
-                    rating: 5,
-                    vehicle: "Toyota Corolla 2021"
-                },
-                {
-                    name: "Lucía Martínez",
-                    location: "Funes",
-                    text: "Después de 5 años con otra compañía, me pasé gracias a Ayma. Mejor precio y mejor atención.",
-                    rating: 5,
-                    vehicle: "Volkswagen Gol 2018"
-                }
-            ];
-
-            // Guardar cotización en storage persistente + Google Sheets
-            const saveQuoteToStorage = async (quote) => {
-                try {
-                    const quoteWithId = {
-                        ...quote,
-                        id: Date.now(),
-                        status: 'nueva',
-                        createdAt: new Date().toISOString(),
-                        notes: '',
-                        contactHistory: [],
-                        headlineVersion: headlineVersion // Trackear qué versión convirtió
-                    };
-                    
-                    // Guardar en localStorage
-                    const existingQuotes = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
-                    existingQuotes.push(quoteWithId);
-                    localStorage.setItem('ayma_quotes', JSON.stringify(existingQuotes));
-                    
-                    // Enviar a Google Sheets (si está configurado)
-                    sendToGoogleSheets(quoteWithId);
-                    
-                    // Enviar email automático al cliente
-                    sendAutoEmail(quoteWithId);
-                    
-                    console.log('Cotización guardada:', quoteWithId);
-                } catch (error) {
-                    console.error('Error guardando cotización:', error);
-                }
-            };
-            
-            const sendToGoogleSheets = async (quote) => {
-                // Implementación de Google Sheets API
-                // Por ahora en consola, luego configuraremos con tu API key
-                console.log('📊 Enviando a Google Sheets:', quote);
-                
-                // Cuando configures tu Google Sheet, usaremos esta estructura:
-                // const SHEET_URL = 'TU_GOOGLE_APPS_SCRIPT_URL';
-                // fetch(SHEET_URL, {
-                //     method: 'POST',
-                //     body: JSON.stringify(quote)
-                // });
-            };
-            
-            const sendAutoEmail = (quote) => {
-                // Email automático usando mailto (básico)
-                // Para versión profesional usaremos EmailJS o SendGrid
-                console.log('📧 Email automático preparado para:', quote.email);
-                
-                const emailBody = `Hola ${quote.nombre},
-
-¡Gracias por cotizar con Ayma Advisors!
-
-Recibimos tu solicitud de cotización para tu ${quote.marca} ${quote.modelo} ${quote.anio}.
-
-En breve te estaremos contactando con las mejores propuestas de:
-✓ Nación Seguros
-✓ San Cristóbal
-✓ Mapfre
-✓ SMG Seguros
-
-Mientras tanto, si tenés alguna consulta, no dudes en contactarnos al +54 9 341 695-2259.
-
-Saludos,
-Equipo Ayma Advisors
-Tu ahorro inteligente desde 2008`;
-
-               localStorage.setItem(`email_pending_${quote.id}`, emailBody);
-            };
-
-
-            const addBotMessage = (text) => {
-                setIsTyping(true);
-                setTimeout(() => {
-                    setMessages(prev => [...prev, { text, sender: 'bot', timestamp: new Date() }]);
-                    setIsTyping(false);
-                }, 800);
-            };
-
-            const addUserMessage = (text) => {
-                setMessages(prev => [...prev, { text, sender: 'user', timestamp: new Date() }]);
-            };
-
-            const handleSend = () => {
-                if (!input.trim()) return;
-                const userInput = input.trim();
-                addUserMessage(userInput);
-                setInput('');
-                processUserInput(userInput);
-            };
-
-            const processUserInput = (userInput) => {
-                switch(currentStep) {
-                    case 'inicio':
-                        setCurrentQuote({ nombre: userInput });
-                        setCurrentStep('codigoPostal');
-                        addBotMessage("Perfecto. ¿Cuál es tu código postal?");
-                        break;
-
-                    case 'codigoPostal':
-                        setCurrentQuote(prev => ({ ...prev, codigoPostal: userInput }));
-                        setCurrentStep('marca');
-                        addBotMessage("Ahora sobre tu auto. ¿Qué marca es?");
-                        break;
-
-                    case 'marca':
-                        setCurrentQuote(prev => ({ ...prev, marca: userInput }));
-                        setCurrentStep('modelo');
-                        addBotMessage("¿Qué modelo?");
-                        break;
-
-                    case 'modelo':
-                        setCurrentQuote(prev => ({ ...prev, modelo: userInput }));
-                        setCurrentStep('anio');
-                        addBotMessage("¿De qué año?");
-                        break;
-
-                    case 'anio':
-                        const anio = parseInt(userInput);
-                        if (isNaN(anio) || anio < 1980 || anio > 2026) {
-                            addBotMessage("Por favor, ingresá un año válido.");
-                            return;
-                        }
-                        setCurrentQuote(prev => ({ ...prev, anio: userInput }));
-                        setCurrentStep('cobertura');
-                        addBotMessage("¿Qué cobertura te interesa? (RC / Terceros Completo / Terceros con Granizo / Todo Riesgo)");
-                        break;
-
-                    case 'cobertura':
-                        const finalQuote = {
-                            ...currentQuote,
-                            cobertura: userInput,
-                            fecha: new Date().toLocaleString('es-AR')
-                        };
-                        setCurrentQuote(finalQuote);
-                        setCurrentStep('finalizado');
-                        setShowSuccess(true);
-                        saveQuoteToStorage(finalQuote);
-                        addBotMessage("¡Perfecto! Tu cotización está lista. Enviame tus datos por WhatsApp y te mando las mejores propuestas al instante.");
-                        break;
-
-                    case 'finalizado':
-                        addBotMessage("Tu cotización ya está lista. Hacé clic en el botón verde de WhatsApp para enviármela.");
-                        break;
-                }
-            };
-
-            const sendToWhatsApp = () => {
-                const message = `*SOLICITUD DE COTIZACIÓN - AYMA ADVISORS*
-
-*DATOS:*
-Nombre: ${currentQuote.nombre}
-Código Postal: ${currentQuote.codigoPostal}
-
-*VEHÍCULO:*
-Modelo: ${currentQuote.modelo}
-Año: ${currentQuote.anio}
-
-*COBERTURA SOLICITADA:*
-${currentQuote.cobertura}
-
-Quiero recibir las mejores cotizaciones del mercado.`;
-
-                const whatsappURL = `https://wa.me/5493416952259?text=${encodeURIComponent(message)}`;
-                window.open(whatsappURL, '_blank');
-            };
-
-            const startNewQuote = () => {
-                setMessages([]);
-                setCurrentQuote({});
-                setCurrentStep('inicio');
-                setShowSuccess(false);
-                addBotMessage("¡Hola! Soy el asistente de Ayma Advisors. Para cotizar tu seguro de auto, necesito algunos datos. ¿Cuál es tu nombre?");
-            };
-
-            if (!showChat) {
-                return (
-                    <div className="min-h-screen bg-gradient-to-br from-ayma-blue-dark via-ayma-blue to-ayma-blue-light">
-                        <div className="container mx-auto px-4 py-8">
-                            {/* Header con Logo */}
-                            <div className="text-center mb-8">
-                                <div className="flex items-center justify-center mb-4">
-                                    <AymaLogo size="normal" />
-                                    <div className="text-left ml-4">
-                                        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">AYMA ADVISORS</h1>
-                                        <p className="text-gray-200 text-sm italic">Ahorro inteligente desde 2008</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Banner amarillo SEPARADO */}
-                            <div className="max-w-5xl mx-auto mb-6">
-                                <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 text-center py-4 px-6 rounded-2xl font-black text-lg md:text-xl shadow-2xl border-4 border-yellow-300">
-                                    🔥 OFERTA EXCLUSIVA: Hasta 35% de descuento sobre tu póliza actual
-                                </div>
-                            </div>
-
-                            {/* Card blanca SEPARADA */}
-                            <div className="max-w-5xl mx-auto">
-                                <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
-                                    <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 text-center leading-tight">
-                                        {headlines[headlineVersion].main}
-                                    </h2>
-                                    <p className="text-xl text-gray-600 mb-8 text-center">
-                                        {headlines[headlineVersion].sub}
-                                    </p>
-                                    
-                                    <div className="grid md:grid-cols-3 gap-6 mb-8">
-                                        <div className="text-center p-6 bg-green-50 rounded-xl border-2 border-green-200">
-                                            <div className="bg-green-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <TrendingDown size={32} className="text-white" />
-                                            </div>
-                                            <h3 className="font-bold text-gray-800 mb-2 text-xl">Ahorrás hasta 35%</h3>
-                                            <p className="text-gray-600">Comparamos y encontramos el mejor precio del mercado</p>
-                                        </div>
-                                        
-                                        <div className="text-center p-6 bg-blue-50 rounded-xl border-2 border-blue-200">
-                                            <div className="bg-ayma-blue w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <Zap size={32} className="text-white" />
-                                            </div>
-                                            <h3 className="font-bold text-gray-800 mb-2 text-xl">En 2 minutos</h3>
-                                            <p className="text-gray-600">Cotización instantánea sin papeleos ni esperas</p>
-                                        </div>
-                                        
-                                        <div className="text-center p-6 bg-purple-50 rounded-xl border-2 border-purple-200">
-                                            <div className="bg-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <Shield size={32} className="text-white" />
-                                            </div>
-                                            <h3 className="font-bold text-gray-800 mb-2 text-xl">Las Mejores</h3>
-                                            <p className="text-gray-600">Trabajamos con las aseguradoras líderes</p>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() => setShowChat(true)}
-                                        className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-2xl font-bold py-6 px-8 rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all shadow-2xl pulse-glow mb-4"
-                                    >
-                                        ✨ Cotizar Gratis Ahora
-                                    </button>
-                                    <p className="text-center text-sm text-gray-500">✓ Sin compromiso ✓ 100% gratis ✓ Respuesta inmediata</p>
-                                </div>
-                            </div>
-
-                            {/* Por qué elegirnos */}
-                            <div className="max-w-5xl mx-auto mt-12 bg-white/10 backdrop-blur-md rounded-2xl p-8">
-                                <h3 className="text-3xl font-bold text-white text-center mb-8">¿Por qué miles eligen Ayma Advisors?</h3>
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="flex items-start text-white">
-                                        <CheckCircle className="mr-3 flex-shrink-0 text-green-400" size={24} />
-                                        <div>
-                                            <h4 className="font-bold mb-1">17 años de experiencia</h4>
-                                            <p className="text-blue-100 text-sm">Productores profesionales desde 2008</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start text-white">
-                                        <CheckCircle className="mr-3 flex-shrink-0 text-green-400" size={24} />
-                                        <div>
-                                            <h4 className="font-bold mb-1">Asesoramiento sin costo</h4>
-                                            <p className="text-blue-100 text-sm">Te guiamos en todo el proceso gratis</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start text-white">
-                                        <CheckCircle className="mr-3 flex-shrink-0 text-green-400" size={24} />
-                                        <div>
-                                            <h4 className="font-bold mb-1">Gestionamos tus siniestros</h4>
-                                            <p className="text-blue-100 text-sm">No te preocupés por nada, nosotros lo hacemos</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start text-white">
-                                        <CheckCircle className="mr-3 flex-shrink-0 text-green-400" size={24} />
-                                        <div>
-                                            <h4 className="font-bold mb-1">Comparación objetiva</h4>
-                                            <p className="text-blue-100 text-sm">Te mostramos todas las opciones sin letra chica</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Garantía */}
-                            <div className="max-w-3xl mx-auto mt-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl p-6 text-center shadow-xl">
-                                <Award className="mx-auto mb-3 text-gray-900" size={48} />
-                                <h3 className="text-2xl font-bold text-gray-900 mb-2">Garantía de Ahorro</h3>
-                                <p className="text-gray-900 text-lg">Si no te ahorramos dinero comparado con tu póliza actual, no pagás nada. Sin vueltas.</p>
-                            </div>
-
-                            {/* Aseguradoras */}
-                            <div className="max-w-4xl mx-auto mt-12 bg-white rounded-2xl p-8 shadow-xl">
-                                <h3 className="text-gray-800 text-center font-bold text-xl mb-6">Trabajamos con las mejores aseguradoras:</h3>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-6 rounded-xl font-bold text-ayma-blue text-center shadow-md">Nación Seguros</div>
-                                    <div className="bg-gradient-to-br from-red-50 to-red-100 px-4 py-6 rounded-xl font-bold text-red-900 text-center shadow-md">San Cristóbal</div>
-                                    <div className="bg-gradient-to-br from-green-50 to-green-100 px-4 py-6 rounded-xl font-bold text-green-900 text-center shadow-md">Mapfre</div>
-                                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 px-4 py-6 rounded-xl font-bold text-purple-900 text-center shadow-md">SMG Seguros</div>
-                                </div>
-                            </div>
-
-                            {/* Testimonios */}
-                            <div className="max-w-6xl mx-auto mt-12">
-                                <h3 className="text-3xl font-bold text-white text-center mb-8">Lo que dicen nuestros clientes</h3>
-                                <div className="grid md:grid-cols-3 gap-6">
-                                    {testimonials.map((testimonial, idx) => (
-                                        <div key={idx} className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-shadow">
-                                            <div className="flex items-center mb-4">
-                                                <div className="w-12 h-12 bg-ayma-blue rounded-full flex items-center justify-center text-white font-bold text-xl mr-3">
-                                                    {testimonial.name.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
-                                                    <p className="text-sm text-gray-600">{testimonial.location}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex mb-3">
-                                                {[...Array(testimonial.rating)].map((_, i) => (
-                                                    <span key={i} className="text-yellow-400 text-xl">★</span>
-                                                ))}
-                                            </div>
-                                            <p className="text-gray-700 italic mb-3">"{testimonial.text}"</p>
-                                            <p className="text-sm text-gray-500">{testimonial.vehicle}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Social Proof */}
-                            <div className="max-w-4xl mx-auto mt-8 text-center">
-                                <div className="flex items-center justify-center gap-2 text-white mb-2">
-                                    <Users size={24} />
-                                    <span className="text-lg font-semibold">+2.500 clientes confían en nosotros</span>
-                                </div>
-                                <div className="flex justify-center gap-1 mb-2">
-                                    {[...Array(5)].map((_, i) => (
-                                        <span key={i} className="text-yellow-400 text-2xl">★</span>
-                                    ))}
-                                </div>
-                                <p className="text-blue-200">Calificación promedio 4.9/5</p>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="text-center text-white mt-12 pt-8 border-t border-blue-500">
-                                <p className="mb-2 text-lg">📍 Rosario, Santa Fe, Argentina</p>
-                                <p className="mb-2 text-lg">📞 +54 9 341 695-2259</p>
-                                <p className="text-blue-200 mb-4">Atención personalizada por WhatsApp</p>
-                        </div>
-                        </div>
-                    </div>
-                );
-            }
-
-            // Vista del Chat
-            return (
-                <div className="flex h-screen bg-gray-100">
-                    <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full bg-white shadow-2xl">
-                        <div className="bg-gradient-to-r from-ayma-blue-dark to-ayma-blue text-white p-4 shadow-lg">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center">
-                                    <AymaLogo size="small" />
-                                    <div className="ml-3">
-                                        <h2 className="text-xl font-bold">Ayma Advisors</h2>
-                                        <p className="text-sm text-blue-100">Cotizador Inteligente</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setShowChat(false)}
-                                    className="text-white hover:bg-ayma-blue px-3 py-1 rounded transition"
-                                >
-                                    ← Volver
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-                            {messages.map((msg, idx) => (
-                                <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`flex items-start max-w-[80%] ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}>
-                                        <div className={`flex-shrink-0 ${msg.sender === 'user' ? 'ml-2' : 'mr-2'}`}>
-                                            {msg.sender === 'bot' ? (
-                                                <div className="w-10 h-10 bg-ayma-blue rounded-full flex items-center justify-center">
-                                                    <Bot size={22} className="text-white" />
-                                                </div>
-                                            ) : (
-                                                <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-                                                    <User size={22} className="text-white" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className={`p-3 rounded-2xl ${msg.sender === 'bot' ? 'bg-white border-2 border-blue-200' : 'bg-ayma-blue text-white'}`}>
-                                            <p className="text-sm leading-relaxed">{msg.text}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                            {isTyping && (
-                                <div className="flex justify-start">
-                                    <div className="flex items-start max-w-[80%]">
-                                        <div className="w-10 h-10 bg-ayma-blue rounded-full flex items-center justify-center mr-2">
-                                            <Bot size={22} className="text-white" />
-                                        </div>
-                                        <div className="p-3 rounded-2xl bg-white border-2 border-blue-200">
-                                            <div className="flex space-x-1">
-                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce"></div>
-                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                                                <div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        {showSuccess && (
-                            <div className="bg-gradient-to-r from-green-50 to-green-100 border-t-4 border-green-500 p-6 mx-4 mb-4 rounded-lg shadow-lg">
-                                <div className="flex items-center mb-4">
-                                    <CheckCircle size={32} className="text-green-600 mr-3" />
-                                    <div>
-                                        <h3 className="font-bold text-green-800 text-lg">¡Tu cotización está lista! 🎉</h3>
-                                        <p className="text-green-700 text-sm">Enviame tus datos por WhatsApp y te mando las mejores propuestas en minutos</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={sendToWhatsApp}
-                                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shadow-xl mb-3"
-                                >
-                                    <MessageCircle size={24} />
-                                    Enviar por WhatsApp
-                                </button>
-                                <button
-                                    onClick={startNewQuote}
-                                    className="w-full bg-ayma-blue hover:bg-ayma-blue-dark text-white font-semibold py-3 px-6 rounded-xl transition-all"
-                                >
-                                    Nueva Cotización
-                                </button>
-                            </div>
-                        )}
-
-                        <div className="bg-white border-t-2 border-gray-200 p-4" style={{marginBottom: '60px'}}>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                                    placeholder="Escribe tu respuesta aquí..."
-                                    className="flex-1 p-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ayma-blue focus:border-transparent"
-                                    disabled={currentStep === 'finalizado'}
-                                />
-                                <button
-                                    onClick={handleSend}
-                                    disabled={currentStep === 'finalizado'}
-                                    className="bg-ayma-blue text-white p-3 rounded-xl hover:bg-ayma-blue-dark disabled:bg-gray-300 disabled:cursor-not-allowed transition-all transform hover:scale-105"
-                                >
-                                    <Send size={24} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        ReactDOM.render(<AymaAdvisorsApp />, document.getElementById('root'));
-    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
