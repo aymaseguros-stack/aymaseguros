@@ -500,18 +500,252 @@ location.reload()
 
 ---
 
+## Detalles Técnicos de Implementación
+
+### Chatbot - Mensajes Específicos por Paso
+
+**Paso inicio (index.html:431):**
+```javascript
+addBotMessage("¡Hola! Soy el asistente de Ayma Advisors. Para cotizar tu seguro de auto, necesito algunos datos. ¿Cuál es tu nombre?");
+```
+
+**Paso codigoPostal (index.html:355):**
+```javascript
+addBotMessage("Perfecto. ¿Cuál es tu código postal?");
+```
+
+**Paso marca (index.html:361):**
+```javascript
+addBotMessage("Ahora sobre tu auto. ¿Qué marca es?");
+```
+
+**Paso modelo (index.html:367):**
+```javascript
+addBotMessage("¿Qué modelo?");
+```
+
+**Paso anio (index.html:372):**
+```javascript
+addBotMessage("¿De qué año?");
+// Validación: 1980-2026, muestra error si es inválido
+```
+
+**Paso cobertura (index.html:384):**
+```javascript
+addBotMessage("¿Qué cobertura te interesa? (RC / Terceros Completo / Terceros con Granizo / Todo Riesgo)");
+```
+
+**Finalización (index.html:397):**
+```javascript
+addBotMessage("¡Perfecto! Tu cotización está lista. Enviame tus datos por WhatsApp y te mando las mejores propuestas al instante.");
+```
+
+### Mensaje de WhatsApp - Template Completo
+
+**Formato del mensaje (index.html:407-420):**
+```
+*SOLICITUD DE COTIZACIÓN - AYMA ADVISORS*
+
+*DATOS:*
+Nombre: {nombre}
+Código Postal: {codigoPostal}
+
+*VEHÍCULO:*
+Modelo: {modelo}
+Año: {anio}
+
+*COBERTURA SOLICITADA:*
+{cobertura}
+
+Quiero recibir las mejores cotizaciones del mercado.
+```
+
+### Animaciones CSS Personalizadas
+
+**Animación pulse-glow (index.html:97-103):**
+```css
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(30, 64, 175, 0.5); }
+    50% { box-shadow: 0 0 40px rgba(30, 64, 175, 0.8); }
+}
+.pulse-glow {
+    animation: pulse-glow 2s infinite;
+}
+```
+
+**Animación de typing del bot (index.html:658-661):**
+```html
+<div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce"></div>
+<div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+<div className="w-2 h-2 bg-ayma-blue rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+```
+
+### Funciones Clave del Chatbot
+
+**addBotMessage (index.html:330-336):**
+- Delay de 800ms para simular tipeo
+- Activa `isTyping` durante la espera
+- Agrega timestamp automático
+
+**handleSend (index.html:342-348):**
+- Valida que el input no esté vacío
+- Agrega mensaje del usuario
+- Limpia el input
+- Procesa la respuesta
+
+**Auto-scroll (index.html:666):**
+```javascript
+<div ref={messagesEndRef} />
+// El ref se usa para scroll automático al final
+```
+
+### Panel Admin - Funciones de Negocio
+
+**Cálculo de conversión (admin.html:246):**
+```javascript
+const conv = total > 0 ? ((vendidas / total) * 100).toFixed(1) : 0;
+```
+
+**Recordatorios pendientes (admin.html:172-178):**
+```javascript
+function getPendingReminders() {
+    const today = new Date().toISOString().split('T')[0];
+    return quotes.flatMap(q =>
+        (q.reminders || [])
+            .filter(r => !r.completed && r.date <= today)
+            .map(r => ({...r, quote: q}))
+    ).sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+}
+```
+
+**Auto-reload de datos (admin.html:41-47):**
+```javascript
+React.useEffect(() => {
+    if (isAuth) {
+        loadData();
+        const interval = setInterval(loadData, 5000); // Cada 5 segundos
+        return () => clearInterval(interval);
+    }
+}, [isAuth]);
+```
+
+### Colores y Paleta Completa
+
+**Colores personalizados Ayma:**
+```javascript
+'ayma-blue': '#1e40af'        // Blue-700
+'ayma-blue-dark': '#1e3a8a'   // Blue-800
+'ayma-blue-light': '#3b82f6'  // Blue-500
+```
+
+**Colores de estado:**
+- Nueva: Blue-500 `#3b82f6`
+- Cotizada: Yellow-500 `#eab308`
+- Vendida: Green-600 `#16a34a`
+- Perdida: Red-500 `#ef4444`
+
+**Colores de UI:**
+- CTA principal: Green gradient `from-green-500 to-green-600`
+- Banner urgencia: Yellow gradient `from-yellow-400 to-yellow-500`
+- Garantía: Orange gradient `from-yellow-400 to-orange-400`
+
+### Email Template (Preparado, index.html:306-327)
+
+```javascript
+const emailBody = `Hola ${quote.nombre},
+
+¡Gracias por cotizar con Ayma Advisors!
+
+Recibimos tu solicitud de cotización para tu ${quote.marca} ${quote.modelo} ${quote.anio}.
+
+En breve te estaremos contactando con las mejores propuestas de:
+✓ Nación Seguros
+✓ San Cristóbal
+✓ Mapfre
+✓ SMG Seguros
+
+Mientras tanto, si tenés alguna consulta, no dudes en contactarnos al +54 9 341 695-2259.
+
+Saludos,
+Equipo Ayma Advisors
+Tu ahorro inteligente desde 2008`;
+```
+
+### Validaciones Implementadas
+
+**Año del vehículo (index.html:377-381):**
+```javascript
+const anio = parseInt(userInput);
+if (isNaN(anio) || anio < 1980 || anio > 2026) {
+    addBotMessage("Por favor, ingresá un año válido.");
+    return;
+}
+```
+
+**Input vacío (index.html:343):**
+```javascript
+if (!input.trim()) return;
+```
+
+**Recordatorio sin fecha/hora (admin.html:135-138):**
+```javascript
+if (!reminderDate || !reminderTime) {
+    alert('Completá fecha y hora');
+    return;
+}
+```
+
+### Estadísticas y Social Proof
+
+**Schema.org Rating (index.html:64-68):**
+```json
+"aggregateRating": {
+  "@type": "AggregateRating",
+  "ratingValue": "4.8",
+  "reviewCount": "127"
+}
+```
+
+**Social Proof visible (index.html:586):**
+- +2.500 clientes
+- Rating 4.9/5
+- 5 estrellas visuales
+
+### Referencias de Líneas de Código Clave
+
+**Landing Page:**
+- SEO Schema: 35-70
+- A/B Testing: 222-233
+- Chatbot flow: 350-403
+- WhatsApp integration: 406-424
+- Logo component: 193-209
+- Testimonios: 236-258
+
+**Panel Admin:**
+- Login: 101-109
+- Dashboard metrics: 242-248
+- Notas system: 116-132
+- Recordatorios system: 134-155
+- Google Sheets backup: 78-99
+- Calendario view: 294-349
+
+---
+
 ## Changelog
 
-### Versión Actual (2025-01-18)
-- ✅ Landing page con SEO optimizado
-- ✅ A/B testing de headlines
-- ✅ Chatbot de cotización funcional
-- ✅ Panel admin con CRM completo
-- ✅ Sistema de recordatorios y calendario
-- ✅ Integración con WhatsApp
-- ✅ Backup a Google Sheets
-- ✅ Responsive design
-- ✅ localStorage para persistencia
+### Versión Actual (2025-11-24)
+- ✅ Landing page con SEO optimizado completo
+- ✅ A/B testing de headlines con tracking
+- ✅ Chatbot de cotización funcional con validaciones
+- ✅ Panel admin con CRM completo y métricas
+- ✅ Sistema de recordatorios y calendario completo
+- ✅ Integración con WhatsApp Business
+- ✅ Backup automático a Google Sheets
+- ✅ Responsive design mobile-first
+- ✅ localStorage para persistencia de datos
+- ✅ Template de email preparado
+- ✅ 10 iconos SVG personalizados
+- ✅ Animaciones CSS pulse-glow y typing
 
 ### Versiones Anteriores
 - **index.html.original:** Versión backup anterior a optimizaciones SEO
@@ -545,8 +779,49 @@ Para personalizar colores, buscar:
 - Variables CSS customizadas
 - Clases `ayma-blue-*`
 
+### Tips de Debugging
+
+**Ver estado del chatbot en consola:**
+```javascript
+// En DevTools mientras se usa el chat
+console.log('Step:', currentStep);
+console.log('Quote:', currentQuote);
+console.log('Messages:', messages);
+```
+
+**Forzar una versión del A/B test:**
+```javascript
+// Modificar línea 222 en index.html
+const [headlineVersion] = useState('A'); // Forzar versión A
+// o
+const [headlineVersion] = useState('B'); // Forzar versión B
+```
+
+**Simular cotizaciones en admin:**
+```javascript
+// En DevTools del admin.html
+const testQuote = {
+  id: Date.now(),
+  nombre: "Test User",
+  codigoPostal: "2000",
+  marca: "Toyota",
+  modelo: "Corolla",
+  anio: "2020",
+  cobertura: "Todo Riesgo",
+  status: "nueva",
+  createdAt: new Date().toISOString(),
+  headlineVersion: "A",
+  contactHistory: [],
+  reminders: []
+};
+const quotes = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
+quotes.push(testQuote);
+localStorage.setItem('ayma_quotes', JSON.stringify(quotes));
+location.reload();
+```
+
 ---
 
-**Última actualización:** 2025-01-18
-**Versión:** 1.0.0
+**Última actualización:** 2025-11-24
+**Versión:** 1.1.0
 **Mantenedor:** Ayma Advisors Development Team
