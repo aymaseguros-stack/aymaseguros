@@ -1,70 +1,32 @@
 {
-claude/improve-test-coverage-01XEwPX7GRSgfXnYKXumychc
-  "name": "ayma-advisors",
-  "version": "1.0.0",
-  "description": "Sistema de cotización de seguros con CRM - Ayma Advisors",
-  "type": "module",
-  "scripts": {
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:debug": "playwright test --debug",
-    "test:all": "npm run test:coverage && npm run test:e2e",
-    "playwright:install": "playwright install",
-    "playwright:codegen": "playwright codegen http://localhost:8080",
-    "serve": "npx http-server -p 8080",
-    "dev": "npx http-server -p 8080"
-  },
-  "keywords": [
-    "seguros",
-    "insurance",
-    "crm",
-    "cotizacion",
-    "rosario",
-    "argentina"
-  ],
-  "author": "Ayma Advisors",
-  "license": "MIT",
-  "devDependencies": {
-    "@playwright/test": "^1.40.1",
-    "@testing-library/dom": "^9.3.3",
-    "@testing-library/jest-dom": "^6.1.5",
-    "@testing-library/user-event": "^14.5.1",
-    "@vitest/coverage-v8": "^1.0.4",
-    "@vitest/ui": "^1.0.4",
-    "happy-dom": "^12.10.3",
-    "jsdom": "^23.0.1",
-    "playwright": "^1.40.1",
-    "vite": "^5.0.7",
-    "vitest": "^1.0.4"
-  },
-  "dependencies": {},
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-=======
   "name": "aymaseguros-landing",
   "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "lucide-react": "^0.554.0",
-    "pdf-parse": "^2.4.5",
-    "pdfjs-dist": "^5.4.394",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
+    "@playwright/test": "^1.40.1",
+    "@testing-library/dom": "^9.3.3",
+    "@testing-library/jest-dom": "^6.1.5",
+    "@vitest/coverage-v8": "^1.0.4",
+    "@vitest/ui": "^1.0.4",
+    "happy-dom": "^12.10.3",
+    "vitest": "^1.0.4",
     "terser": "^5.44.1",
     "vite": "^5.0.0"
-main
   }
 }
