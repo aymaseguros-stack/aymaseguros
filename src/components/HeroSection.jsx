@@ -1,941 +1,867 @@
 import { useState, useEffect } from 'react';
 
-// ============================================================================
-// BASE DE DATOS ACARA COMPLETA - VEHÍCULOS ARGENTINA 2025
-// ~70 marcas autos | ~45 marcas motos | ~25 marcas camiones | ~2,350 modelos
-// ============================================================================
+// ============================================
+// BASE DE DATOS ACARA - VEHÍCULOS ARGENTINA
+// Actualizado: Noviembre 2025
+// ============================================
 
 const TIPOS_VEHICULO = [
-  { value: 'auto', label: 'Auto' }, 
-  { value: 'camioneta', label: 'Camioneta' }, 
-  { value: 'moto', label: 'Moto' }, 
+  { value: 'auto', label: 'Auto' },
+  { value: 'camioneta', label: 'Camioneta' },
+  { value: 'moto', label: 'Moto' },
   { value: 'camion', label: 'Camión' }
 ];
 
-// MARCAS POR TIPO DE VEHÍCULO
-const MARCAS = {
-  auto: ['ALFA ROMEO', 'AUDI', 'BMW', 'BYD', 'CHANGAN', 'CHERY', 'CHEVROLET', 'CITROEN', 'CUPRA', 'DFSK', 'DODGE', 'DS', 'FIAT', 'FORD', 'GAC', 'GEELY', 'GWM', 'HAVAL', 'HONDA', 'HYUNDAI', 'JAC', 'JAGUAR', 'JEEP', 'JETOUR', 'KIA', 'LAND ROVER', 'LEXUS', 'LIFAN', 'LINCOLN', 'MASERATI', 'MAZDA', 'MERCEDES-BENZ', 'MG', 'MINI', 'MITSUBISHI', 'NISSAN', 'PEUGEOT', 'PORSCHE', 'RAM', 'RENAULT', 'SEAT', 'SKODA', 'SSANGYONG', 'SUBARU', 'SUZUKI', 'TESLA', 'TOYOTA', 'VOLKSWAGEN', 'VOLVO'],
-  camioneta: ['CHEVROLET', 'DODGE', 'FIAT', 'FORD', 'GWM', 'HYUNDAI', 'ISUZU', 'JAC', 'MAHINDRA', 'MAZDA', 'MERCEDES-BENZ', 'MITSUBISHI', 'NISSAN', 'RAM', 'RENAULT', 'SSANGYONG', 'TOYOTA', 'VOLKSWAGEN'],
-  moto: ['APRILIA', 'BAJAJ', 'BENELLI', 'BETA', 'BMW', 'CF MOTO', 'CORVEN', 'DUCATI', 'GILERA', 'GUERRERO', 'HARLEY-DAVIDSON', 'HERO', 'HONDA', 'HUSQVARNA', 'INDIAN', 'JAWA', 'KAWASAKI', 'KELLER', 'KTM', 'KYMCO', 'MOTOMEL', 'MV AGUSTA', 'ROYAL ENFIELD', 'SUZUKI', 'SYM', 'TRIUMPH', 'TVS', 'VENTO', 'VOGE', 'YAMAHA', 'ZANELLA', 'ZONGSHEN'],
-  camion: ['AGRALE', 'DAF', 'FOTON', 'FREIGHTLINER', 'HINO', 'HYUNDAI', 'INTERNATIONAL', 'ISUZU', 'IVECO', 'JAC', 'JMC', 'KENWORTH', 'MACK', 'MAN', 'MERCEDES-BENZ', 'PETERBILT', 'SCANIA', 'SHACMAN', 'SINOTRUK', 'VOLKSWAGEN', 'VOLVO', 'WESTERN STAR']
-};
-
-// MODELOS POR MARCA (Base ACARA completa)
-const MODELOS = {
-  // === AUTOS ===
-  'ALFA ROMEO': ['Giulia', 'Stelvio', 'Tonale', 'Giulietta'],
-  'AUDI': ['A1', 'A1 Sportback', 'A3', 'A3 Sportback', 'A4', 'A4 Allroad', 'A5', 'A5 Sportback', 'A6', 'A7', 'A8', 'Q2', 'Q3', 'Q3 Sportback', 'Q5', 'Q5 Sportback', 'Q7', 'Q8', 'e-tron', 'e-tron GT', 'RS3', 'RS4', 'RS5', 'RS6', 'RS7', 'RSQ3', 'RSQ8', 'S3', 'S4', 'S5', 'TT', 'TTS'],
-  'BMW': ['Serie 1', 'Serie 2 Active Tourer', 'Serie 2 Coupe', 'Serie 2 Gran Coupe', 'Serie 3', 'Serie 4 Coupe', 'Serie 4 Gran Coupe', 'Serie 5', 'Serie 7', 'Serie 8', 'i4', 'iX', 'iX1', 'iX3', 'M2', 'M3', 'M4', 'M5', 'M8', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'Z4'],
-  'BYD': ['Dolphin', 'Seal', 'Song Plus', 'Tang', 'Yuan Plus'],
-  'CHANGAN': ['Alsvin', 'CS15', 'CS35 Plus', 'CS55 Plus', 'CS75 Plus', 'Hunter', 'Eado', 'UNI-K', 'UNI-T'],
-  'CHERY': ['Arrizo 5', 'Arrizo 6', 'Arrizo 8', 'Tiggo 2', 'Tiggo 2 Pro', 'Tiggo 3', 'Tiggo 4', 'Tiggo 4 Pro', 'Tiggo 5X', 'Tiggo 7', 'Tiggo 7 Pro', 'Tiggo 8', 'Tiggo 8 Pro', 'Omoda 5', 'Jaecoo 7'],
-  'CHEVROLET': ['Onix', 'Onix Plus', 'Onix RS', 'Cruze', 'Cruze RS', 'Tracker', 'Tracker RS', 'Equinox', 'Equinox RS', 'Blazer', 'Tahoe', 'Camaro', 'Corvette', 'Bolt EV', 'Bolt EUV', 'S10', 'S10 Z71', 'Montana', 'Silverado', 'Spin', 'Spin Activ'],
-  'CITROEN': ['C3', 'C3 Aircross', 'C3 You', 'C4', 'C4 Cactus', 'C4 Lounge', 'C4 X', 'C5 Aircross', 'C5 X', 'Berlingo', 'Berlingo Van', 'Jumpy', 'Spacetourer', 'e-C4'],
-  'CUPRA': ['Formentor', 'Leon', 'Ateca', 'Born', 'Tavascan'],
-  'DFSK': ['Glory 500', 'Glory 580', 'K01H', 'K02L', 'V21', 'V22', 'C31', 'C32', 'C35', 'C37'],
-  'DODGE': ['Durango', 'Journey', 'Challenger', 'Charger', 'RAM 1500', 'RAM 2500', 'RAM 700'],
-  'DS': ['DS3', 'DS3 Crossback', 'DS4', 'DS7', 'DS7 Crossback', 'DS9'],
-  'FIAT': ['Argo', 'Argo Trekking', 'Cronos', 'Cronos Precision', 'Pulse', 'Pulse Impetus', 'Fastback', 'Fastback Abarth', 'Strada', 'Strada Volcano', 'Strada Ranch', 'Toro', 'Toro Ultra', 'Toro Ranch', 'Fiorino', 'Ducato', 'Scudo', 'Mobi', 'Uno', '500', '500e', '500X', 'Tipo', 'Panda'],
-  'FORD': ['Ka', 'Ka+', 'Ka Freestyle', 'Fiesta', 'Focus', 'Focus ST', 'Focus RS', 'Mondeo', 'Mustang', 'Mustang Mach-E', 'Mustang Mach 1', 'EcoSport', 'Kuga', 'Kuga Titanium', 'Territory', 'Bronco', 'Bronco Sport', 'Explorer', 'F-150', 'F-150 Lightning', 'F-150 Raptor', 'Ranger', 'Ranger Raptor', 'Ranger XLT', 'Ranger Limited', 'Ranger Wildtrak', 'Maverick', 'Edge', 'Puma', 'Transit', 'Transit Custom'],
-  'GAC': ['GS3', 'GS4', 'GS5', 'GS8', 'Empow', 'M8'],
-  'GEELY': ['Coolray', 'Emgrand', 'Monjaro', 'Okavango', 'Preface', 'Starray', 'Tugella'],
-  'GWM': ['Haval H6', 'Haval Jolion', 'Haval Dargo', 'Ora 03', 'Ora 07', 'Poer', 'Tank 300', 'Tank 500'],
-  'HAVAL': ['H6', 'H6 GT', 'H6 Hybrid', 'Jolion', 'Jolion Hybrid', 'Dargo', 'H9'],
-  'HONDA': ['City', 'City Hatchback', 'Civic', 'Civic Si', 'Civic Type R', 'Accord', 'HR-V', 'WR-V', 'CR-V', 'CR-V Hybrid', 'ZR-V', 'Pilot', 'Ridgeline', 'Odyssey', 'e:NS1', 'Wave 110', 'Biz 125', 'CG 150 Titan', 'CB 190R', 'CB 250 Twister', 'XR 150L', 'XRE 300', 'Africa Twin'],
-  'HYUNDAI': ['Grand i10', 'i10', 'i20', 'i30', 'i30 N', 'HB20', 'HB20 X', 'Elantra', 'Elantra N', 'Sonata', 'Veloster', 'Veloster N', 'Creta', 'Creta Grand', 'Tucson', 'Tucson Hybrid', 'Santa Fe', 'Santa Fe Hybrid', 'Kona', 'Kona N', 'Kona Electric', 'Ioniq', 'Ioniq 5', 'Ioniq 6', 'Palisade', 'Venue', 'Staria'],
-  'JAC': ['S2', 'S3', 'S4', 'S5', 'S7', 'T6', 'T8', 'E10X', 'iEV40', 'iEV7S'],
-  'JAGUAR': ['E-Pace', 'F-Pace', 'F-Pace SVR', 'I-Pace', 'XE', 'XF', 'XJ', 'F-Type'],
-  'JEEP': ['Renegade', 'Renegade Trailhawk', 'Compass', 'Compass Trailhawk', 'Compass 4xe', 'Commander', 'Cherokee', 'Grand Cherokee', 'Grand Cherokee L', 'Grand Cherokee 4xe', 'Wrangler', 'Wrangler Rubicon', 'Wrangler Sahara', 'Wrangler 4xe', 'Gladiator', 'Gladiator Rubicon', 'Avenger'],
-  'JETOUR': ['Dashing', 'X70', 'X70 Plus', 'X90', 'X95'],
-  'KIA': ['Picanto', 'Rio', 'Rio X', 'Cerato', 'Cerato GT', 'K5', 'Stinger', 'Stinger GT', 'Seltos', 'Sportage', 'Sportage Hybrid', 'Sorento', 'Sorento Hybrid', 'Carnival', 'EV6', 'Niro', 'Niro EV', 'Soul', 'Soul EV', 'Stonic', 'XCeed'],
-  'LAND ROVER': ['Defender', 'Defender 90', 'Defender 110', 'Defender 130', 'Discovery', 'Discovery Sport', 'Range Rover', 'Range Rover Sport', 'Range Rover Velar', 'Range Rover Evoque'],
-  'LEXUS': ['ES', 'IS', 'LS', 'LC', 'NX', 'RX', 'UX', 'GX', 'LX', 'LBX', 'RZ'],
-  'LIFAN': ['X50', 'X60', 'X70', 'X80', '620', '720', 'Foison'],
-  'LINCOLN': ['Aviator', 'Nautilus', 'Navigator', 'Corsair'],
-  'MASERATI': ['Ghibli', 'Grecale', 'GranTurismo', 'Levante', 'MC20', 'Quattroporte'],
-  'MAZDA': ['2', '3', '6', 'CX-3', 'CX-30', 'CX-5', 'CX-50', 'CX-60', 'CX-9', 'CX-90', 'MX-5', 'MX-30'],
-  'MERCEDES-BENZ': ['A 180', 'A 200', 'A 250', 'A 35 AMG', 'A 45 AMG', 'B 180', 'B 200', 'C 180', 'C 200', 'C 300', 'C 43 AMG', 'C 63 AMG', 'CLA 180', 'CLA 200', 'CLA 250', 'CLA 35 AMG', 'CLA 45 AMG', 'CLS', 'E 200', 'E 300', 'E 350', 'E 53 AMG', 'E 63 AMG', 'S 450', 'S 500', 'S 580', 'S 63 AMG', 'EQA', 'EQB', 'EQC', 'EQE', 'EQE SUV', 'EQS', 'EQS SUV', 'GLA 200', 'GLA 250', 'GLA 35 AMG', 'GLA 45 AMG', 'GLB 200', 'GLB 250', 'GLC 200', 'GLC 300', 'GLC 43 AMG', 'GLC 63 AMG', 'GLE 300', 'GLE 350', 'GLE 450', 'GLE 53 AMG', 'GLE 63 AMG', 'GLS 450', 'GLS 580', 'GLS 63 AMG', 'G 500', 'G 63 AMG', 'Sprinter', 'Vito', 'Accelo', 'Atego', 'Axor', 'Actros', 'Arocs'],
-  'MG': ['3', '5', 'ZS', 'ZS EV', 'HS', 'Marvel R', 'MG4', 'MG5 EV', 'RX5', 'RX8'],
-  'MINI': ['Cooper', 'Cooper S', 'Cooper SE', 'Countryman', 'Countryman SE', 'Clubman', 'John Cooper Works', 'Cabrio'],
-  'MITSUBISHI': ['L200', 'L200 Triton', 'ASX', 'Eclipse Cross', 'Eclipse Cross PHEV', 'Outlander', 'Outlander PHEV', 'Pajero Sport', 'Pajero', 'Space Star', 'Mirage'],
-  'NISSAN': ['March', 'Versa', 'Versa V-Drive', 'Sentra', 'Sentra SR', 'Altima', 'Maxima', 'Kicks', 'Kicks e-Power', 'Qashqai', 'X-Trail', 'X-Trail e-Power', 'Murano', 'Pathfinder', 'Ariya', 'Leaf', 'Frontier', 'Frontier Attack', 'Frontier Pro-4X', 'Titan', 'NV200', 'NV350'],
-  'PEUGEOT': ['208', '208 GT', '208 Allure', '308', '308 GT', '308 SW', '408', '508', '508 GT', '508 SW', '2008', '2008 GT', '3008', '3008 GT', '3008 Hybrid', '5008', '5008 GT', 'Partner', 'Partner Furgon', 'Rifter', 'Expert', 'Boxer', 'e-208', 'e-2008', 'e-308', 'e-Traveller'],
-  'PORSCHE': ['718 Boxster', '718 Cayman', '911', '911 Carrera', '911 Turbo', '911 GT3', '911 Targa', 'Panamera', 'Taycan', 'Taycan Cross Turismo', 'Macan', 'Macan Electric', 'Cayenne', 'Cayenne Coupe'],
-  'RAM': ['700', '1000', '1200', '1500', '1500 Classic', '1500 Rebel', '1500 Laramie', '1500 Limited', '2500', '2500 Laramie', '3500', 'ProMaster'],
-  'RENAULT': ['Kwid', 'Kwid Outsider', 'Sandero', 'Sandero Stepway', 'Sandero RS', 'Logan', 'Symbol', 'Stepway', 'Megane', 'Megane RS', 'Duster', 'Duster Oroch', 'Captur', 'Captur Intens', 'Koleos', 'Arkana', 'Austral', 'Kangoo', 'Kangoo Stepway', 'Master', 'Alaskan', 'Oroch', 'Zoe', 'Megane E-Tech', 'Twizy', 'Scenic', 'Trafic'],
-  'SEAT': ['Ibiza', 'Ibiza FR', 'Leon', 'Leon FR', 'Leon Cupra', 'Arona', 'Arona FR', 'Ateca', 'Ateca FR', 'Tarraco', 'Tarraco FR'],
-  'SKODA': ['Fabia', 'Scala', 'Octavia', 'Octavia RS', 'Superb', 'Kamiq', 'Karoq', 'Kodiaq', 'Kodiaq RS', 'Enyaq', 'Enyaq Coupe'],
-  'SSANGYONG': ['Korando', 'Tivoli', 'Rexton', 'Musso', 'Torres'],
-  'SUBARU': ['Impreza', 'XV', 'Crosstrek', 'Forester', 'Outback', 'Legacy', 'WRX', 'WRX STI', 'BRZ', 'Ascent', 'Solterra'],
-  'SUZUKI': ['Alto', 'Celerio', 'Swift', 'Swift Sport', 'Baleno', 'Ignis', 'S-Cross', 'Vitara', 'Grand Vitara', 'Jimny', 'Jimny 5 puertas', 'XL7', 'Gixxer 150', 'Gixxer 250', 'V-Strom 250', 'V-Strom 650'],
-  'TESLA': ['Model 3', 'Model S', 'Model X', 'Model Y', 'Cybertruck'],
-  'TOYOTA': ['Etios', 'Etios Cross', 'Yaris', 'Yaris Hatchback', 'Yaris Sedan', 'Yaris Cross', 'Corolla', 'Corolla Hatchback', 'Corolla Cross', 'Corolla Cross Hybrid', 'Camry', 'Camry Hybrid', 'Prius', 'Crown', 'GR86', 'Supra', 'CH-R', 'RAV4', 'RAV4 Hybrid', 'RAV4 Prime', 'SW4', 'SW4 Diamond', 'Land Cruiser', 'Land Cruiser Prado', 'Hilux', 'Hilux GR-S', 'Hilux DX', 'Hilux SR', 'Hilux SRV', 'Hilux SRX', 'Sequoia', 'Tundra', 'Hiace', 'bZ4X', '4Runner'],
-  'VOLKSWAGEN': ['Gol', 'Gol Trend', 'Voyage', 'Polo', 'Polo Track', 'Polo GTS', 'Virtus', 'Virtus GTS', 'Golf', 'Golf GTI', 'Golf R', 'Jetta', 'Jetta GLI', 'Vento', 'Passat', 'Passat Variant', 'Arteon', 'T-Cross', 'T-Cross Highline', 'Taos', 'Taos Highline', 'Tiguan', 'Tiguan Allspace', 'Tiguan R-Line', 'Touareg', 'Nivus', 'Nivus Highline', 'ID.3', 'ID.4', 'ID.5', 'ID.Buzz', 'Amarok', 'Amarok V6', 'Amarok Extreme', 'Amarok Highline', 'Saveiro', 'Saveiro Cross', 'Saveiro Trendline', 'Caddy', 'Transporter', 'Crafter', 'Delivery', 'Constellation', 'Meteor'],
-  'VOLVO': ['S60', 'S90', 'V60', 'V60 Cross Country', 'V90', 'V90 Cross Country', 'XC40', 'XC40 Recharge', 'XC60', 'XC60 Recharge', 'XC90', 'XC90 Recharge', 'C40 Recharge', 'EX30', 'EX90', 'FH', 'FM', 'FMX', 'VM'],
-  // === MOTOS ===
-  'APRILIA': ['RS 125', 'RS 150', 'RS 457', 'RS 660', 'RSV4', 'Tuono 125', 'Tuono 660', 'Tuono V4', 'SR 150', 'SR GT 125', 'SR GT 200', 'STX 150'],
-  'BAJAJ': ['Boxer', 'Platina', 'CT 100', 'Discover', 'Pulsar NS 125', 'Pulsar NS 160', 'Pulsar NS 200', 'Pulsar RS 200', 'Pulsar 220F', 'Rouser NS 200', 'Rouser RS 200', 'Dominar 250', 'Dominar 400', 'Avenger'],
-  'BENELLI': ['TNT 135', 'TNT 150', 'TNT 25', 'TNT 300', 'TNT 302S', 'TNT 600', 'TNT 899', 'Leoncino 250', 'Leoncino 500', 'Leoncino Trail', 'TRK 251', 'TRK 502', 'TRK 502 X', 'TRK 702', 'Imperiale 400', '180S', '302R'],
-  'BETA': ['Enduro RR', 'X-Trainer', 'Motard', 'Trial EVO', 'RR 50', 'RR 125', 'RR 200', 'RR 300', 'RR 350', 'RR 390', 'RR 430', 'RR 480'],
-  'CF MOTO': ['150NK', '250NK', '400NK', '650NK', '800NK', '250 SR', '450 SR', '700 CL-X', '800MT', '1250 TR-G', 'Papio 125', 'Leader 150'],
-  'CORVEN': ['Expert 80', 'Expert 110', 'Expert 150', 'Energy 110', 'Hunter 150', 'Hunter 200', 'Triax 150', 'Triax 200', 'Triax 250', 'Touring 250', 'Indiana 256', 'Terrain 250 X'],
-  'DUCATI': ['Scrambler Icon', 'Scrambler 1100', 'Monster', 'Monster +', 'Monster SP', 'Diavel', 'Diavel V4', 'XDiavel', 'Hypermotard 950', 'Multistrada V2', 'Multistrada V4', 'Panigale V2', 'Panigale V4', 'Streetfighter V2', 'Streetfighter V4', 'SuperSport', 'DesertX'],
-  'GILERA': ['Smash 110', 'Smash 125', 'VC 150', 'VC 200', 'VC Street', 'Fuoco 200', 'YL 200', 'AC4', 'Runner'],
-  'GUERRERO': ['Trip 110', 'Trip 125', 'G 110', 'G 125', 'GRF 200', 'GRF 250', 'GXL 150', 'GXR 250', 'GXR 300', 'GMX 150', 'GMX 200', 'GMX 250', 'GTL 400'],
-  'HARLEY-DAVIDSON': ['Street 750', 'Iron 883', 'Iron 1200', 'Forty-Eight', 'Nightster', 'Sportster S', 'Softail Standard', 'Street Bob', 'Fat Bob', 'Fat Boy', 'Heritage Classic', 'Breakout', 'Low Rider', 'Low Rider S', 'Electra Glide', 'Road Glide', 'Road King', 'Street Glide', 'Ultra Limited', 'Pan America', 'LiveWire'],
-  'HERO': ['Ignitor', 'Hunk 150', 'Hunk 160R', 'XPulse 200', 'XPulse 200T', 'Xtreme 160R'],
-  'HUSQVARNA': ['Svartpilen 125', 'Svartpilen 200', 'Svartpilen 401', 'Svartpilen 701', 'Vitpilen 125', 'Vitpilen 401', 'Vitpilen 701', 'Norden 901'],
-  'INDIAN': ['Scout', 'Scout Bobber', 'Chief', 'Chief Dark Horse', 'Super Chief', 'Springfield', 'Chieftain', 'Roadmaster', 'Challenger', 'Pursuit', 'FTR', 'FTR S', 'FTR Rally'],
-  'JAWA': ['42', '350', 'Perak', 'Forty Two Bobber'],
-  'KAWASAKI': ['Ninja 125', 'Ninja 250', 'Ninja 300', 'Ninja 400', 'Ninja 650', 'Ninja ZX-6R', 'Ninja ZX-10R', 'Ninja ZX-10RR', 'Ninja H2', 'Ninja H2 SX', 'Z 125 Pro', 'Z 250', 'Z 400', 'Z 650', 'Z 650RS', 'Z 900', 'Z 900RS', 'Z H2', 'Versys 300', 'Versys 650', 'Versys 1000', 'Vulcan S', 'Vulcan 900', 'W 800', 'KLX 140', 'KLX 230', 'KLX 300', 'KLR 650'],
-  'KELLER': ['Xtreme 150', 'Xtreme 200', 'Chronos 150', 'Stratus 200', 'Crono 110', 'Miracle 110'],
-  'KTM': ['125 Duke', '200 Duke', '250 Duke', '390 Duke', '790 Duke', '890 Duke', '1290 Super Duke', 'RC 125', 'RC 200', 'RC 390', '250 Adventure', '390 Adventure', '790 Adventure', '890 Adventure', '1290 Super Adventure'],
-  'KYMCO': ['Agility 125', 'Agility 200', 'Like 125', 'Like 150', 'AK 550', 'Downtown 350i', 'X-Town 300i', 'People 125'],
-  'MOTOMEL': ['Blitz 110', 'Bit 110', 'Sirius 150', 'Sirius 190', 'Sirius 200', 'CG 150', 'S2 150', 'S2 200', 'S3 150', 'S3 200', 'Skua 150', 'Skua 200', 'Skua 250', 'Max 110', 'Strato 150', 'Strato Euro'],
-  'MV AGUSTA': ['Brutale 800', 'Brutale 1000', 'Dragster 800', 'Dragster 1000', 'F3 675', 'F3 800', 'Superveloce 800', 'Turismo Veloce', 'Rush 1000', 'Lucky Explorer'],
-  'ROYAL ENFIELD': ['Bullet 350', 'Bullet 500', 'Classic 350', 'Classic 500', 'Meteor 350', 'Super Meteor 650', 'Hunter 350', 'Scram 411', 'Himalayan', 'Continental GT 650', 'Interceptor 650'],
-  'SYM': ['Symphony 125', 'Symphony 150', 'Crox 125', 'Jet 14', 'Citycom 300', 'Joymax Z 125', 'Joymax Z 300', 'Maxsym 400', 'Maxsym TL'],
-  'TRIUMPH': ['Street Twin', 'Street Triple', 'Street Triple RS', 'Speed Twin', 'Speed Triple 1200', 'Trident 660', 'Bonneville T100', 'Bonneville T120', 'Bonneville Bobber', 'Thruxton RS', 'Scrambler 900', 'Scrambler 1200', 'Tiger 660', 'Tiger 850 Sport', 'Tiger 900', 'Tiger 1200', 'Rocket 3', 'Daytona 660', 'Speed 400', 'Scrambler 400 X'],
-  'TVS': ['Neo 125', 'Ntorq 125', 'Apache RTR 160', 'Apache RTR 180', 'Apache RTR 200', 'Apache RR 310', 'Raider 125', 'Ronin'],
-  'VENTO': ['Cyclone 150', 'Phantom 150', 'Terra 200', 'Rebellian 200', 'Workman 125'],
-  'VOGE': ['300R', '300RR', '500DS', '500R', '525DSX', '650DSX', '900DSX', 'ER10', 'SF 350'],
-  'YAMAHA': ['Ray ZR', 'Fascino', 'FZ 16', 'FZ 25', 'FZ-S 25', 'FZ-X', 'FZ 150', 'FZ-S FI', 'YBR 125', 'YS 150 Fazer', 'MT-03', 'MT-07', 'MT-09', 'MT-10', 'YZF-R15', 'YZF-R3', 'YZF-R6', 'YZF-R7', 'YZF-R1', 'YZF-R1M', 'XSR 155', 'XSR 700', 'XSR 900', 'XTZ 125', 'XTZ 150', 'XTZ 250', 'XTZ 250 Tenere', 'Tenere 700', 'Tracer 7', 'Tracer 9', 'Niken', 'TMAX', 'XMAX 300', 'NMAX 155', 'Aerox 155', 'Tricity 155', 'Bolt', 'VMAX'],
-  'ZANELLA': ['ZB 110', 'ZB 125', 'ZR 150', 'ZR 200', 'ZR 250', 'RX 150', 'RX 200', 'Styler 150', 'Styler Cruiser', 'Patagonian Eagle 150', 'Patagonian Eagle 250', 'Patagonian Eagle 350', 'Ceccato 60', 'Ceccato 150', 'Ceccato 200', 'Ceccato 250', 'Enduro ZT', 'ZT 200', 'ZT 250', 'ZT 300', 'Touring 200'],
-  'ZONGSHEN': ['RX1', 'RX3S', 'Cyclone RX6', 'RX3', 'ZS 150'],
-  // === CAMIONES ===
-  'AGRALE': ['6000', '7000', '8500', '8700', '9200', '10000', '13000', '14000'],
-  'DAF': ['XF', 'XG', 'XG+', 'CF', 'LF'],
-  'FOTON': ['Aumark BJ1039', 'Aumark BJ1049', 'Aumark BJ1069', 'Aumark BJ1089', 'Auman', 'EST-M', 'EST-A'],
-  'FREIGHTLINER': ['Cascadia', 'M2', 'Argosy', 'Columbia', '114SD', '122SD'],
-  'HINO': ['Serie 300', 'Serie 500', 'Serie 700', '300 616', '300 716', '300 816', '500 1227', '500 1527', '500 1826', '500 2626', '700 2841'],
-  'INTERNATIONAL': ['DuraStar', 'WorkStar', 'ProStar', 'LoneStar', 'LT', 'HX', 'MV', 'HV', 'RH'],
-  'ISUZU': ['ELF 100', 'ELF 200', 'ELF 300', 'ELF 400', 'ELF 500', 'ELF 600', 'NPR', 'NQR', 'NRR', 'FRR', 'FTR', 'FVR', 'FVZ', 'GXR', 'GXZ'],
-  'IVECO': ['Daily 35', 'Daily 40', 'Daily 45', 'Daily 55', 'Daily 70', 'Vertis 90', 'Vertis 130', 'Tector 150E', 'Tector 170E', 'Tector 240E', 'Tector 260E', 'Cursor 330', 'Cursor 450', 'Stralis 380', 'Stralis 410', 'Stralis 440', 'Stralis 480', 'Hi-Way 440', 'Hi-Way 480', 'Hi-Way 560', 'S-Way', 'X-Way', 'T-Way'],
-  'JMC': ['Carrying', 'N800', 'N900', 'Conquer'],
-  'KENWORTH': ['T680', 'T880', 'W900', 'W990', 'C500', 'T270', 'T370', 'T440', 'T470', 'T800'],
-  'MACK': ['Anthem', 'Pinnacle', 'Granite', 'TerraPro', 'LR', 'MD', 'Titan'],
-  'MAN': ['TGE', 'TGL', 'TGM', 'TGS', 'TGX'],
-  'PETERBILT': ['579', '567', '389', '388', '367', '365', '348', '337', '220', '520', '536', '537'],
-  'SCANIA': ['P 250', 'P 280', 'P 310', 'P 360', 'P 410', 'G 360', 'G 410', 'G 450', 'G 500', 'R 410', 'R 450', 'R 500', 'R 540', 'R 620', 'R 730', 'S 450', 'S 500', 'S 540', 'S 620', 'S 730', 'XT', 'L', 'Super'],
-  'SHACMAN': ['X3000', 'F2000', 'F3000', 'H3000', 'M3000', 'SX2190'],
-  'SINOTRUK': ['Howo A7', 'Howo T5G', 'Howo TX', 'Steyr', 'Sitrak C7H'],
-  'WESTERN STAR': ['4700', '4800', '4900', '5700', '6900'],
-  'MAHINDRA': ['Scorpio Pik Up', 'Bolero Pik Up', 'Imperio'],
-  // Fallback
-  'default': ['Consultar modelo']
-};
-
-// ============================================================================
-// BASE DE DATOS DE VERSIONES POR MARCA/MODELO
-// Versiones reales del mercado argentino
-// ============================================================================
-
-const VERSIONES = {
-  // ========== TOYOTA ==========
-  'TOYOTA_Hilux': ['DX 4x2 SC', 'DX 4x2 DC', 'DX 4x4 DC', 'SR 4x2 MT', 'SR 4x2 AT', 'SR 4x4 MT', 'SR 4x4 AT', 'SRV 4x2 AT', 'SRV 4x4 MT', 'SRV 4x4 AT', 'SRX 4x4 AT', 'GR-S 4x4 AT', 'Limited 4x4 AT'],
-  'TOYOTA_Hilux GR-S': ['4x4 AT V6', '4x4 AT'],
-  'TOYOTA_Hilux DX': ['4x2 SC', '4x2 DC', '4x4 DC'],
-  'TOYOTA_Hilux SR': ['4x2 MT', '4x2 AT', '4x4 MT', '4x4 AT'],
-  'TOYOTA_Hilux SRV': ['4x2 AT', '4x4 MT', '4x4 AT'],
-  'TOYOTA_Hilux SRX': ['4x4 AT'],
-  'TOYOTA_Corolla': ['XLI MT', 'XLI CVT', 'XEI CVT', 'SEG CVT', 'SEG Hybrid', 'GR-S Hybrid'],
-  'TOYOTA_Corolla Cross': ['XLI CVT', 'XEI CVT', 'SEG CVT', 'SEG Hybrid'],
-  'TOYOTA_Corolla Cross Hybrid': ['XEI', 'SEG'],
-  'TOYOTA_Yaris': ['XS MT', 'XS CVT', 'XLS CVT', 'XLS Pack CVT', 'S CVT'],
-  'TOYOTA_Yaris Cross': ['XS CVT', 'XLS CVT', 'XLS Pack CVT', 'S CVT', 'Limited'],
-  'TOYOTA_Etios': ['X 5P', 'XS 5P', 'XLS 5P', 'X 4P', 'XS 4P', 'XLS 4P', 'Cross'],
-  'TOYOTA_SW4': ['SR 4x2 AT', 'SR 4x4 AT', 'SRX 4x4 AT', 'Diamond 4x4 AT', 'GR-S 4x4 AT'],
-  'TOYOTA_RAV4': ['XLE CVT', 'Limited CVT', 'Adventure AWD'],
-  'TOYOTA_RAV4 Hybrid': ['XLE', 'Limited'],
-  'TOYOTA_Camry': ['3.5 V6 AT'],
-  'TOYOTA_Land Cruiser': ['VX AT', 'VX-R AT', 'GR-S AT'],
-  'TOYOTA_Land Cruiser Prado': ['TX AT', 'TX-L AT', 'VX AT'],
-
-  // ========== FORD ==========
-  'FORD_Ranger': ['XL 4x2 SC MT', 'XL 4x2 DC MT', 'XL 4x4 DC MT', 'XLS 4x2 MT', 'XLS 4x2 AT', 'XLS 4x4 MT', 'XLS 4x4 AT', 'XLT 4x2 AT', 'XLT 4x4 AT', 'Limited 4x2 AT', 'Limited 4x4 AT', 'Wildtrak 4x4 AT', 'Raptor 4x4 AT'],
-  'FORD_Ranger Raptor': ['3.0 V6 AT'],
-  'FORD_Ranger XLT': ['4x2 AT', '4x4 AT'],
-  'FORD_Ranger Limited': ['4x2 AT', '4x4 AT'],
-  'FORD_Ranger Wildtrak': ['4x4 AT'],
-  'FORD_Territory': ['Trend 1.5T', 'Titanium 1.5T'],
-  'FORD_Bronco Sport': ['Big Bend', 'Outer Banks', 'Badlands', 'Wildtrak'],
-  'FORD_Bronco': ['Base', 'Big Bend', 'Black Diamond', 'Outer Banks', 'Badlands', 'Wildtrak', 'Raptor'],
-  'FORD_Explorer': ['XLT 4x4', 'Limited 4x4', 'ST-Line 4x4', 'Platinum 4x4'],
-  'FORD_Mustang': ['EcoBoost 2.3T', 'GT 5.0 V8', 'Mach 1', 'Shelby GT500'],
-  'FORD_Mustang Mach-E': ['Standard Range', 'Extended Range', 'GT'],
-  'FORD_EcoSport': ['SE 1.5 MT', 'SE 1.5 AT', 'Titanium 1.5 AT', 'Storm 2.0 4x4 AT'],
-  'FORD_Kuga': ['SEL 1.5T', 'Titanium 1.5T', 'ST-Line 2.5 Hybrid'],
-  'FORD_F-150': ['XL 4x2', 'XLT 4x4', 'Lariat 4x4', 'Platinum 4x4', 'Limited 4x4', 'Raptor 4x4'],
-
-  // ========== VOLKSWAGEN ==========
-  'VOLKSWAGEN_Amarok': ['Trendline 4x2 MT', 'Trendline 4x4 MT', 'Comfortline 4x2 AT', 'Comfortline 4x4 AT', 'Highline 4x2 AT', 'Highline 4x4 AT', 'Extreme 4x4 AT', 'V6 Comfortline 4x4', 'V6 Highline 4x4', 'V6 Extreme 4x4', 'V6 Black Style'],
-  'VOLKSWAGEN_Amarok V6': ['Comfortline 4x4', 'Highline 4x4', 'Extreme 4x4', 'Black Style'],
-  'VOLKSWAGEN_Taos': ['Trendline 1.4T MT', 'Comfortline 1.4T AT', 'Highline 1.4T AT', 'Hero Edition 1.4T AT'],
-  'VOLKSWAGEN_T-Cross': ['Trendline 1.6 MT', 'Trendline 1.6 AT', 'Comfortline 1.6 AT', 'Highline 1.4T AT', 'Hero 1.4T AT'],
-  'VOLKSWAGEN_Tiguan': ['Trendline 1.4T', 'Comfortline 1.4T', 'Highline 1.4T', 'R-Line 2.0T'],
-  'VOLKSWAGEN_Tiguan Allspace': ['Trendline 1.4T', 'Comfortline 1.4T', 'Highline 2.0T', 'R-Line 2.0T'],
-  'VOLKSWAGEN_Polo': ['Track 1.6 MSI', 'Trendline 1.6 MSI', 'Comfortline 1.6 MSI', 'Comfortline 1.0 TSI', 'Highline 1.0 TSI', 'GTS 1.4 TSI'],
-  'VOLKSWAGEN_Polo Track': ['1.6 MSI MT'],
-  'VOLKSWAGEN_Polo GTS': ['1.4 TSI AT'],
-  'VOLKSWAGEN_Virtus': ['Trendline 1.6 MSI', 'Comfortline 1.6 MSI', 'Comfortline 1.0 TSI', 'Highline 1.0 TSI', 'GTS 1.4 TSI'],
-  'VOLKSWAGEN_Virtus GTS': ['1.4 TSI AT'],
-  'VOLKSWAGEN_Nivus': ['Comfortline 1.0 TSI', 'Highline 1.0 TSI', 'Hero 1.0 TSI'],
-  'VOLKSWAGEN_Golf': ['250 TSI Comfortline', '250 TSI Highline', 'GTI 2.0 TSI', 'R 2.0 TSI 4Motion'],
-  'VOLKSWAGEN_Golf GTI': ['2.0 TSI MT', '2.0 TSI DSG'],
-  'VOLKSWAGEN_Golf R': ['2.0 TSI 4Motion'],
-  'VOLKSWAGEN_Vento': ['Comfortline 1.4 TSI', 'Highline 1.4 TSI', 'GLI 2.0 TSI'],
-  'VOLKSWAGEN_Saveiro': ['Trendline CS', 'Trendline CD', 'Comfortline CS', 'Comfortline CD', 'Cross CS', 'Cross CD'],
-  'VOLKSWAGEN_Saveiro Cross': ['CS', 'CD'],
-
-  // ========== FIAT ==========
-  'FIAT_Cronos': ['Like 1.3 MT', 'Drive 1.3 MT', 'Drive 1.3 AT', 'Drive 1.8 MT', 'Drive 1.8 AT', 'Precision 1.8 AT', 'Impetus 1.3T AT'],
-  'FIAT_Argo': ['Like 1.3', 'Drive 1.3', 'Drive 1.8', 'Precision 1.8', 'Trekking 1.3', 'Trekking 1.8', 'HGT 1.8'],
-  'FIAT_Argo Trekking': ['1.3 MT', '1.8 MT', '1.8 AT'],
-  'FIAT_Pulse': ['Drive 1.3 MT', 'Drive 1.3 AT', 'Drive 1.3 CVT', 'Audace 1.0T AT', 'Impetus 1.0T AT'],
-  'FIAT_Pulse Impetus': ['1.0T AT'],
-  'FIAT_Fastback': ['Audace 1.0T AT', 'Impetus 1.0T AT', 'Limited 1.0T AT', 'Abarth 1.3T AT'],
-  'FIAT_Fastback Abarth': ['1.3T AT'],
-  'FIAT_Strada': ['Endurance 1.4 CS', 'Freedom 1.3 CS', 'Freedom 1.3 CD', 'Volcano 1.3 CD', 'Volcano 1.3T CD', 'Ranch 1.3T CD', 'Ultra 1.3T CD'],
-  'FIAT_Strada Volcano': ['1.3 MT CD', '1.3T MT CD'],
-  'FIAT_Strada Ranch': ['1.3T MT CD'],
-  'FIAT_Toro': ['Endurance 1.3T MT', 'Freedom 1.3T AT', 'Volcano 1.3T AT', 'Ranch 2.0TD AT 4x4', 'Ultra 2.0TD AT 4x4'],
-  'FIAT_Toro Ultra': ['2.0 TD AT 4x4'],
-  'FIAT_Toro Ranch': ['2.0 TD AT 4x4'],
-  'FIAT_Mobi': ['Like', 'Trekking', 'Way'],
-  'FIAT_500': ['Pop', 'Lounge', 'Cult', 'Abarth'],
-
-  // ========== CHEVROLET ==========
-  'CHEVROLET_S10': ['LS 4x2 SC MT', 'LS 4x2 DC MT', 'LS 4x4 DC MT', 'LT 4x2 MT', 'LT 4x2 AT', 'LT 4x4 MT', 'LT 4x4 AT', 'LTZ 4x4 AT', 'High Country 4x4 AT', 'Z71 4x4 AT'],
-  'CHEVROLET_S10 Z71': ['4x4 AT'],
-  'CHEVROLET_Montana': ['LS 1.2T MT', 'LT 1.2T MT', 'LT 1.2T AT', 'LTZ 1.2T AT', 'Premier 1.2T AT'],
-  'CHEVROLET_Tracker': ['LT 1.2T MT', 'LT 1.2T AT', 'LTZ 1.2T AT', 'Premier 1.2T AT', 'RS 1.2T AT', 'Midnight 1.2T AT'],
-  'CHEVROLET_Tracker RS': ['1.2T AT'],
-  'CHEVROLET_Onix': ['Joy 1.0', 'Joy Plus 1.0', 'LT 1.0T MT', 'LT 1.0T AT', 'LTZ 1.0T AT', 'Premier 1.0T AT', 'Premier II 1.0T AT', 'RS 1.0T AT', 'Midnight 1.0T AT'],
-  'CHEVROLET_Onix Plus': ['Joy', 'LT MT', 'LT AT', 'LTZ AT', 'Premier AT'],
-  'CHEVROLET_Onix RS': ['1.0T AT'],
-  'CHEVROLET_Cruze': ['LT 1.4T MT', 'LT 1.4T AT', 'LTZ 1.4T AT', 'Premier 1.4T AT', 'RS 1.4T AT', 'Midnight 1.4T AT'],
-  'CHEVROLET_Cruze RS': ['1.4T AT'],
-  'CHEVROLET_Spin': ['LT 1.8 MT', 'LT 1.8 AT', 'LTZ 1.8 AT', 'Premier 1.8 AT', 'Activ 1.8 AT'],
-  'CHEVROLET_Equinox': ['LT 1.5T AT', 'Premier 1.5T AT', 'RS 1.5T AT'],
-  'CHEVROLET_Equinox RS': ['1.5T AT AWD'],
-  'CHEVROLET_Tahoe': ['LT 4x4', 'Premier 4x4', 'RST 4x4', 'High Country 4x4'],
-  'CHEVROLET_Camaro': ['LT 2.0T', 'SS 6.2 V8', 'ZL1 6.2 V8 SC'],
-
-  // ========== PEUGEOT ==========
-  'PEUGEOT_208': ['Like 1.6', 'Active 1.6', 'Active Pack 1.6', 'Allure 1.6', 'Feline 1.6', 'GT 1.6 THP'],
-  'PEUGEOT_208 GT': ['1.6 THP AT'],
-  'PEUGEOT_208 Allure': ['1.6 MT', '1.6 AT'],
-  'PEUGEOT_2008': ['Active 1.6', 'Active Pack 1.6', 'Allure 1.6', 'Allure Pack 1.6', 'Feline 1.6 THP', 'GT 1.6 THP'],
-  'PEUGEOT_2008 GT': ['1.6 THP AT'],
-  'PEUGEOT_308': ['Active 1.6', 'Allure 1.6', 'Allure Pack 1.6', 'Feline 1.6 THP', 'GT 1.6 THP'],
-  'PEUGEOT_308 GT': ['1.6 THP AT'],
-  'PEUGEOT_3008': ['Active 1.6 THP', 'Allure 1.6 THP', 'Allure Pack 1.6 THP', 'GT 1.6 THP', 'GT Pack 1.6 THP', 'Hybrid4'],
-  'PEUGEOT_3008 GT': ['1.6 THP AT', 'Hybrid4'],
-  'PEUGEOT_408': ['Allure 1.6 THP', 'Allure Pack 1.6 THP', 'GT 1.6 THP'],
-  'PEUGEOT_5008': ['Allure 1.6 THP', 'Allure Pack 1.6 THP', 'GT 1.6 THP'],
-  'PEUGEOT_Partner': ['Confort 1.6', 'Furgon 1.6', 'Patagonica 1.6'],
-
-  // ========== RENAULT ==========
-  'RENAULT_Sandero': ['Life 1.6', 'Zen 1.6', 'Intens 1.6', 'Intens CVT'],
-  'RENAULT_Sandero Stepway': ['Zen 1.6', 'Intens 1.6', 'Intens CVT'],
-  'RENAULT_Logan': ['Life 1.6', 'Zen 1.6', 'Intens 1.6'],
-  'RENAULT_Duster': ['Zen 1.6', 'Intens 1.6', 'Iconic 1.3T CVT', 'Outsider 1.3T CVT 4x4'],
-  'RENAULT_Captur': ['Zen 1.6', 'Intens 1.3T CVT', 'Iconic 1.3T CVT'],
-  'RENAULT_Koleos': ['Zen 2.5', 'Intens 2.5', 'Iconic 2.5 4x4'],
-  'RENAULT_Arkana': ['Zen 1.3T', 'Intens 1.3T', 'Iconic 1.3T', 'RS Line 1.3T'],
-  'RENAULT_Kwid': ['Life 1.0', 'Zen 1.0', 'Intens 1.0', 'Outsider 1.0'],
-  'RENAULT_Kwid Outsider': ['1.0 MT'],
-  'RENAULT_Alaskan': ['Confort 2.3 4x2', 'Confort 2.3 4x4', 'Intens 2.3 4x4', 'Iconic 2.3 4x4'],
-  'RENAULT_Kangoo': ['Express Confort 1.5 dCi', 'Stepway 1.5 dCi'],
-
-  // ========== HYUNDAI ==========
-  'HYUNDAI_Tucson': ['Comfort 2.0', 'Premium 2.0', 'Style 2.0', 'N Line 1.6T', 'Limited 2.0'],
-  'HYUNDAI_Creta': ['Comfort 1.6', 'Premium 1.6', 'Limited 1.6', 'Ultimate 1.0T'],
-  'HYUNDAI_Santa Fe': ['Style 2.4', 'Premium 2.4', 'N Line 2.5T', 'Limited 2.5T'],
-  'HYUNDAI_Kona': ['Comfort 2.0', 'Premium 2.0', 'Ultimate 1.6T', 'N 2.0T', 'Electric'],
-  'HYUNDAI_HB20': ['Comfort 1.0', 'Style 1.0', 'Premium 1.0', 'X Premium 1.0'],
-  'HYUNDAI_HB20 X': ['Premium 1.0'],
-  'HYUNDAI_Elantra': ['Comfort 2.0', 'Premium 2.0', 'N 2.0T'],
-  'HYUNDAI_i30': ['Style 2.0', 'N 2.0T', 'N Performance 2.0T'],
-  'HYUNDAI_Venue': ['Style 1.6', 'Premium 1.6'],
-  'HYUNDAI_Ioniq 5': ['Standard Range', 'Long Range', 'Long Range AWD'],
-  'HYUNDAI_Grand i10': ['Base 1.2', 'GL 1.2', 'GLS 1.2'],
-
-  // ========== KIA ==========
-  'KIA_Seltos': ['LX 1.6', 'EX 1.6', 'EX Premium 1.6', 'SX 1.6T', 'GT-Line 1.6T'],
-  'KIA_Sportage': ['LX 2.0', 'EX 2.0', 'EX Pack 2.0', 'SX 2.0T', 'GT-Line 2.0T', 'X-Line 2.0T'],
-  'KIA_Sorento': ['LX 2.5', 'EX 2.5', 'EX Pack 2.5', 'SX 2.5T', 'GT-Line 2.5T'],
-  'KIA_Cerato': ['LX 2.0', 'EX 2.0', 'SX 2.0', 'GT-Line 2.0', 'GT 1.6T'],
-  'KIA_Cerato GT': ['1.6T AT'],
-  'KIA_Carnival': ['LX 3.5 V6', 'EX 3.5 V6', 'SX 3.5 V6'],
-  'KIA_Picanto': ['LX 1.0', 'EX 1.0', 'GT-Line 1.0T'],
-  'KIA_Rio': ['LX 1.4', 'EX 1.4', 'SX 1.4'],
-  'KIA_Stonic': ['LX 1.4', 'EX 1.4', 'GT-Line 1.0T'],
-  'KIA_EV6': ['Standard', 'Long Range', 'Long Range AWD', 'GT'],
-  'KIA_Stinger': ['GT-Line 2.0T', 'GT 3.3T V6'],
-
-  // ========== HONDA ==========
-  'HONDA_HR-V': ['LX CVT', 'EX CVT', 'EXL CVT', 'Touring CVT'],
-  'HONDA_CR-V': ['LX CVT', 'EX CVT', 'EXL CVT', 'Touring CVT'],
-  'HONDA_WR-V': ['LX MT', 'LX CVT', 'EX CVT', 'EXL CVT'],
-  'HONDA_Civic': ['LX CVT', 'EX CVT', 'EXL CVT', 'Touring CVT', 'Si 1.5T', 'Type R 2.0T'],
-  'HONDA_Civic Si': ['1.5T MT'],
-  'HONDA_Civic Type R': ['2.0T MT'],
-  'HONDA_City': ['LX CVT', 'EX CVT', 'EXL CVT'],
-  'HONDA_City Hatchback': ['LX CVT', 'EX CVT', 'EXL CVT'],
-  'HONDA_Accord': ['EX CVT', 'EXL CVT', 'Touring CVT', 'Hybrid'],
-
-  // ========== NISSAN ==========
-  'NISSAN_Frontier': ['S 4x2 MT', 'SE 4x4 MT', 'XE 4x4 MT', 'XE 4x4 AT', 'LE 4x4 AT', 'Attack 4x4 AT', 'Pro-4X 4x4 AT'],
-  'NISSAN_Frontier Attack': ['4x4 AT'],
-  'NISSAN_Frontier Pro-4X': ['4x4 AT'],
-  'NISSAN_Kicks': ['Sense 1.6', 'Advance 1.6', 'Exclusive 1.6', 'e-Power'],
-  'NISSAN_Sentra': ['Sense 2.0', 'Advance 2.0', 'Exclusive 2.0', 'SR 2.0'],
-  'NISSAN_Sentra SR': ['2.0 CVT'],
-  'NISSAN_Versa': ['Sense 1.6', 'Advance 1.6', 'Exclusive 1.6'],
-  'NISSAN_X-Trail': ['Sense 2.5', 'Advance 2.5', 'Exclusive 2.5', 'e-Power'],
-  'NISSAN_Qashqai': ['Sense 2.0', 'Advance 2.0', 'Exclusive 2.0'],
-
-  // ========== JEEP ==========
-  'JEEP_Renegade': ['Sport 1.8 MT', 'Sport 1.8 AT', 'Longitude 1.8 AT', 'Longitude 1.3T AT', 'Limited 1.3T AT', 'Trailhawk 1.3T AT 4x4'],
-  'JEEP_Renegade Trailhawk': ['1.3T AT 4x4'],
-  'JEEP_Compass': ['Sport 1.3T MT', 'Sport 1.3T AT', 'Longitude 1.3T AT', 'Limited 1.3T AT', 'Limited 1.3T AT 4x4', 'Trailhawk 1.3T AT 4x4', '4xe PHEV'],
-  'JEEP_Compass Trailhawk': ['1.3T AT 4x4'],
-  'JEEP_Commander': ['Limited 1.3T AT', 'Limited 1.3T AT 4x4', 'Overland 2.0TD AT 4x4'],
-  'JEEP_Grand Cherokee': ['Laredo 3.6 V6', 'Limited 3.6 V6', 'Overland 3.6 V6', 'Summit 5.7 V8', 'SRT 6.4 V8', 'Trackhawk 6.2 V8 SC', '4xe PHEV'],
-  'JEEP_Grand Cherokee L': ['Laredo 3.6 V6', 'Limited 3.6 V6', 'Overland 3.6 V6', 'Summit 5.7 V8'],
-  'JEEP_Wrangler': ['Sport 3.6 V6', 'Sahara 3.6 V6', 'Rubicon 3.6 V6', 'Rubicon 392 6.4 V8', '4xe PHEV'],
-  'JEEP_Wrangler Rubicon': ['3.6 V6', '392 6.4 V8'],
-  'JEEP_Gladiator': ['Sport 3.6 V6', 'Overland 3.6 V6', 'Rubicon 3.6 V6'],
-  'JEEP_Gladiator Rubicon': ['3.6 V6 MT', '3.6 V6 AT'],
-
-  // ========== BMW ==========
-  'BMW_Serie 1': ['118i', '120i', '128ti', 'M135i xDrive'],
-  'BMW_Serie 2 Gran Coupe': ['218i', '220i', '220i M Sport', 'M235i xDrive'],
-  'BMW_Serie 3': ['318i', '320i', '320i M Sport', '330i', '330i M Sport', '330e', 'M340i', 'M340i xDrive'],
-  'BMW_Serie 4 Coupe': ['420i', '430i', '430i M Sport', 'M440i xDrive'],
-  'BMW_Serie 4 Gran Coupe': ['420i', '430i', '430i M Sport', 'M440i xDrive'],
-  'BMW_Serie 5': ['520i', '530i', '530i M Sport', '540i', '545e', 'M550i xDrive'],
-  'BMW_Serie 7': ['740i', '750i xDrive', '760i xDrive', 'i7 xDrive60'],
-  'BMW_X1': ['sDrive18i', 'sDrive20i', 'xDrive25i', 'xDrive25e'],
-  'BMW_X2': ['sDrive18i', 'sDrive20i', 'xDrive25i', 'M35i'],
-  'BMW_X3': ['sDrive20i', 'xDrive20i', 'xDrive30i', 'xDrive30e', 'M40i', 'M Competition'],
-  'BMW_X4': ['xDrive20i', 'xDrive30i', 'M40i', 'M Competition'],
-  'BMW_X5': ['xDrive40i', 'xDrive45e', 'xDrive50i', 'M50i', 'M Competition'],
-  'BMW_X6': ['xDrive40i', 'M50i', 'M Competition'],
-  'BMW_X7': ['xDrive40i', 'xDrive50i', 'M60i xDrive'],
-  'BMW_Z4': ['sDrive20i', 'sDrive30i', 'M40i'],
-  'BMW_M2': ['Competition', 'CS'],
-  'BMW_M3': ['Competition', 'CS', 'Competition xDrive'],
-  'BMW_M4': ['Competition', 'Competition xDrive', 'CSL'],
-  'BMW_M5': ['Competition', 'CS'],
-  'BMW_i4': ['eDrive35', 'eDrive40', 'M50'],
-  'BMW_iX': ['xDrive40', 'xDrive50', 'M60'],
-  'BMW_iX3': ['eDrive'],
-
-  // ========== MERCEDES-BENZ ==========
-  'MERCEDES-BENZ_A 200': ['Progressive', 'AMG Line'],
-  'MERCEDES-BENZ_A 250': ['Progressive', 'AMG Line'],
-  'MERCEDES-BENZ_A 35 AMG': ['4Matic'],
-  'MERCEDES-BENZ_A 45 AMG': ['S 4Matic+'],
-  'MERCEDES-BENZ_C 200': ['Avantgarde', 'AMG Line'],
-  'MERCEDES-BENZ_C 300': ['Avantgarde', 'AMG Line'],
-  'MERCEDES-BENZ_C 43 AMG': ['4Matic'],
-  'MERCEDES-BENZ_C 63 AMG': ['S'],
-  'MERCEDES-BENZ_CLA 200': ['Progressive', 'AMG Line'],
-  'MERCEDES-BENZ_CLA 250': ['AMG Line'],
-  'MERCEDES-BENZ_CLA 35 AMG': ['4Matic'],
-  'MERCEDES-BENZ_CLA 45 AMG': ['S 4Matic+'],
-  'MERCEDES-BENZ_E 200': ['Avantgarde', 'AMG Line'],
-  'MERCEDES-BENZ_E 300': ['Avantgarde', 'AMG Line'],
-  'MERCEDES-BENZ_E 53 AMG': ['4Matic+'],
-  'MERCEDES-BENZ_GLA 200': ['Progressive', 'AMG Line'],
-  'MERCEDES-BENZ_GLA 250': ['4Matic AMG Line'],
-  'MERCEDES-BENZ_GLA 35 AMG': ['4Matic'],
-  'MERCEDES-BENZ_GLA 45 AMG': ['S 4Matic+'],
-  'MERCEDES-BENZ_GLB 200': ['Progressive', 'AMG Line'],
-  'MERCEDES-BENZ_GLB 250': ['4Matic AMG Line'],
-  'MERCEDES-BENZ_GLC 200': ['Avantgarde', 'AMG Line'],
-  'MERCEDES-BENZ_GLC 300': ['4Matic AMG Line'],
-  'MERCEDES-BENZ_GLC 43 AMG': ['4Matic'],
-  'MERCEDES-BENZ_GLE 300': ['d 4Matic'],
-  'MERCEDES-BENZ_GLE 350': ['d 4Matic', '4Matic'],
-  'MERCEDES-BENZ_GLE 450': ['4Matic AMG Line'],
-  'MERCEDES-BENZ_GLE 53 AMG': ['4Matic+'],
-  'MERCEDES-BENZ_GLE 63 AMG': ['S 4Matic+'],
-  'MERCEDES-BENZ_G 500': ['AMG Line'],
-  'MERCEDES-BENZ_G 63 AMG': ['4Matic'],
-
-  // ========== AUDI ==========
-  'AUDI_A3': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro', 'S3 quattro'],
-  'AUDI_A3 Sportback': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro', 'S3 quattro', 'RS3 quattro'],
-  'AUDI_A4': ['40 TFSI', '40 TFSI S line', '45 TFSI quattro', 'S4 TDI', 'RS4 Avant'],
-  'AUDI_A5 Sportback': ['40 TFSI', '40 TFSI S line', '45 TFSI quattro', 'S5 TDI', 'RS5'],
-  'AUDI_A6': ['45 TFSI', '45 TFSI S line', '55 TFSI quattro', 'S6 TDI', 'RS6 Avant'],
-  'AUDI_A7': ['55 TFSI quattro', 'S7 TDI', 'RS7'],
-  'AUDI_Q2': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro'],
-  'AUDI_Q3': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro', 'RSQ3'],
-  'AUDI_Q3 Sportback': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro', 'RSQ3'],
-  'AUDI_Q5': ['40 TFSI', '45 TFSI quattro', '55 TFSIe quattro', 'SQ5 TDI'],
-  'AUDI_Q7': ['45 TFSI', '55 TFSI quattro', 'SQ7 TDI'],
-  'AUDI_Q8': ['55 TFSI quattro', 'SQ8 TDI', 'RSQ8'],
-  'AUDI_e-tron': ['50 quattro', '55 quattro', 'S quattro'],
-  'AUDI_TT': ['45 TFSI', '45 TFSI quattro', 'TTS'],
-
-  // ========== MITSUBISHI ==========
-  'MITSUBISHI_L200': ['GLX 4x2 SC', 'GLX 4x2 DC', 'GLX 4x4 DC', 'GLS 4x4 MT', 'GLS 4x4 AT', 'HPE 4x4 AT', 'HPE-S 4x4 AT'],
-  'MITSUBISHI_L200 Triton': ['GLS 4x4 MT', 'GLS 4x4 AT', 'HPE 4x4 AT', 'HPE-S 4x4 AT'],
-  'MITSUBISHI_Outlander': ['ES', 'SE', 'SEL', 'GT', 'PHEV'],
-  'MITSUBISHI_Outlander PHEV': ['GT-S', 'Instyle'],
-  'MITSUBISHI_Eclipse Cross': ['ES', 'SE', 'SEL', 'SEL S-AWC', 'PHEV'],
-  'MITSUBISHI_ASX': ['ES', 'SE', 'SEL'],
-  'MITSUBISHI_Pajero Sport': ['GLS', 'HPE', 'HPE-S'],
-
-  // ========== RAM ==========
-  'RAM_1500': ['Big Horn 5.7 V8', 'Laramie 5.7 V8', 'Limited 5.7 V8', 'Rebel 5.7 V8', 'TRX 6.2 V8 SC'],
-  'RAM_1500 Classic': ['Express 5.7 V8', 'SLT 5.7 V8', 'Warlock 5.7 V8'],
-  'RAM_1500 Rebel': ['5.7 V8 4x4'],
-  'RAM_1500 Laramie': ['5.7 V8 4x4'],
-  'RAM_1500 Limited': ['5.7 V8 4x4'],
-  'RAM_2500': ['Laramie 6.7 TD', 'Limited 6.7 TD', 'Power Wagon 6.4 V8'],
-  'RAM_2500 Laramie': ['6.7 TD 4x4'],
-
-  // ========== OTROS ==========
-  'SSANGYONG_Korando': ['LX', 'EX', 'Limited'],
-  'SSANGYONG_Rexton': ['RX 2.2 TD', 'RX7 2.2 TD', 'Platinum 2.2 TD'],
-  'SSANGYONG_Musso': ['LX', 'EX', 'Limited', 'Grand Musso'],
-
-  'SUBARU_Forester': ['2.0i', '2.0i-L', '2.0i-S', '2.0i-S EyeSight', 'Sport'],
-  'SUBARU_Outback': ['2.5i', '2.5i-S', '2.5i-S EyeSight', 'XT'],
-  'SUBARU_XV': ['1.6i', '2.0i', '2.0i-S', '2.0i-S EyeSight'],
-  'SUBARU_WRX': ['Base', 'Premium', 'Limited', 'STI'],
-  'SUBARU_BRZ': ['Base', 'Premium', 'tS'],
-
-  'MAZDA_CX-30': ['i 2.0', 'i Grand Touring 2.0', 'i Signature 2.5'],
-  'MAZDA_CX-5': ['i 2.0', 'i Sport 2.5', 'i Grand Touring 2.5', 'i Signature 2.5'],
-  'MAZDA_CX-50': ['Preferred', 'Premium', 'Premium Plus', 'Turbo'],
-  'MAZDA_3': ['i 2.0', 'i Sport 2.5', 'i Grand Touring 2.5', 'i Signature 2.5'],
-  'MAZDA_MX-5': ['i Sport', 'i Grand Touring', 'RF Grand Touring'],
-
-  'MG_ZS': ['Style 1.5', 'Comfort 1.5', 'Luxury 1.5', 'Excite 1.3T'],
-  'MG_ZS EV': ['Standard', 'Luxury', 'Exclusive'],
-  'MG_HS': ['Style 1.5T', 'Comfort 1.5T', 'Luxury 2.0T', 'PHEV'],
-  'MG_MG4': ['Standard', 'Comfort', 'Luxury', 'XPOWER'],
-
-  'CHERY_Tiggo 4': ['Comfort', 'Luxury', 'Pro Comfort', 'Pro Luxury'],
-  'CHERY_Tiggo 7': ['Comfort', 'Luxury', 'Pro Comfort', 'Pro Luxury'],
-  'CHERY_Tiggo 8': ['Comfort', 'Luxury', 'Pro Comfort', 'Pro Luxury'],
-  'CHERY_Omoda 5': ['Comfort', 'Luxury', 'GT'],
-
-  'BYD_Dolphin': ['Standard', 'Comfort', 'Design'],
-  'BYD_Seal': ['Dynamic', 'Premium', 'Performance'],
-  'BYD_Song Plus': ['Comfort', 'Flagship'],
-  'BYD_Yuan Plus': ['GL', 'GS'],
-
-  'HAVAL_H6': ['Comfort', 'Supreme', 'Supreme+', 'GT', 'Hybrid'],
-  'HAVAL_Jolion': ['Comfort', 'Premium', 'Luxury', 'Hybrid'],
-  'HAVAL_Dargo': ['Supreme', 'Supreme+'],
-
-  'GWM_Ora 03': ['Standard', 'Luxury', 'GT'],
-  'GWM_Ora 07': ['Standard', 'Performance'],
-  'GWM_Tank 300': ['Luxury', 'Flagship'],
-  'GWM_Tank 500': ['Hybrid', 'Hybrid Flagship'],
-
-  'CUPRA_Formentor': ['VZ 2.0 TSI', 'VZ5 2.5 TSI', 'e-Hybrid'],
-  'CUPRA_Leon': ['VZ 2.0 TSI', 'VZ e-Hybrid'],
-  'CUPRA_Born': ['58 kWh', '77 kWh', 'VZ 77 kWh'],
-
-  'CITROEN_C3': ['Live 1.2', 'Feel 1.2', 'Feel Pack 1.6', 'Shine 1.6'],
-  'CITROEN_C3 Aircross': ['Live 1.6', 'Feel 1.6', 'Feel Pack 1.6', 'Shine 1.6', 'Shine Pack 1.6'],
-  'CITROEN_C4 Cactus': ['Live 1.6', 'Feel 1.6', 'Feel Pack 1.6', 'Shine 1.6'],
-  'CITROEN_C5 Aircross': ['Feel 1.6 THP', 'Feel Pack 1.6 THP', 'Shine 1.6 THP', 'Hybrid'],
-
-  // === VERSIONES GENÉRICAS PARA FALLBACK ===
-  'GENERICA_AUTO': ['Base', 'Comfort', 'Style', 'Premium', 'Luxury', 'Sport', 'Active', 'Trend', 'Life', 'Titanium', 'Limited', 'Highline', 'Intense', 'Sense', 'Full'],
-  'GENERICA_MOTO': ['Standard', 'Base', 'Plus', 'Sport', 'Racing', 'Adventure', 'Touring', 'Custom', 'Café Racer', 'Scrambler', 'Pro', 'R', 'S'],
-  'GENERICA_CAMION': ['4x2 Tractor', '4x2 Chasis', '6x2 Tractor', '6x4 Tractor', '6x4 Volcador', '8x4 Mixer', '8x4 Volcador', 'Chasis Largo', 'Chasis Corto', 'Cabina Simple', 'Cabina Doble', 'Furgón', 'Volcador', 'Hormigonero']
-};
-
-// Función para obtener versiones según marca/modelo o genéricas
-const getVersiones = (marca, modelo, tipoVehiculo) => {
-  // 1. Buscar versión específica marca_modelo
-  const key = `${marca}_${modelo}`;
-  if (VERSIONES[key]) {
-    return VERSIONES[key];
-  }
-  
-  // 2. Buscar versión genérica por tipo
-  if (tipoVehiculo === 'moto') {
-    return VERSIONES['GENERICA_MOTO'];
-  }
-  if (tipoVehiculo === 'camion') {
-    return VERSIONES['GENERICA_CAMION'];
-  }
-  
-  // 3. Fallback: versiones genéricas auto/camioneta
-  return VERSIONES['GENERICA_AUTO'];
-};
-
 const COBERTURAS_AUTO = [
-  { value: 'rc', label: 'Responsabilidad Civil' }, 
-  { value: 'terceros', label: 'Terceros' }, 
-  { value: 'terceros_completo', label: 'Terceros Completo' }, 
-  { value: 'terceros_plus', label: 'Terceros Plus' }, 
-  { value: 'todo_riesgo_franquicia', label: 'Todo Riesgo c/Franquicia' }, 
+  { value: 'rc', label: 'Responsabilidad Civil' },
+  { value: 'terceros_completo', label: 'Terceros Completo' },
+  { value: 'terceros_full', label: 'Terceros Full' },
+  { value: 'todo_riesgo_franquicia', label: 'Todo Riesgo c/Franquicia' },
   { value: 'todo_riesgo', label: 'Todo Riesgo' }
 ];
 
-const AÑOS = Array.from({ length: 37 }, (_, i) => new Date().getFullYear() + 1 - i);
+// Base ACARA de marcas por tipo de vehículo
+const MARCAS_POR_TIPO = {
+  auto: [
+    'ALFA ROMEO', 'AUDI', 'BMW', 'BYD', 'CHANGAN', 'CHERY', 'CHEVROLET', 
+    'CHRYSLER', 'CITROEN', 'CUPRA', 'DS', 'FIAT', 'FORD', 'GEELY', 'GWM',
+    'HAVAL', 'HONDA', 'HYUNDAI', 'JAC', 'JAGUAR', 'JEEP', 'JETOUR', 'KIA',
+    'LAND ROVER', 'LEXUS', 'LINCOLN', 'MASERATI', 'MAZDA', 'MERCEDES-BENZ',
+    'MG', 'MINI', 'MITSUBISHI', 'NISSAN', 'PEUGEOT', 'PORSCHE', 'RAM',
+    'RENAULT', 'SEAT', 'SKODA', 'SSANGYONG', 'SUBARU', 'SUZUKI', 'TESLA',
+    'TOYOTA', 'VOLKSWAGEN', 'VOLVO'
+  ],
+  camioneta: [
+    'CHEVROLET', 'DODGE', 'FIAT', 'FORD', 'GWM', 'ISUZU', 'JAC', 'JEEP',
+    'MAHINDRA', 'MAZDA', 'MERCEDES-BENZ', 'MITSUBISHI', 'NISSAN', 'RAM',
+    'RENAULT', 'SSANGYONG', 'TOYOTA', 'VOLKSWAGEN'
+  ],
+  moto: [
+    'APRILIA', 'BAJAJ', 'BENELLI', 'BETA', 'BMW', 'CF MOTO', 'CORVEN',
+    'DUCATI', 'GILERA', 'HARLEY-DAVIDSON', 'HERO', 'HONDA', 'HUSQVARNA',
+    'INDIAN', 'JAWA', 'KAWASAKI', 'KELLER', 'KTM', 'KYMCO', 'MOTOMEL',
+    'MV AGUSTA', 'PIAGGIO', 'ROYAL ENFIELD', 'SUZUKI', 'SYM', 'TRIUMPH',
+    'TVS', 'VOGE', 'YAMAHA', 'ZANELLA'
+  ],
+  camion: [
+    'DAF', 'DEUTZ', 'FIAT', 'FOTON', 'FORD', 'FREIGHTLINER', 'HINO',
+    'HYUNDAI', 'INTERNATIONAL', 'ISUZU', 'IVECO', 'JAC', 'JMC', 'KENWORTH',
+    'MAN', 'MERCEDES-BENZ', 'PETERBILT', 'RENAULT', 'SCANIA', 'SHACMAN',
+    'SINOTRUK', 'TATA', 'VOLKSWAGEN', 'VOLVO'
+  ]
+};
 
-// HOGAR
-const TIPOS_INMUEBLE = [{ value: 'casa', label: 'Casa' }, { value: 'depto', label: 'Departamento' }, { value: 'ph', label: 'PH' }, { value: 'country', label: 'Country/Barrio cerrado' }];
-const COBERTURAS_HOGAR = [{ value: 'incendio', label: 'Incendio' }, { value: 'robo', label: 'Robo' }, { value: 'integral', label: 'Integral' }, { value: 'todo_riesgo', label: 'Todo Riesgo' }];
+// Base ACARA de modelos por marca
+const MODELOS_POR_MARCA = {
+  // TOYOTA
+  'TOYOTA': ['4Runner', 'Avalon', 'C-HR', 'Camry', 'Corolla', 'Corolla Cross', 'Etios', 'GR Supra', 'GR86', 'Hiace', 'Hilux', 'Land Cruiser', 'Land Cruiser Prado', 'Prius', 'RAV4', 'Supra', 'SW4', 'Tacoma', 'Yaris', 'Yaris Cross'],
+  // FORD
+  'FORD': ['Bronco', 'Bronco Sport', 'EcoSport', 'Edge', 'Escape', 'Explorer', 'F-150', 'Fiesta', 'Focus', 'Ka', 'Kuga', 'Maverick', 'Mondeo', 'Mustang', 'Puma', 'Ranger', 'Territory', 'Transit'],
+  // VOLKSWAGEN  
+  'VOLKSWAGEN': ['Amarok', 'Arteon', 'Bora', 'Caddy', 'Gol', 'Golf', 'ID.3', 'ID.4', 'ID.Buzz', 'Jetta', 'Nivus', 'Passat', 'Polo', 'Saveiro', 'Scirocco', 'T-Cross', 'Taos', 'Tiguan', 'Tiguan Allspace', 'Touareg', 'Up!', 'Vento', 'Virtus'],
+  // CHEVROLET
+  'CHEVROLET': ['Aveo', 'Blazer', 'Bolt', 'Camaro', 'Captiva', 'Colorado', 'Corvette', 'Cruze', 'Equinox', 'Joy', 'Malibu', 'Montana', 'Onix', 'Onix Plus', 'Orlando', 'S10', 'Silverado', 'Spin', 'Suburban', 'Tahoe', 'Tracker', 'Trailblazer', 'Traverse'],
+  // FIAT
+  'FIAT': ['500', '500L', '500X', 'Argo', 'Cronos', 'Doblo', 'Ducato', 'Fastback', 'Fiorino', 'Linea', 'Mobi', 'Palio', 'Pulse', 'Qubo', 'Siena', 'Strada', 'Toro', 'Tipo', 'Uno'],
+  // RENAULT
+  'RENAULT': ['Alaskan', 'Arkana', 'Captur', 'Clio', 'Duster', 'Fluence', 'Kangoo', 'Koleos', 'Kwid', 'Logan', 'Master', 'Megane', 'Oroch', 'Sandero', 'Sandero Stepway', 'Scenic', 'Symbol', 'Talisman', 'Trafic', 'Twingo', 'Zoe'],
+  // PEUGEOT
+  'PEUGEOT': ['108', '2008', '208', '3008', '301', '308', '408', '5008', '508', 'Boxer', 'Expert', 'Partner', 'Rifter', 'Traveller'],
+  // HONDA
+  'HONDA': ['Accord', 'BR-V', 'City', 'Civic', 'CR-V', 'Fit', 'HR-V', 'Insight', 'Odyssey', 'Passport', 'Pilot', 'Ridgeline', 'WR-V'],
+  // HYUNDAI
+  'HYUNDAI': ['Accent', 'Azera', 'Creta', 'Elantra', 'Genesis', 'Grand Santa Fe', 'HB20', 'i10', 'i20', 'i30', 'Ioniq', 'Ioniq 5', 'Ioniq 6', 'Kona', 'Palisade', 'Santa Cruz', 'Santa Fe', 'Sonata', 'Starex', 'Staria', 'Tucson', 'Veloster', 'Venue'],
+  // NISSAN
+  'NISSAN': ['370Z', 'Altima', 'Ariya', 'Frontier', 'Juke', 'Kicks', 'Leaf', 'March', 'Maxima', 'Murano', 'Navara', 'Note', 'NP300', 'Pathfinder', 'Qashqai', 'Rogue', 'Sentra', 'Tiida', 'Titan', 'Versa', 'X-Trail', 'Z'],
+  // JEEP
+  'JEEP': ['Cherokee', 'Commander', 'Compass', 'Gladiator', 'Grand Cherokee', 'Grand Commander', 'Grand Wagoneer', 'Patriot', 'Renegade', 'Wagoneer', 'Wrangler'],
+  // BMW
+  'BMW': ['i3', 'i4', 'i5', 'i7', 'i8', 'iX', 'iX1', 'iX3', 'M2', 'M3', 'M4', 'M5', 'M8', 'Serie 1', 'Serie 2', 'Serie 2 Active Tourer', 'Serie 2 Gran Coupe', 'Serie 3', 'Serie 4', 'Serie 4 Gran Coupe', 'Serie 5', 'Serie 6', 'Serie 7', 'Serie 8', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'XM', 'Z4'],
+  // MERCEDES-BENZ
+  'MERCEDES-BENZ': ['A 200', 'A 250', 'A 35 AMG', 'A 45 AMG', 'AMG GT', 'B 200', 'C 180', 'C 200', 'C 300', 'C 43 AMG', 'C 63 AMG', 'CLA 200', 'CLA 250', 'CLA 35 AMG', 'CLA 45 AMG', 'CLS', 'E 200', 'E 300', 'E 350', 'E 400', 'E 53 AMG', 'E 63 AMG', 'EQA', 'EQB', 'EQC', 'EQE', 'EQS', 'G 500', 'G 63 AMG', 'GLA 200', 'GLA 250', 'GLA 35 AMG', 'GLA 45 AMG', 'GLB 200', 'GLB 250', 'GLC 200', 'GLC 300', 'GLC 43 AMG', 'GLC 63 AMG', 'GLE 300d', 'GLE 350', 'GLE 450', 'GLE 53 AMG', 'GLE 63 AMG', 'GLS 450', 'GLS 580', 'GLS 63 AMG', 'Maybach', 'S 400', 'S 500', 'S 580', 'S 63 AMG', 'SL', 'SLC', 'Sprinter', 'Vito'],
+  // AUDI
+  'AUDI': ['A1', 'A3', 'A4', 'A5', 'A5 Sportback', 'A6', 'A7', 'A8', 'e-tron', 'e-tron GT', 'Q2', 'Q3', 'Q4 e-tron', 'Q5', 'Q7', 'Q8', 'Q8 e-tron', 'R8', 'RS3', 'RS4', 'RS5', 'RS6', 'RS7', 'RSQ3', 'RSQ8', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'SQ5', 'SQ7', 'SQ8', 'TT'],
+  // KIA
+  'KIA': ['Carnival', 'Cerato', 'EV6', 'EV9', 'Niro', 'Optima', 'Picanto', 'Rio', 'Seltos', 'Sorento', 'Soul', 'Sportage', 'Stinger', 'Stonic', 'Telluride'],
+  // CHERY
+  'CHERY': ['Arrizo 5', 'Arrizo 6', 'Omoda 5', 'Tiggo 2', 'Tiggo 3', 'Tiggo 4', 'Tiggo 5', 'Tiggo 7', 'Tiggo 8'],
+  // BYD
+  'BYD': ['Atto 3', 'Dolphin', 'Han', 'Seal', 'Song Plus', 'Tang', 'Yuan Plus'],
+  // HAVAL
+  'HAVAL': ['Dargo', 'H6', 'Jolion'],
+  // GWM
+  'GWM': ['Ora 03', 'Poer', 'Tank 300', 'Tank 500', 'Wingle 7'],
+  // MG
+  'MG': ['3', '5', 'EHS', 'HS', 'MG4', 'ZS', 'ZS EV'],
+  // RAM
+  'RAM': ['1500', '2500', '3500', '700', 'ProMaster'],
+  // ALFA ROMEO
+  'ALFA ROMEO': ['4C', 'Giulia', 'Giulietta', 'MiTo', 'Stelvio', 'Tonale'],
+  // SSANGYONG
+  'SSANGYONG': ['Actyon', 'Korando', 'Musso', 'Rexton', 'Tivoli', 'Torres', 'XLV'],
+  // SUBARU
+  'SUBARU': ['BRZ', 'Crosstrek', 'Forester', 'Impreza', 'Legacy', 'Levorg', 'Outback', 'Solterra', 'WRX', 'XV'],
+  // MAZDA
+  'MAZDA': ['2', '3', '6', 'CX-3', 'CX-30', 'CX-5', 'CX-50', 'CX-9', 'CX-90', 'MX-30', 'MX-5'],
+  // MITSUBISHI
+  'MITSUBISHI': ['ASX', 'Eclipse Cross', 'L200', 'Montero', 'Outlander', 'Pajero', 'Xpander'],
+  // CITROEN
+  'CITROEN': ['Berlingo', 'C3', 'C3 Aircross', 'C4', 'C4 Cactus', 'C4 Lounge', 'C5 Aircross', 'C5 X', 'Jumper', 'Jumpy', 'SpaceTourer'],
+  // CUPRA
+  'CUPRA': ['Ateca', 'Born', 'Formentor', 'Leon', 'Tavascan'],
+  // DS
+  'DS': ['3', '4', '7', '9'],
+  // LAND ROVER
+  'LAND ROVER': ['Defender', 'Discovery', 'Discovery Sport', 'Range Rover', 'Range Rover Evoque', 'Range Rover Sport', 'Range Rover Velar'],
+  // JAGUAR
+  'JAGUAR': ['E-Pace', 'F-Pace', 'F-Type', 'I-Pace', 'XE', 'XF', 'XJ'],
+  // PORSCHE
+  'PORSCHE': ['718 Boxster', '718 Cayman', '911', 'Cayenne', 'Macan', 'Panamera', 'Taycan'],
+  // LEXUS
+  'LEXUS': ['ES', 'GX', 'IS', 'LC', 'LS', 'LX', 'NX', 'RC', 'RX', 'RZ', 'UX'],
+  // SUZUKI
+  'SUZUKI': ['Alto', 'Baleno', 'Celerio', 'Ciaz', 'Ertiga', 'Grand Vitara', 'Ignis', 'Jimny', 'S-Cross', 'Swift', 'Vitara', 'XL7'],
+  // MINI
+  'MINI': ['3 Puertas', '5 Puertas', 'Cabrio', 'Clubman', 'Countryman', 'Electric'],
+  // VOLVO
+  'VOLVO': ['C40', 'S60', 'S90', 'V40', 'V60', 'V90', 'XC40', 'XC60', 'XC90'],
+  // TESLA
+  'TESLA': ['Model 3', 'Model S', 'Model X', 'Model Y', 'Cybertruck'],
+  // ISUZU
+  'ISUZU': ['D-Max', 'MU-X', 'NHR', 'NKR', 'NLR', 'NPR', 'NQR'],
+  // Motos principales
+  'HONDA_MOTO': ['Africa Twin', 'CB 125F', 'CB 190R', 'CB 250', 'CB 300R', 'CB 500F', 'CB 500X', 'CB 650R', 'CB 1000R', 'CBR 250RR', 'CBR 500R', 'CBR 600RR', 'CBR 1000RR', 'CRF 150', 'CRF 250', 'CRF 300L', 'CRF 450', 'CRF 1100', 'Forza 350', 'GL 1800 Gold Wing', 'NC 750X', 'PCX 150', 'Rebel 500', 'Wave 110', 'XR 150', 'XR 190', 'XRE 300'],
+  'YAMAHA': ['Crypton 110', 'FZ 150', 'FZ 250', 'FZ 25', 'FZ-S 150', 'FZ6', 'FZ8', 'FZ-09', 'MT-03', 'MT-07', 'MT-09', 'MT-10', 'NMAX 155', 'R1', 'R15', 'R3', 'R6', 'R7', 'Ray ZR', 'Tenere 700', 'Tracer 9 GT', 'Tricity', 'XJ6', 'XMax 300', 'XSR 700', 'XSR 900', 'XTZ 125', 'XTZ 150', 'XTZ 250', 'YBR 125', 'YZF-R1', 'YZF-R3'],
+  'KAWASAKI': ['ER-6N', 'KLR 650', 'KX 250', 'KX 450', 'Ninja 250', 'Ninja 300', 'Ninja 400', 'Ninja 650', 'Ninja ZX-6R', 'Ninja ZX-10R', 'Ninja H2', 'Versys 650', 'Versys 1000', 'Vulcan S', 'Z400', 'Z650', 'Z900', 'Z H2', 'ZX-4R'],
+  'SUZUKI_MOTO': ['Address', 'Burgman', 'DR 650', 'Gixxer 150', 'Gixxer 250', 'GSX 150', 'GSX-R 600', 'GSX-R 750', 'GSX-R 1000', 'GSX-S 750', 'GSX-S 1000', 'Hayabusa', 'Intruder', 'SV 650', 'V-Strom 250', 'V-Strom 650', 'V-Strom 1050'],
+  'KTM': ['125 Duke', '200 Duke', '250 Adventure', '250 Duke', '390 Adventure', '390 Duke', '690 Enduro', '790 Adventure', '790 Duke', '890 Adventure', '890 Duke', '1290 Super Adventure', '1290 Super Duke'],
+  'BMW_MOTO': ['C 400 GT', 'C 400 X', 'F 750 GS', 'F 850 GS', 'F 900 R', 'F 900 XR', 'G 310 GS', 'G 310 R', 'K 1600 GTL', 'R 1250 GS', 'R 1250 GS Adventure', 'R 1250 R', 'R 1250 RS', 'R 1250 RT', 'R 1300 GS', 'R NineT', 'S 1000 R', 'S 1000 RR', 'S 1000 XR'],
+  'DUCATI': ['Diavel', 'Hypermotard', 'Monster', 'Multistrada V4', 'Panigale V2', 'Panigale V4', 'Scrambler', 'Streetfighter V4', 'SuperSport', 'XDiavel'],
+  'HARLEY-DAVIDSON': ['Breakout', 'Fat Bob', 'Fat Boy', 'Forty-Eight', 'Heritage Classic', 'Iron 883', 'LiveWire', 'Low Rider', 'Nightster', 'Pan America', 'Road Glide', 'Road King', 'Softail', 'Sport Glide', 'Sportster S', 'Street Glide', 'Street Rod', 'Ultra Limited'],
+  'TRIUMPH': ['Bonneville', 'Daytona', 'Rocket 3', 'Scrambler', 'Speed Triple', 'Speed Twin', 'Street Triple', 'Thruxton', 'Tiger 900', 'Tiger 1200', 'Trident 660'],
+  'BENELLI': ['180S', '302R', '302S', 'BN 302', 'Imperiale 400', 'Leoncino 250', 'Leoncino 500', 'TNT 135', 'TNT 300', 'TNT 600', 'TRK 251', 'TRK 502', 'TRK 502X', 'TRK 702'],
+  'ROYAL ENFIELD': ['Bullet 350', 'Classic 350', 'Continental GT 650', 'Himalayan', 'Hunter 350', 'Interceptor 650', 'Meteor 350', 'Scram 411', 'Super Meteor 650'],
+  'BAJAJ': ['Boxer 150', 'CT 100', 'Discover 125', 'Dominar 250', 'Dominar 400', 'NS 125', 'NS 160', 'NS 200', 'Platina', 'Pulsar 135', 'Pulsar 150', 'Pulsar 180', 'Pulsar 200', 'Pulsar NS 200', 'Pulsar RS 200', 'Rouser NS 200'],
+  'MOTOMEL': ['Blitz 110', 'CG 150', 'Cuatri', 'DLX 110', 'Max 110', 'S2', 'S3', 'Sirius 150', 'Sirius 200', 'Skua 150', 'Skua 200', 'Skua 250', 'Strato 150', 'TCP 200'],
+  'ZANELLA': ['Ceccato 150', 'Ceccato 200', 'Cruiser 150', 'Fun 110', 'Hot 90', 'MOD 150', 'Patagonian Eagle 150', 'Patagonian Eagle 250', 'RX 150', 'RX 200', 'RZ 25', 'Sapucai 125', 'Sapucai 150', 'Sapucai 200', 'Styler 150', 'ZB 110', 'ZR 150', 'ZR 200', 'ZR 250', 'ZTT 250'],
+  'CORVEN': ['Energy 110', 'Expert 80', 'Hunter 150', 'Indiana 256', 'Mirage 110', 'Touring 250', 'Triax 150', 'Triax 200', 'Triax 250']
+};
 
-// ART - EMPRESAS
-const PROVINCIAS = ['Buenos Aires', 'CABA', 'Córdoba', 'Santa Fe', 'Mendoza', 'Tucumán', 'Entre Ríos', 'Salta', 'Chaco', 'Corrientes', 'Misiones', 'Santiago del Estero', 'San Juan', 'Jujuy', 'Río Negro', 'Neuquén', 'Formosa', 'Chubut', 'San Luis', 'Catamarca', 'La Rioja', 'La Pampa', 'Santa Cruz', 'Tierra del Fuego'];
-const ACTIVIDADES_CIIU = [
-  { value: '4711', label: 'Comercio minorista' },
-  { value: '4520', label: 'Taller mecánico' },
-  { value: '5610', label: 'Restaurantes/Bares' },
-  { value: '4771', label: 'Indumentaria' },
-  { value: '6201', label: 'Desarrollo software' },
-  { value: '4110', label: 'Construcción' },
-  { value: '4921', label: 'Transporte de cargas' },
-  { value: '4922', label: 'Transporte de pasajeros' },
-  { value: '8610', label: 'Servicios de salud' },
-  { value: '8510', label: 'Educación' },
-  { value: '0111', label: 'Agricultura' },
-  { value: '2599', label: 'Metalúrgica' },
-  { value: '1071', label: 'Panadería' },
-  { value: '4730', label: 'Estación de servicio' },
-  { value: 'otro', label: 'Otra actividad' },
-];
+// ============================================
+// VERSIONES ACARA POR MARCA/MODELO
+// ============================================
 
-// COMERCIO
-const TIPOS_COMERCIO = [
-  { value: 'local', label: 'Local comercial' },
-  { value: 'oficina', label: 'Oficina' },
-  { value: 'deposito', label: 'Depósito/Galpón' },
-  { value: 'industria', label: 'Industria/Fábrica' },
-  { value: 'gastronomia', label: 'Gastronomía' },
-];
-const RUBROS = [
-  { value: 'retail', label: 'Venta minorista' },
-  { value: 'servicios', label: 'Servicios profesionales' },
-  { value: 'alimentos', label: 'Alimentos y bebidas' },
-  { value: 'tecnologia', label: 'Tecnología' },
-  { value: 'salud', label: 'Salud/Farmacia' },
-  { value: 'automotriz', label: 'Automotriz' },
-  { value: 'construccion', label: 'Construcción' },
-  { value: 'agro', label: 'Agroindustria' },
-  { value: 'otro', label: 'Otro' },
-];
+const VERSIONES_ACARA = {
+  'TOYOTA_Hilux': ["2.4 TD DX 4x2 C/S MT", "2.4 TD DX 4x2 C/D MT", "2.4 TD DX 4x4 C/D MT", "2.8 TDI SR 4x2 MT", "2.8 TDI SR 4x2 AT", "2.8 TDI SR 4x4 MT", "2.8 TDI SR 4x4 AT", "2.8 TDI SRV 4x2 AT", "2.8 TDI SRV 4x4 MT", "2.8 TDI SRV 4x4 AT", "2.8 TDI SRX 4x4 AT", "2.8 TDI GR-S 4x4 AT", "2.8 TDI Limited 4x4 AT", "4.0 V6 SR 4x4 AT", "4.0 V6 SRX 4x4 AT"],
+  'TOYOTA_Corolla': ["2.0 XLI MT (170cv)", "2.0 XLI CVT (170cv)", "2.0 XEI MT (170cv)", "2.0 XEI CVT (170cv)", "2.0 SEG CVT (170cv)", "2.0 SEG Hybrid CVT", "2.0 GR-S CVT (170cv)", "2.0 GR-S Hybrid CVT", "1.8 XLI MT (140cv)", "1.8 XLI CVT (140cv)", "1.8 XEI CVT (140cv)", "1.8 SEG CVT (140cv)"],
+  'TOYOTA_Corolla Cross': ["2.0 XLI CVT (170cv)", "2.0 XEI CVT (170cv)", "2.0 SEG CVT (170cv)", "1.8 XEI Hybrid CVT", "1.8 SEG Hybrid CVT", "2.0 GR-S CVT"],
+  'TOYOTA_Yaris': ["1.5 XS MT (107cv)", "1.5 XS CVT (107cv)", "1.5 XLS CVT (107cv)", "1.5 XLS Pack CVT", "1.5 S CVT (107cv)"],
+  'TOYOTA_Yaris Cross': ["1.5 XS CVT", "1.5 XLS CVT", "1.5 XLS Pack CVT", "1.5 S CVT", "1.5 Limited CVT"],
+  'TOYOTA_Etios': ["1.5 X 5P MT (105cv)", "1.5 XS 5P MT (105cv)", "1.5 XLS 5P MT (105cv)", "1.5 X 4P MT (105cv)", "1.5 XS 4P MT (105cv)", "1.5 XLS 4P AT (105cv)", "1.5 Cross 5P MT"],
+  'TOYOTA_SW4': ["2.8 TDI SR 4x2 AT", "2.8 TDI SR 4x4 AT", "2.8 TDI SRX 4x4 AT", "2.8 TDI Diamond 4x4 AT", "2.8 TDI GR-S 4x4 AT", "4.0 V6 SRX 4x4 AT"],
+  'TOYOTA_RAV4': ["2.0 CVT AWD (175cv)", "2.5 XLE CVT FWD", "2.5 Limited CVT AWD", "2.5 Adventure AWD", "2.5 Hybrid XLE eCVT", "2.5 Hybrid Limited eCVT"],
+  'TOYOTA_Camry': ["3.5 XLE V6 AT (301cv)", "2.5 Hybrid eCVT"],
+  'TOYOTA_Land Cruiser': ["4.5 TD VX AT", "4.5 TD VX-R AT", "3.3 TD GR-S AT"],
+  'TOYOTA_Land Cruiser Prado': ["2.8 TD TX AT", "2.8 TD TX-L AT", "2.8 TD VX AT", "4.0 V6 VX AT"],
+  'FORD_Ranger': ["2.0 Bi-TD XL 4x2 C/S MT", "2.0 Bi-TD XL 4x2 C/D MT", "2.0 Bi-TD XL 4x4 C/D MT", "2.0 Bi-TD XLS 4x2 MT", "2.0 Bi-TD XLS 4x2 AT", "2.0 Bi-TD XLS 4x4 MT", "2.0 Bi-TD XLS 4x4 AT", "2.0 Bi-TD XLT 4x2 AT", "2.0 Bi-TD XLT 4x4 AT", "2.0 Bi-TD Limited 4x2 AT", "2.0 Bi-TD Limited 4x4 AT", "2.0 Bi-TD Wildtrak 4x4 AT", "3.0 V6 TD Raptor 4x4 AT", "3.2 TDCI XL 4x2 MT", "3.2 TDCI XL 4x4 MT", "3.2 TDCI XLS 4x4 AT", "3.2 TDCI XLT 4x4 AT", "3.2 TDCI Limited 4x4 AT", "3.2 TDCI Wildtrak 4x4 AT"],
+  'FORD_Territory': ["1.5T SEL CVT (143cv)", "1.5T Titanium CVT (143cv)", "1.5T Titanium+ CVT", "1.8T SEL AT7 (190cv)", "1.8T Titanium AT7"],
+  'FORD_Bronco Sport': ["1.5T Big Bend AT8", "1.5T Outer Banks AT8", "2.0T Badlands AT8", "2.0T Wildtrak AT8"],
+  'FORD_Bronco': ["2.3T Base MT", "2.3T Big Bend AT", "2.3T Outer Banks AT", "2.7T V6 Badlands AT", "2.7T V6 Wildtrak AT"],
+  'FORD_Explorer': ["3.0T V6 ST-Line AT 4x4", "3.0T V6 Limited AT 4x4", "3.0T V6 Platinum AT 4x4"],
+  'FORD_Maverick': ["2.5 Hybrid XL eCVT", "2.0T Lariat AT AWD"],
+  'FORD_F-150': ["3.5T V6 XL 4x2 AT", "3.5T V6 XLT 4x4 AT", "3.5T V6 Lariat 4x4 AT", "3.5T V6 Platinum 4x4 AT", "3.5T V6 Raptor 4x4 AT", "5.0 V8 Platinum 4x4 AT"],
+  'FORD_EcoSport': ["1.5 S MT (123cv)", "1.5 SE MT (123cv)", "1.5 SE AT (123cv)", "1.5 Titanium AT (123cv)", "2.0 Storm 4x4 AT (170cv)"],
+  'FORD_Ka': ["1.5 S MT", "1.5 SE MT", "1.5 SE AT", "1.5 SEL MT", "1.5 SEL AT", "1.5 Freestyle AT"],
+  'FORD_Focus': ["1.6 S MT", "2.0 SE MT", "2.0 SE AT", "2.0 Titanium MT", "2.0 Titanium AT", "2.0 ST MT", "2.3T RS MT AWD"],
+  'FORD_Mustang': ["2.3T EcoBoost AT", "5.0 V8 GT AT", "5.0 V8 Mach 1 MT", "5.2 V8 Shelby GT500"],
+  'VOLKSWAGEN_Amarok': ["2.0 TDI Trendline 4x2 MT", "2.0 TDI Trendline 4x4 MT", "2.0 TDI Comfortline 4x2 AT", "2.0 TDI Comfortline 4x4 AT", "2.0 TDI Highline 4x2 AT", "2.0 TDI Highline 4x4 AT", "2.0 Bi-TDI Extreme 4x4 AT", "3.0 V6 TDI Comfortline 4x4 AT", "3.0 V6 TDI Highline 4x4 AT", "3.0 V6 TDI Extreme 4x4 AT", "3.0 V6 TDI Black Style 4x4 AT"],
+  'VOLKSWAGEN_Taos': ["1.4 TSI Trendline MT", "1.4 TSI Comfortline AT", "1.4 TSI Highline AT", "1.4 TSI Hero AT"],
+  'VOLKSWAGEN_T-Cross': ["1.6 MSI Trendline MT", "1.6 MSI Trendline AT", "1.6 MSI Comfortline AT", "1.4 TSI Highline AT", "1.4 TSI Hero AT"],
+  'VOLKSWAGEN_Tiguan': ["1.4 TSI Trendline", "1.4 TSI Comfortline", "1.4 TSI Highline", "2.0 TSI R-Line", "2.0 TSI R-Line 4Motion"],
+  'VOLKSWAGEN_Tiguan Allspace': ["1.4 TSI Trendline", "1.4 TSI Comfortline", "2.0 TSI Highline 4Motion", "2.0 TSI R-Line 4Motion"],
+  'VOLKSWAGEN_Polo': ["1.6 MSI Track MT", "1.6 MSI Trendline MT", "1.6 MSI Comfortline MT", "1.6 MSI Comfortline AT", "1.0 TSI Comfortline AT", "1.0 TSI Highline AT", "1.4 TSI GTS AT"],
+  'VOLKSWAGEN_Virtus': ["1.6 MSI Trendline MT", "1.6 MSI Comfortline MT", "1.6 MSI Comfortline AT", "1.0 TSI Comfortline AT", "1.0 TSI Highline AT", "1.4 TSI GTS AT"],
+  'VOLKSWAGEN_Nivus': ["1.0 TSI Comfortline AT", "1.0 TSI Highline AT", "1.0 TSI Hero AT"],
+  'VOLKSWAGEN_Golf': ["1.4 TSI Comfortline", "1.4 TSI Highline", "2.0 TSI GTI MT", "2.0 TSI GTI DSG", "2.0 TSI R 4Motion"],
+  'VOLKSWAGEN_Vento': ["1.4 TSI Comfortline AT", "1.4 TSI Highline AT", "2.0 TSI GLI AT"],
+  'VOLKSWAGEN_Saveiro': ["1.6 MSI Trendline C/S", "1.6 MSI Trendline C/D", "1.6 MSI Comfortline C/S", "1.6 MSI Comfortline C/D", "1.6 MSI Cross C/S", "1.6 MSI Cross C/D"],
+  'CHEVROLET_S10': ["2.8 TD LS 4x2 C/S MT", "2.8 TD LS 4x2 C/D MT", "2.8 TD LS 4x4 C/D MT", "2.8 TD LT 4x2 MT", "2.8 TD LT 4x2 AT", "2.8 TD LT 4x4 MT", "2.8 TD LT 4x4 AT", "2.8 TD LTZ 4x4 AT", "2.8 TD High Country 4x4 AT", "2.8 TD Z71 4x4 AT"],
+  'CHEVROLET_Montana': ["1.2T LS MT", "1.2T LT MT", "1.2T LT AT", "1.2T LTZ AT", "1.2T Premier AT"],
+  'CHEVROLET_Tracker': ["1.2T LT MT", "1.2T LT AT", "1.2T LTZ AT", "1.2T Premier AT", "1.2T RS AT", "1.2T Midnight AT"],
+  'CHEVROLET_Onix': ["1.2 MT LS", "1.2 MT LT", "1.2 AT LT", "1.0T MT LT", "1.0T AT LT", "1.0T AT LTZ", "1.0T AT Premier", "1.0T AT RS", "1.0T AT Midnight"],
+  'CHEVROLET_Onix Plus': ["1.2 MT Joy", "1.0T MT LT", "1.0T AT LT", "1.0T AT LTZ", "1.0T AT Premier"],
+  'CHEVROLET_Cruze': ["1.4T LT MT", "1.4T LT AT", "1.4T LTZ MT", "1.4T LTZ AT", "1.4T Premier AT", "1.4T RS AT", "1.4T Midnight AT"],
+  'CHEVROLET_Spin': ["1.8 LT MT 5 Asientos", "1.8 LT MT 7 Asientos", "1.8 LTZ MT 5 Asientos", "1.8 LTZ MT 7 Asientos", "1.8 Premier AT 5 Asientos", "1.8 Premier AT 7 Asientos", "1.8 Activ AT"],
+  'CHEVROLET_Equinox': ["1.5T LS AT FWD", "1.5T LT AT FWD", "1.5T Premier AT FWD", "1.5T RS AT AWD"],
+  'FIAT_Cronos': ["1.3 GSE Like MT", "1.3 GSE Drive MT", "1.3 GSE Drive CVT", "1.3 GSE Drive Pack MT", "1.8 E.TorQ Precision MT", "1.8 E.TorQ Precision AT", "1.0T Impetus CVT"],
+  'FIAT_Argo': ["1.3 Drive MT", "1.3 Drive Pack MT", "1.8 Precision MT", "1.8 Precision AT", "1.3 Trekking MT", "1.8 Trekking AT", "1.8 HGT MT"],
+  'FIAT_Pulse': ["1.3 Drive MT", "1.3 Drive CVT", "1.0T Audace CVT", "1.0T Impetus CVT", "1.3T Abarth AT"],
+  'FIAT_Fastback': ["1.0T Audace CVT", "1.0T Impetus CVT", "1.0T Limited CVT", "1.3T Abarth AT"],
+  'FIAT_Strada': ["1.4 Endurance C/S", "1.3 Freedom C/S", "1.3 Freedom C/D", "1.3 Volcano C/D", "1.3T Volcano CVT C/D", "1.3T Ranch CVT C/D", "1.0T Ultra CVT C/D"],
+  'FIAT_Toro': ["1.3T Endurance MT 4x2", "1.3T Freedom AT 4x2", "1.3T Volcano AT 4x2", "2.0 TD Freedom AT 4x4", "2.0 TD Volcano AT 4x4", "2.0 TD Ranch AT 4x4", "2.0 TD Ultra AT 4x4"],
+  'FIAT_Mobi': ["1.0 Like", "1.0 Trekking", "1.0 Way"],
+  'RENAULT_Sandero': ["1.6 Life MT", "1.6 Zen MT", "1.6 Intens MT", "1.6 Intens CVT"],
+  'RENAULT_Sandero Stepway': ["1.6 Zen MT", "1.6 Intens MT", "1.6 Intens CVT"],
+  'RENAULT_Logan': ["1.6 Life MT", "1.6 Zen MT", "1.6 Intens MT"],
+  'RENAULT_Duster': ["1.6 Zen MT 4x2", "1.6 Intens MT 4x2", "1.3T Iconic CVT 4x2", "1.3T Outsider CVT 4x4"],
+  'RENAULT_Captur': ["1.6 Zen CVT", "1.3T Intens CVT", "1.3T Iconic CVT"],
+  'RENAULT_Koleos': ["2.5 Zen CVT 4x2", "2.5 Intens CVT 4x2", "2.5 Iconic CVT 4x4"],
+  'RENAULT_Arkana': ["1.3T Zen CVT", "1.3T Intens CVT", "1.3T Iconic CVT", "1.3T RS Line CVT", "1.6 E-Tech Hybrid Intens", "1.6 E-Tech Hybrid Iconic"],
+  'RENAULT_Kwid': ["1.0 Life MT", "1.0 Zen MT", "1.0 Intens MT", "1.0 Outsider MT"],
+  'RENAULT_Alaskan': ["2.3 TD Confort MT 4x2", "2.3 TD Confort MT 4x4", "2.3 TD Intens MT 4x4", "2.3 TD Iconic AT 4x4"],
+  'RENAULT_Kangoo': ["1.5 dCi Confort", "1.5 dCi Stepway"],
+  'PEUGEOT_208': ["1.2 Like MT", "1.2 Active MT", "1.2 Active Pack MT", "1.6 Allure MT", "1.6 Allure AT", "1.6 Feline MT", "1.6 Feline AT", "1.6 THP GT AT"],
+  'PEUGEOT_2008': ["1.6 Active MT", "1.6 Active Pack MT", "1.6 Allure MT", "1.6 Allure AT", "1.6 Feline AT", "1.6 THP GT AT"],
+  'PEUGEOT_308': ["1.6 Active MT", "1.6 Allure MT", "1.6 Allure Pack AT", "1.6 THP Feline AT", "1.6 THP GT AT"],
+  'PEUGEOT_3008': ["1.6 THP Active AT", "1.6 THP Allure AT", "1.6 THP Allure Pack AT", "1.6 THP GT AT", "1.6 THP GT Pack AT", "1.6 Hybrid4 GT AT"],
+  'PEUGEOT_408': ["1.6 THP Allure AT", "1.6 THP Allure Pack AT", "1.6 THP GT AT"],
+  'PEUGEOT_5008': ["1.6 THP Allure AT", "1.6 THP Allure Pack AT", "1.6 THP GT AT"],
+  'PEUGEOT_Partner': ["1.6 Confort MT", "1.6 Furgón MT", "HDI Patagonica MT"],
+  'HONDA_HR-V': ["1.8 LX CVT", "1.8 EX CVT", "1.8 EXL CVT", "1.5T Touring CVT"],
+  'HONDA_CR-V': ["1.5T LX CVT", "1.5T EX CVT", "1.5T EXL CVT", "1.5T Touring CVT AWD"],
+  'HONDA_WR-V': ["1.5 LX MT", "1.5 LX CVT", "1.5 EX CVT", "1.5 EXL CVT"],
+  'HONDA_Civic': ["2.0 LX MT", "2.0 LX CVT", "2.0 EX CVT", "2.0 EXL CVT", "1.5T Si MT", "2.0T Type R MT"],
+  'HONDA_City': ["1.5 LX MT", "1.5 LX CVT", "1.5 EX CVT", "1.5 EXL CVT"],
+  'HONDA_Accord': ["2.0T EX CVT", "2.0T EXL CVT", "2.0T Touring CVT", "2.0 Hybrid"],
+  'HYUNDAI_Tucson': ["2.0 Comfort MT", "2.0 Premium AT", "2.0 Style AT", "1.6T N Line AT", "2.0 Limited AT"],
+  'HYUNDAI_Creta': ["1.6 Comfort MT", "1.6 Premium AT", "1.6 Limited AT", "1.0T Ultimate AT"],
+  'HYUNDAI_Santa Fe': ["2.4 Style AT", "2.4 Premium AT", "2.5T N Line AT", "2.5T Limited AT"],
+  'HYUNDAI_HB20': ["1.0 Comfort MT", "1.0 Style MT", "1.0 Premium AT"],
+  'HYUNDAI_Kona': ["2.0 Comfort AT", "2.0 Premium AT", "1.6T Ultimate AT", "2.0T N AT", "Electric"],
+  'HYUNDAI_Venue': ["1.6 Style MT", "1.6 Premium AT"],
+  'HYUNDAI_Ioniq 5': ["Standard Range RWD", "Long Range RWD", "Long Range AWD"],
+  'HYUNDAI_Elantra': ["2.0 Comfort MT", "2.0 Premium AT", "2.0T N AT"],
+  'NISSAN_Frontier': ["2.3 TD S 4x2 MT", "2.3 TD SE 4x4 MT", "2.3 TD XE 4x4 MT", "2.3 TD XE 4x4 AT", "2.3 TD LE 4x4 AT", "2.3 TD Attack 4x4 AT", "2.3 TD Pro-4X 4x4 AT"],
+  'NISSAN_Kicks': ["1.6 Sense CVT", "1.6 Advance CVT", "1.6 Exclusive CVT", "1.2 e-Power Advance"],
+  'NISSAN_Sentra': ["2.0 Sense CVT", "2.0 Advance CVT", "2.0 Exclusive CVT", "2.0 SR CVT"],
+  'NISSAN_Versa': ["1.6 Sense MT", "1.6 Sense CVT", "1.6 Advance CVT", "1.6 Exclusive CVT"],
+  'NISSAN_X-Trail': ["2.5 Sense CVT", "2.5 Advance CVT", "2.5 Exclusive CVT", "1.5 e-Power Advance"],
+  'JEEP_Renegade': ["1.8 Sport MT", "1.8 Sport AT", "1.8 Longitude AT", "1.3T Longitude AT", "1.3T Limited AT", "1.3T Trailhawk AT 4x4"],
+  'JEEP_Compass': ["1.3T Sport MT", "1.3T Sport AT", "1.3T Longitude AT", "1.3T Limited AT", "1.3T Limited AT 4x4", "1.3T Trailhawk AT 4x4", "1.3T 4xe PHEV"],
+  'JEEP_Commander': ["1.3T Limited AT", "1.3T Limited AT 4x4", "2.0 TD Overland AT 4x4"],
+  'JEEP_Grand Cherokee': ["3.6 V6 Laredo AT", "3.6 V6 Limited AT", "3.6 V6 Overland AT", "5.7 V8 Summit AT", "6.4 V8 SRT AT", "6.2 V8 SC Trackhawk AT", "4xe PHEV"],
+  'JEEP_Wrangler': ["3.6 V6 Sport AT", "3.6 V6 Sahara AT", "3.6 V6 Rubicon AT", "6.4 V8 Rubicon 392 AT", "2.0T 4xe PHEV"],
+  'JEEP_Gladiator': ["3.6 V6 Sport AT", "3.6 V6 Overland AT", "3.6 V6 Rubicon AT"],
+  'BMW_Serie 1': ["118i Sport Line", "120i M Sport", "128ti", "M135i xDrive"],
+  'BMW_Serie 2 Gran Coupe': ["218i", "220i M Sport", "M235i xDrive"],
+  'BMW_Serie 3': ["318i", "320i", "320i M Sport", "330i", "330i M Sport", "330e PHEV", "M340i", "M340i xDrive"],
+  'BMW_Serie 4 Coupe': ["420i", "430i", "430i M Sport", "M440i xDrive"],
+  'BMW_Serie 5': ["520i", "530i", "530i M Sport", "540i", "545e PHEV", "M550i xDrive"],
+  'BMW_X1': ["sDrive18i", "sDrive20i", "xDrive25i", "xDrive25e PHEV"],
+  'BMW_X2': ["sDrive18i", "sDrive20i", "xDrive25i", "M35i"],
+  'BMW_X3': ["sDrive20i", "xDrive20i", "xDrive30i", "xDrive30e PHEV", "M40i", "M Competition"],
+  'BMW_X4': ["xDrive20i", "xDrive30i", "M40i", "M Competition"],
+  'BMW_X5': ["xDrive40i", "xDrive45e PHEV", "xDrive50i", "M50i", "M Competition"],
+  'BMW_X6': ["xDrive40i", "M50i", "M Competition"],
+  'BMW_X7': ["xDrive40i", "xDrive50i", "M60i xDrive"],
+  'BMW_Z4': ["sDrive20i", "sDrive30i", "M40i"],
+  'BMW_i4': ["eDrive35", "eDrive40", "M50"],
+  'BMW_iX': ["xDrive40", "xDrive50", "M60"],
+  'MERCEDES-BENZ_A 200': ["Progressive", "AMG Line"],
+  'MERCEDES-BENZ_A 250': ["AMG Line"],
+  'MERCEDES-BENZ_A 35 AMG': ["4Matic"],
+  'MERCEDES-BENZ_A 45 AMG': ["S 4Matic+"],
+  'MERCEDES-BENZ_C 200': ["Avantgarde", "AMG Line"],
+  'MERCEDES-BENZ_C 300': ["AMG Line"],
+  'MERCEDES-BENZ_C 43 AMG': ["4Matic"],
+  'MERCEDES-BENZ_CLA 200': ["Progressive", "AMG Line"],
+  'MERCEDES-BENZ_CLA 250': ["AMG Line"],
+  'MERCEDES-BENZ_CLA 35 AMG': ["4Matic"],
+  'MERCEDES-BENZ_CLA 45 AMG': ["S 4Matic+"],
+  'MERCEDES-BENZ_GLA 200': ["Progressive", "AMG Line"],
+  'MERCEDES-BENZ_GLA 250': ["4Matic AMG Line"],
+  'MERCEDES-BENZ_GLA 35 AMG': ["4Matic"],
+  'MERCEDES-BENZ_GLA 45 AMG': ["S 4Matic+"],
+  'MERCEDES-BENZ_GLB 200': ["Progressive", "AMG Line"],
+  'MERCEDES-BENZ_GLB 250': ["4Matic AMG Line"],
+  'MERCEDES-BENZ_GLC 200': ["Avantgarde", "AMG Line"],
+  'MERCEDES-BENZ_GLC 300': ["4Matic AMG Line"],
+  'MERCEDES-BENZ_GLC 43 AMG': ["4Matic"],
+  'MERCEDES-BENZ_GLE 300d': ["4Matic"],
+  'MERCEDES-BENZ_GLE 450': ["4Matic AMG Line"],
+  'MERCEDES-BENZ_GLE 53 AMG': ["4Matic+"],
+  'MERCEDES-BENZ_GLE 63 AMG': ["S 4Matic+"],
+  'MERCEDES-BENZ_G 500': ["AMG Line"],
+  'MERCEDES-BENZ_G 63 AMG': ["4Matic"],
+  'MERCEDES-BENZ_Sprinter': ["311 CDI Furgón Corto", "314 CDI Furgón Mediano", "316 CDI Furgón Largo", "416 CDI Furgón", "516 CDI Furgón XL", "311 CDI Combi", "416 CDI Combi"],
+  'MERCEDES-BENZ_Vito': ["111 CDI Furgón", "114 CDI Furgón", "116 CDI Mixto", "116 CDI Tourer"],
+  'KIA_Seltos': ["1.6 LX MT", "1.6 EX AT", "1.6 EX Premium AT", "1.6T SX AT", "1.6T GT-Line AT"],
+  'KIA_Sportage': ["2.0 LX MT", "2.0 EX AT", "2.0 EX Pack AT", "2.0T SX AT", "2.0T GT-Line AT"],
+  'KIA_Sorento': ["2.5 LX AT", "2.5 EX AT", "2.5 EX Pack AT", "2.5T SX AT", "2.5T GT-Line AT"],
+  'KIA_Cerato': ["2.0 LX MT", "2.0 EX AT", "2.0 SX AT", "2.0 GT-Line AT", "1.6T GT AT"],
+  'KIA_Carnival': ["3.5 V6 LX AT", "3.5 V6 EX AT", "3.5 V6 SX AT"],
+  'KIA_Picanto': ["1.0 LX MT", "1.0 EX AT", "1.0T GT-Line AT"],
+  'KIA_Rio': ["1.4 LX MT", "1.4 EX AT", "1.4 SX AT"],
+  'KIA_Stonic': ["1.4 LX MT", "1.4 EX AT", "1.0T GT-Line AT"],
+  'KIA_EV6': ["Standard RWD", "Long Range RWD", "Long Range AWD", "GT AWD"],
+  'AUDI_A1': ["30 TFSI S-tronic", "35 TFSI S-tronic", "40 TFSI S-tronic"],
+  'AUDI_A3': ["35 TFSI S-tronic", "40 TFSI quattro", "S3 quattro", "RS3 quattro"],
+  'AUDI_A4': ["40 TFSI", "40 TFSI S line", "45 TFSI quattro", "S4 TDI", "RS4 Avant"],
+  'AUDI_A5 Sportback': ["40 TFSI", "45 TFSI quattro", "S5 TDI", "RS5"],
+  'AUDI_Q2': ["35 TFSI", "35 TFSI S line", "40 TFSI quattro"],
+  'AUDI_Q3': ["35 TFSI", "35 TFSI S line", "40 TFSI quattro", "RSQ3"],
+  'AUDI_Q5': ["40 TFSI", "45 TFSI quattro", "55 TFSIe quattro PHEV", "SQ5 TDI"],
+  'AUDI_Q7': ["45 TFSI", "55 TFSI quattro", "SQ7 TDI"],
+  'AUDI_Q8': ["55 TFSI quattro", "SQ8 TDI", "RSQ8"],
+  'AUDI_e-tron': ["50 quattro", "55 quattro", "S quattro"],
+  'SSANGYONG_Korando': ["2.0 LX MT", "2.0 EX AT", "2.0 Limited AT"],
+  'SSANGYONG_Rexton': ["2.2 TD RX MT", "2.2 TD RX7 AT", "2.2 TD Platinum AT"],
+  'SSANGYONG_Musso': ["2.2 TD LX MT", "2.2 TD EX AT", "2.2 TD Limited AT"],
+  'SUBARU_Forester': ["2.0i", "2.0i-L", "2.0i-S", "2.0i-S EyeSight", "2.5 Sport"],
+  'SUBARU_Outback': ["2.5i", "2.5i-S", "2.5i-S EyeSight", "2.4 XT"],
+  'SUBARU_XV': ["1.6i", "2.0i", "2.0i-S", "2.0i-S EyeSight"],
+  'SUBARU_WRX': ["2.0T Base", "2.0T Premium", "2.0T Limited", "2.5T STI"],
+  'MAZDA_CX-30': ["2.0 i", "2.0 i Grand Touring", "2.5 i Signature"],
+  'MAZDA_CX-5': ["2.0 i", "2.5 i Sport", "2.5 i Grand Touring", "2.5 i Signature"],
+  'MAZDA_CX-50': ["2.5 Preferred", "2.5 Premium", "2.5 Premium Plus", "2.5T Turbo"],
+  'MAZDA_3': ["2.0 i", "2.5 i Sport", "2.5 i Grand Touring", "2.5 i Signature"],
+  'MAZDA_MX-5': ["2.0 i Sport", "2.0 i Grand Touring", "RF 2.0 Grand Touring"],
+  'MG_ZS': ["1.5 Style MT", "1.5 Comfort AT", "1.5 Luxury AT", "1.3T Excite AT"],
+  'MG_ZS EV': ["Standard Range", "Long Range", "Exclusive"],
+  'MG_HS': ["1.5T Style AT", "1.5T Comfort AT", "2.0T Luxury AT AWD", "1.5T PHEV"],
+  'MG_MG4': ["Standard", "Comfort", "Luxury", "XPOWER"],
+  'CHERY_Tiggo 4': ["Comfort MT", "Luxury AT", "Pro Comfort MT", "Pro Luxury AT"],
+  'CHERY_Tiggo 7': ["Comfort MT", "Luxury AT", "Pro Comfort MT", "Pro Luxury AT"],
+  'CHERY_Tiggo 8': ["Comfort AT", "Luxury AT", "Pro Comfort AT", "Pro Luxury AT"],
+  'CHERY_Omoda 5': ["Comfort AT", "Luxury AT", "GT AT"],
+  'BYD_Dolphin': ["Standard", "Comfort", "Design"],
+  'BYD_Seal': ["Dynamic", "Premium", "Performance"],
+  'BYD_Song Plus': ["Comfort", "Flagship"],
+  'HAVAL_H6': ["Comfort AT", "Supreme AT", "Supreme+ AT", "GT AT", "Hybrid AT"],
+  'HAVAL_Jolion': ["Comfort AT", "Premium AT", "Luxury AT", "Hybrid AT"],
+  'HAVAL_Dargo': ["Supreme AT", "Supreme+ AT"],
+  'GWM_Tank 300': ["Luxury AT", "Flagship AT"],
+  'GWM_Tank 500': ["Hybrid AT", "Hybrid Flagship AT"],
+  'GWM_Ora 03': ["Standard", "Luxury", "GT"],
+  'CUPRA_Formentor': ["1.4 TSI", "2.0 TSI VZ", "2.5 TSI VZ5", "1.4 e-Hybrid"],
+  'CUPRA_Leon': ["2.0 TSI VZ", "1.4 e-Hybrid VZ"],
+  'CUPRA_Born': ["58 kWh", "77 kWh", "VZ 77 kWh"],
+  'CITROEN_C3': ["1.2 Live", "1.2 Feel", "1.6 Feel Pack", "1.6 Shine"],
+  'CITROEN_C3 Aircross': ["1.6 Live", "1.6 Feel", "1.6 Feel Pack", "1.6 Shine", "1.6 Shine Pack"],
+  'CITROEN_C4 Cactus': ["1.6 Live", "1.6 Feel", "1.6 Feel Pack", "1.6 Shine"],
+  'CITROEN_C5 Aircross': ["1.6 THP Feel", "1.6 THP Feel Pack", "1.6 THP Shine", "1.6 Hybrid"],
+  'GENERICA_AUTO': ["Base", "Comfort", "Style", "Premium", "Luxury", "Sport", "Active", "Trend", "Life", "Titanium", "Limited", "Highline", "Intense", "Sense", "Full"],
+  'GENERICA_MOTO': ["Standard", "Base", "Plus", "Sport", "Racing", "Adventure", "Touring", "Custom", "Café Racer", "Scrambler", "Pro", "R", "S"],
+  'GENERICA_CAMION': ["4x2 Tractor", "4x2 Chasis", "6x2 Tractor", "6x4 Tractor", "6x4 Volcador", "8x4 Mixer", "8x4 Volcador", "Chasis Largo", "Chasis Corto", "Furgón", "Volcador"],
+};
 
-// VIDA / SALUD
-const TIPOS_VIDA = [
-  { value: 'vida', label: 'Seguro de Vida' },
-  { value: 'vida_ahorro', label: 'Vida con Ahorro' },
-  { value: 'accidentes', label: 'Accidentes Personales' },
-  { value: 'sepelio', label: 'Sepelio' },
-  { value: 'salud', label: 'Salud/Prepaga' },
-];
+// Función para obtener versiones según marca/modelo
+const getVersiones = (marca, modelo, tipoVehiculo) => {
+  // 1. Buscar versión específica marca_modelo
+  const key = `${marca}_${modelo}`;
+  if (VERSIONES_ACARA[key]) {
+    return VERSIONES_ACARA[key];
+  }
+  
+  // 2. Buscar solo por marca (para motos y camiones)
+  const keyMarca = `${marca}_MOTO`;
+  if (tipoVehiculo === 'moto' && VERSIONES_ACARA[keyMarca]) {
+    return VERSIONES_ACARA[keyMarca];
+  }
+  
+  // 3. Fallback por tipo de vehículo
+  if (tipoVehiculo === 'moto') {
+    return VERSIONES_ACARA['GENERICA_MOTO'] || ['Standard', 'Sport', 'Touring', 'Adventure'];
+  }
+  if (tipoVehiculo === 'camion') {
+    return VERSIONES_ACARA['GENERICA_CAMION'] || ['4x2', '6x2', '6x4', 'Chasis', 'Tractor'];
+  }
+  
+  // 4. Fallback genérico para autos/camionetas
+  return VERSIONES_ACARA['GENERICA_AUTO'] || ['Base', 'Comfort', 'Premium', 'Full'];
+};
 
-// ============================================================================
-// COMPONENTE PRINCIPAL
-// ============================================================================
+// Generar años disponibles (últimos 30 años)
+const AÑOS = Array.from({ length: 31 }, (_, i) => 2025 - i);
+
+// ============================================
+// COMPONENTE HEROSECTION
+// ============================================
 
 const HeroSection = () => {
   const [activeTab, setActiveTab] = useState('vehiculos');
-  const [loading, setLoading] = useState(false);
-
-  // Estados por tipo de seguro
-  const [vehiculo, setVehiculo] = useState({ tipo: '', marca: '', modelo: '', version: '', año: '', cobertura: '' });
-  const [hogar, setHogar] = useState({ tipo: '', metros: '', zona: '', antiguedad: '', cobertura: '' });
-  const [art, setArt] = useState({ razonSocial: '', cuit: '', actividad: '', empleados: '', masaSalarial: '', provincia: '' });
-  const [comercio, setComercio] = useState({ tipo: '', rubro: '', superficie: '', sumaContenido: '', sumaEdificio: '', zona: '' });
-  const [vida, setVida] = useState({ nombre: '', edad: '', ocupacion: '', sumaAsegurada: '', tipo: '' });
-
-  // Dinámicos para vehículos
+  
+  // Estado para vehículos
+  const [vehiculo, setVehiculo] = useState({
+    tipo: '',
+    marca: '',
+    modelo: '',
+    version: '',
+    año: '',
+    cobertura: ''
+  });
+  
+  // Estados derivados
   const [marcasDisp, setMarcasDisp] = useState([]);
   const [modelosDisp, setModelosDisp] = useState([]);
   const [versionesDisp, setVersionesDisp] = useState([]);
 
+  // Estado para otros formularios
+  const [hogar, setHogar] = useState({ tipo: '', metros: '', ubicacion: '', cobertura: '' });
+  const [art, setArt] = useState({ empresa: '', empleados: '', actividad: '', cuit: '' });
+  const [comercio, setComercio] = useState({ tipo: '', metros: '', ubicacion: '', rubro: '' });
+  const [vida, setVida] = useState({ edad: '', cobertura: '', fumador: '', monto: '' });
+
+  // Actualizar marcas cuando cambia el tipo
   useEffect(() => {
     if (vehiculo.tipo) {
-      setMarcasDisp(MARCAS[vehiculo.tipo] || []);
-      setVehiculo(p => ({ ...p, marca: '', modelo: '', version: '' }));
+      const marcas = MARCAS_POR_TIPO[vehiculo.tipo] || [];
+      setMarcasDisp(marcas.sort());
+      setVehiculo(prev => ({ ...prev, marca: '', modelo: '', version: '', año: '', cobertura: '' }));
+      setModelosDisp([]);
+      setVersionesDisp([]);
     }
   }, [vehiculo.tipo]);
 
+  // Actualizar modelos cuando cambia la marca
   useEffect(() => {
     if (vehiculo.marca) {
-      setModelosDisp(MODELOS[vehiculo.marca] || MODELOS.default);
-      setVehiculo(p => ({ ...p, modelo: '', version: '' }));
+      let modelos = MODELOS_POR_MARCA[vehiculo.marca] || [];
+      // Para motos, buscar también con sufijo _MOTO
+      if (vehiculo.tipo === 'moto' && !modelos.length) {
+        modelos = MODELOS_POR_MARCA[vehiculo.marca + '_MOTO'] || [];
+      }
+      // Si no hay modelos específicos, usar genéricos
+      if (!modelos.length) {
+        modelos = ['Modelo 1', 'Modelo 2', 'Modelo 3', 'Otro'];
+      }
+      setModelosDisp(modelos.sort());
+      setVehiculo(prev => ({ ...prev, modelo: '', version: '', año: '', cobertura: '' }));
+      setVersionesDisp([]);
     }
-  }, [vehiculo.marca]);
+  }, [vehiculo.marca, vehiculo.tipo]);
 
-  // NUEVO: Actualizar versiones cuando cambia el modelo
+  // Actualizar versiones cuando cambia el modelo
   useEffect(() => {
     if (vehiculo.modelo && vehiculo.marca) {
       const versiones = getVersiones(vehiculo.marca, vehiculo.modelo, vehiculo.tipo);
       setVersionesDisp(versiones);
-      setVehiculo(p => ({ ...p, version: '' }));
+      setVehiculo(prev => ({ ...prev, version: '' }));
     }
   }, [vehiculo.modelo, vehiculo.marca, vehiculo.tipo]);
 
-  // ============================================================================
-  // SUBMIT POR TIPO
-  // ============================================================================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-
+  // Enviar cotización por WhatsApp
+  const enviarWhatsApp = (tipo) => {
     let mensaje = '';
+    const telefono = '5493415854220';
     
-    switch (activeTab) {
-      case 'vehiculos':
+    switch(tipo) {
+      case 'vehiculo':
         if (!vehiculo.tipo || !vehiculo.marca || !vehiculo.modelo || !vehiculo.año || !vehiculo.cobertura) {
-          alert('Completá todos los campos'); setLoading(false); return;
+          alert('Por favor completá todos los campos obligatorios');
+          return;
         }
-        mensaje = `🚗 *COTIZACIÓN VEHÍCULO*\n\nTipo: ${vehiculo.tipo}\nMarca: ${vehiculo.marca}\nModelo: ${vehiculo.modelo}${vehiculo.version ? `\nVersión: ${vehiculo.version}` : ''}\nAño: ${vehiculo.año}\nCobertura: ${COBERTURAS_AUTO.find(c => c.value === vehiculo.cobertura)?.label}`;
+        const coberturaLabel = COBERTURAS_AUTO.find(c => c.value === vehiculo.cobertura)?.label || vehiculo.cobertura;
+        mensaje = `🚗 *COTIZACIÓN VEHÍCULO*
+
+*Tipo:* ${vehiculo.tipo.charAt(0).toUpperCase() + vehiculo.tipo.slice(1)}
+*Marca:* ${vehiculo.marca}
+*Modelo:* ${vehiculo.modelo}${vehiculo.version ? `
+*Versión:* ${vehiculo.version}` : ''}
+*Año:* ${vehiculo.año}
+*Cobertura:* ${coberturaLabel}
+
+Solicito cotización para mi vehículo.`;
         break;
         
       case 'hogar':
-        if (!hogar.tipo || !hogar.metros || !hogar.cobertura) {
-          alert('Completá los campos obligatorios'); setLoading(false); return;
+        if (!hogar.tipo || !hogar.metros || !hogar.ubicacion) {
+          alert('Por favor completá todos los campos obligatorios');
+          return;
         }
-        mensaje = `🏠 *COTIZACIÓN HOGAR*\n\nTipo: ${TIPOS_INMUEBLE.find(t => t.value === hogar.tipo)?.label}\nMetros²: ${hogar.metros}\nZona: ${hogar.zona || 'No especificada'}\nAntigüedad: ${hogar.antiguedad || 'No especificada'}\nCobertura: ${COBERTURAS_HOGAR.find(c => c.value === hogar.cobertura)?.label}`;
+        mensaje = `🏠 *COTIZACIÓN HOGAR*
+
+*Tipo:* ${hogar.tipo}
+*Metros²:* ${hogar.metros}
+*Ubicación:* ${hogar.ubicacion}
+*Cobertura:* ${hogar.cobertura || 'A definir'}
+
+Solicito cotización para mi hogar.`;
         break;
         
       case 'art':
-        if (!art.razonSocial || !art.cuit || !art.actividad || !art.empleados || !art.masaSalarial || !art.provincia) {
-          alert('Completá todos los campos del F.931'); setLoading(false); return;
+        if (!art.empresa || !art.empleados || !art.actividad) {
+          alert('Por favor completá todos los campos obligatorios');
+          return;
         }
-        mensaje = `🏢 *COTIZACIÓN ART EMPRESAS*\n\n📋 Datos F.931 AFIP:\nRazón Social: ${art.razonSocial}\nCUIT: ${art.cuit}\nActividad: ${ACTIVIDADES_CIIU.find(a => a.value === art.actividad)?.label}\nEmpleados: ${art.empleados}\nMasa salarial: $${Number(art.masaSalarial).toLocaleString('es-AR')}\nProvincia: ${art.provincia}`;
+        mensaje = `👷 *COTIZACIÓN ART*
+
+*Empresa:* ${art.empresa}
+*CUIT:* ${art.cuit || 'A informar'}
+*Empleados:* ${art.empleados}
+*Actividad:* ${art.actividad}
+
+Solicito cotización de ART para mi empresa.`;
         break;
         
       case 'comercio':
-        if (!comercio.tipo || !comercio.rubro || !comercio.superficie) {
-          alert('Completá los campos obligatorios'); setLoading(false); return;
+        if (!comercio.tipo || !comercio.metros || !comercio.ubicacion) {
+          alert('Por favor completá todos los campos obligatorios');
+          return;
         }
-        mensaje = `🏪 *COTIZACIÓN COMERCIO*\n\nTipo: ${TIPOS_COMERCIO.find(t => t.value === comercio.tipo)?.label}\nRubro: ${RUBROS.find(r => r.value === comercio.rubro)?.label}\nSuperficie: ${comercio.superficie}m²\nSuma contenido: $${comercio.sumaContenido ? Number(comercio.sumaContenido).toLocaleString('es-AR') : 'A definir'}\nSuma edificio: $${comercio.sumaEdificio ? Number(comercio.sumaEdificio).toLocaleString('es-AR') : 'A definir'}\nZona: ${comercio.zona || 'No especificada'}`;
+        mensaje = `🏪 *COTIZACIÓN COMERCIO*
+
+*Tipo:* ${comercio.tipo}
+*Metros²:* ${comercio.metros}
+*Ubicación:* ${comercio.ubicacion}
+*Rubro:* ${comercio.rubro || 'A definir'}
+
+Solicito cotización para mi comercio.`;
         break;
         
       case 'vida':
-        if (!vida.nombre || !vida.edad || !vida.tipo) {
-          alert('Completá los campos obligatorios'); setLoading(false); return;
+        if (!vida.edad || !vida.cobertura) {
+          alert('Por favor completá todos los campos obligatorios');
+          return;
         }
-        mensaje = `❤️ *COTIZACIÓN VIDA/SALUD*\n\nNombre: ${vida.nombre}\nEdad: ${vida.edad} años\nOcupación: ${vida.ocupacion || 'No especificada'}\nTipo: ${TIPOS_VIDA.find(t => t.value === vida.tipo)?.label}\nSuma asegurada: $${vida.sumaAsegurada ? Number(vida.sumaAsegurada).toLocaleString('es-AR') : 'A definir'}`;
+        mensaje = `❤️ *COTIZACIÓN VIDA/SALUD*
+
+*Edad:* ${vida.edad} años
+*Tipo:* ${vida.cobertura}
+*Fumador:* ${vida.fumador || 'No'}
+*Monto:* ${vida.monto || 'A definir'}
+
+Solicito cotización de seguro de vida.`;
         break;
+        
+      default:
+        return;
     }
-
-    // Tracking GA4
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'quote_started', { event_category: 'conversion', quote_type: activeTab });
-    }
-
-    window.open(`https://wa.me/5493415302929?text=${encodeURIComponent(mensaje)}`, '_blank');
-    setLoading(false);
+    
+    const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
   };
 
-  // ============================================================================
-  // ESTILOS
-  // ============================================================================
-  const inputClass = "w-full px-3 py-2.5 text-sm border-0 rounded-lg bg-white/90 backdrop-blur text-gray-800 focus:ring-2 focus:ring-yellow-400 shadow-sm";
-  const labelClass = "block text-xs font-medium text-white/80 mb-1";
-
-  const tabs = [
-    { id: 'vehiculos', label: '🚗 Vehículos', icon: '🚗' },
-    { id: 'hogar', label: '🏠 Hogar', icon: '🏠' },
-    { id: 'art', label: '🏢 ART Empresas', icon: '🏢' },
-    { id: 'comercio', label: '🏪 Comercio', icon: '🏪' },
-    { id: 'vida', label: '❤️ Vida/Salud', icon: '❤️' },
-  ];
+  // Estilos
+  const inputClass = "w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#C9A227] focus:border-transparent text-sm";
+  const labelClass = "block text-white/80 text-xs font-medium mb-1";
+  const buttonClass = "w-full bg-gradient-to-r from-[#C9A227] to-[#D4AF37] hover:from-[#D4AF37] hover:to-[#E5C158] text-[#1a1a2e] font-bold py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] shadow-lg text-sm";
+  const tabClass = (isActive) => `px-4 py-2 rounded-t-lg font-medium text-sm transition-all ${isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white/80'}`;
 
   return (
-    <section className="relative min-h-[700px] bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 overflow-hidden">
-      {/* Fondo decorativo */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-yellow-300 rounded-full blur-3xl"></div>
+    <section id="cotizar" className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
+      {/* Background con gradiente */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-40"></div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 relative z-10">
-        {/* Escudo */}
-        <div className="flex justify-center mb-4">
-          <div className="w-16 h-20">
-            <svg viewBox="0 0 80 96" fill="none"><path d="M40 0L80 16V48C80 72 60 88 40 96C20 88 0 72 0 48V16L40 0Z" stroke="#F59E0B" strokeWidth="4" fill="none"/></svg>
-          </div>
+      <div className="relative z-10 container mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">
+            Protegé lo que más <span className="text-[#C9A227]">importa</span>
+          </h1>
+          <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto">
+            Cotizá tu seguro en segundos. Asesoramiento personalizado y las mejores coberturas del mercado.
+          </p>
         </div>
 
-        {/* Título */}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-3">
-          Seguros de Auto, Hogar y Vida en Rosario
-        </h1>
-
-        {/* Badge */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-yellow-400 text-gray-900 px-5 py-2 rounded-full font-bold shadow-lg">
-            Cotización GRATIS en 2 minutos
-          </div>
-        </div>
-
-        {/* SISTEMA DE PESTAÑAS */}
+        {/* Formulario Principal */}
         <div className="max-w-5xl mx-auto">
-          
           {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-t-lg font-semibold text-sm transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-white text-blue-600 shadow-lg'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-1 mb-4 justify-center">
+            <button onClick={() => setActiveTab('vehiculos')} className={tabClass(activeTab === 'vehiculos')}>
+              🚗 Vehículos
+            </button>
+            <button onClick={() => setActiveTab('hogar')} className={tabClass(activeTab === 'hogar')}>
+              🏠 Hogar
+            </button>
+            <button onClick={() => setActiveTab('art')} className={tabClass(activeTab === 'art')}>
+              👷 ART
+            </button>
+            <button onClick={() => setActiveTab('comercio')} className={tabClass(activeTab === 'comercio')}>
+              🏪 Comercio
+            </button>
+            <button onClick={() => setActiveTab('vida')} className={tabClass(activeTab === 'vida')}>
+              ❤️ Vida/Salud
+            </button>
           </div>
 
-          {/* Formulario */}
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
-            <form onSubmit={handleSubmit}>
-              
-              {/* ========== VEHÍCULOS (CON VERSIÓN) ========== */}
-              {activeTab === 'vehiculos' && (
+          {/* Panel de contenido */}
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 shadow-2xl">
+            
+            {/* TAB: VEHÍCULOS */}
+            {activeTab === 'vehiculos' && (
+              <div>
+                <h3 className="text-white font-semibold mb-4 text-lg">Cotizá tu seguro de vehículo</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                  {/* Tipo */}
                   <div>
                     <label className={labelClass}>Tipo *</label>
-                    <select value={vehiculo.tipo} onChange={(e) => setVehiculo({...vehiculo, tipo: e.target.value})} className={inputClass} required>
+                    <select 
+                      value={vehiculo.tipo} 
+                      onChange={(e) => setVehiculo({...vehiculo, tipo: e.target.value})}
+                      className={inputClass}
+                    >
                       <option value="">Seleccionar</option>
-                      {TIPOS_VEHICULO.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      {TIPOS_VEHICULO.map(t => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
                     </select>
                   </div>
+
+                  {/* Marca */}
                   <div>
                     <label className={labelClass}>Marca *</label>
-                    <select value={vehiculo.marca} onChange={(e) => setVehiculo({...vehiculo, marca: e.target.value})} className={inputClass} disabled={!vehiculo.tipo} required>
+                    <select 
+                      value={vehiculo.marca} 
+                      onChange={(e) => setVehiculo({...vehiculo, marca: e.target.value})}
+                      className={inputClass}
+                      disabled={!vehiculo.tipo}
+                    >
                       <option value="">Seleccionar</option>
-                      {marcasDisp.map(m => <option key={m} value={m}>{m}</option>)}
+                      {marcasDisp.map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
                     </select>
                   </div>
+
+                  {/* Modelo */}
                   <div>
                     <label className={labelClass}>Modelo *</label>
-                    <select value={vehiculo.modelo} onChange={(e) => setVehiculo({...vehiculo, modelo: e.target.value})} className={inputClass} disabled={!vehiculo.marca} required>
+                    <select 
+                      value={vehiculo.modelo} 
+                      onChange={(e) => setVehiculo({...vehiculo, modelo: e.target.value})}
+                      className={inputClass}
+                      disabled={!vehiculo.marca}
+                    >
                       <option value="">Seleccionar</option>
-                      {modelosDisp.map(m => <option key={m} value={m}>{m}</option>)}
+                      {modelosDisp.map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
                     </select>
                   </div>
-                  {/* NUEVO: CAMPO VERSIÓN */}
+
+                  {/* VERSIÓN - NUEVO CAMPO ACARA */}
                   <div>
                     <label className={labelClass}>Versión</label>
-                    <select value={vehiculo.version} onChange={(e) => setVehiculo({...vehiculo, version: e.target.value})} className={inputClass} disabled={!vehiculo.modelo}>
+                    <select 
+                      value={vehiculo.version} 
+                      onChange={(e) => setVehiculo({...vehiculo, version: e.target.value})}
+                      className={inputClass}
+                      disabled={!vehiculo.modelo}
+                    >
                       <option value="">Opcional</option>
-                      {versionesDisp.map(v => <option key={v} value={v}>{v}</option>)}
+                      {versionesDisp.map(v => (
+                        <option key={v} value={v}>{v}</option>
+                      ))}
                     </select>
                   </div>
+
+                  {/* Año */}
                   <div>
                     <label className={labelClass}>Año *</label>
-                    <select value={vehiculo.año} onChange={(e) => setVehiculo({...vehiculo, año: e.target.value})} className={inputClass} required>
-                      <option value="">Año</option>
-                      {AÑOS.map(a => <option key={a} value={a}>{a}</option>)}
+                    <select 
+                      value={vehiculo.año} 
+                      onChange={(e) => setVehiculo({...vehiculo, año: e.target.value})}
+                      className={inputClass}
+                      disabled={!vehiculo.modelo}
+                    >
+                      <option value="">Seleccionar</option>
+                      {AÑOS.map(a => (
+                        <option key={a} value={a}>{a}</option>
+                      ))}
                     </select>
                   </div>
+
+                  {/* Cobertura */}
                   <div>
                     <label className={labelClass}>Cobertura *</label>
-                    <select value={vehiculo.cobertura} onChange={(e) => setVehiculo({...vehiculo, cobertura: e.target.value})} className={inputClass} required>
+                    <select 
+                      value={vehiculo.cobertura} 
+                      onChange={(e) => setVehiculo({...vehiculo, cobertura: e.target.value})}
+                      className={inputClass}
+                      disabled={!vehiculo.año}
+                    >
                       <option value="">Seleccionar</option>
-                      {COBERTURAS_AUTO.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                      {COBERTURAS_AUTO.map(c => (
+                        <option key={c.value} value={c.value}>{c.label}</option>
+                      ))}
                     </select>
                   </div>
+
+                  {/* Botón */}
                   <div className="flex items-end">
-                    <button type="submit" disabled={loading} className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold transition shadow-lg flex items-center justify-center gap-2">
-                      {loading ? <span className="animate-spin">⏳</span> : <>💬 Cotizar</>}
+                    <button onClick={() => enviarWhatsApp('vehiculo')} className={buttonClass}>
+                      Cotizar
                     </button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* ========== HOGAR ========== */}
-              {activeTab === 'hogar' && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {/* TAB: HOGAR */}
+            {activeTab === 'hogar' && (
+              <div>
+                <h3 className="text-white font-semibold mb-4 text-lg">Cotizá tu seguro de hogar</h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
-                    <label className={labelClass}>Tipo inmueble *</label>
-                    <select value={hogar.tipo} onChange={(e) => setHogar({...hogar, tipo: e.target.value})} className={inputClass} required>
+                    <label className={labelClass}>Tipo *</label>
+                    <select value={hogar.tipo} onChange={(e) => setHogar({...hogar, tipo: e.target.value})} className={inputClass}>
                       <option value="">Seleccionar</option>
-                      {TIPOS_INMUEBLE.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      <option value="casa">Casa</option>
+                      <option value="departamento">Departamento</option>
+                      <option value="ph">PH</option>
+                      <option value="country">Country/Barrio Cerrado</option>
                     </select>
                   </div>
                   <div>
                     <label className={labelClass}>Metros² *</label>
-                    <input type="number" value={hogar.metros} onChange={(e) => setHogar({...hogar, metros: e.target.value})} className={inputClass} placeholder="Ej: 80" required />
+                    <input type="number" value={hogar.metros} onChange={(e) => setHogar({...hogar, metros: e.target.value})} placeholder="Ej: 80" className={inputClass} />
                   </div>
                   <div>
-                    <label className={labelClass}>Zona/Barrio</label>
-                    <input type="text" value={hogar.zona} onChange={(e) => setHogar({...hogar, zona: e.target.value})} className={inputClass} placeholder="Ej: Centro" />
+                    <label className={labelClass}>Ubicación *</label>
+                    <input type="text" value={hogar.ubicacion} onChange={(e) => setHogar({...hogar, ubicacion: e.target.value})} placeholder="Ciudad, Barrio" className={inputClass} />
                   </div>
                   <div>
-                    <label className={labelClass}>Antigüedad</label>
-                    <input type="text" value={hogar.antiguedad} onChange={(e) => setHogar({...hogar, antiguedad: e.target.value})} className={inputClass} placeholder="Ej: 10 años" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Cobertura *</label>
-                    <select value={hogar.cobertura} onChange={(e) => setHogar({...hogar, cobertura: e.target.value})} className={inputClass} required>
+                    <label className={labelClass}>Cobertura</label>
+                    <select value={hogar.cobertura} onChange={(e) => setHogar({...hogar, cobertura: e.target.value})} className={inputClass}>
                       <option value="">Seleccionar</option>
-                      {COBERTURAS_HOGAR.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                      <option value="basica">Básica</option>
+                      <option value="intermedia">Intermedia</option>
+                      <option value="premium">Premium</option>
+                      <option value="todo_riesgo">Todo Riesgo</option>
                     </select>
                   </div>
                   <div className="flex items-end">
-                    <button type="submit" disabled={loading} className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold transition shadow-lg flex items-center justify-center gap-2">
-                      {loading ? <span className="animate-spin">⏳</span> : <>💬 Cotizar</>}
-                    </button>
+                    <button onClick={() => enviarWhatsApp('hogar')} className={buttonClass}>Cotizar</button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* ========== ART EMPRESAS ========== */}
-              {activeTab === 'art' && (
-                <div className="space-y-4">
-                  <p className="text-white/80 text-sm text-center mb-2">📋 Datos del Formulario 931 AFIP</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                    <div>
-                      <label className={labelClass}>Razón Social *</label>
-                      <input type="text" value={art.razonSocial} onChange={(e) => setArt({...art, razonSocial: e.target.value})} className={inputClass} placeholder="Empresa S.A." required />
-                    </div>
-                    <div>
-                      <label className={labelClass}>CUIT *</label>
-                      <input type="text" value={art.cuit} onChange={(e) => setArt({...art, cuit: e.target.value})} className={inputClass} placeholder="30-12345678-9" required />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Actividad (CIIU) *</label>
-                      <select value={art.actividad} onChange={(e) => setArt({...art, actividad: e.target.value})} className={inputClass} required>
-                        <option value="">Seleccionar</option>
-                        {ACTIVIDADES_CIIU.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className={labelClass}>Empleados *</label>
-                      <input type="number" value={art.empleados} onChange={(e) => setArt({...art, empleados: e.target.value})} className={inputClass} placeholder="Ej: 15" required />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Masa salarial $ *</label>
-                      <input type="number" value={art.masaSalarial} onChange={(e) => setArt({...art, masaSalarial: e.target.value})} className={inputClass} placeholder="Ej: 5000000" required />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Provincia *</label>
-                      <select value={art.provincia} onChange={(e) => setArt({...art, provincia: e.target.value})} className={inputClass} required>
-                        <option value="">Seleccionar</option>
-                        {PROVINCIAS.map(p => <option key={p} value={p}>{p}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <button type="submit" disabled={loading} className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-bold transition shadow-lg flex items-center justify-center gap-2">
-                      {loading ? <span className="animate-spin">⏳</span> : <>💬 Cotizar ART</>}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* ========== COMERCIO ========== */}
-              {activeTab === 'comercio' && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
+            {/* TAB: ART */}
+            {activeTab === 'art' && (
+              <div>
+                <h3 className="text-white font-semibold mb-4 text-lg">Cotizá tu ART (Riesgos del Trabajo)</h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
-                    <label className={labelClass}>Tipo comercio *</label>
-                    <select value={comercio.tipo} onChange={(e) => setComercio({...comercio, tipo: e.target.value})} className={inputClass} required>
+                    <label className={labelClass}>Empresa *</label>
+                    <input type="text" value={art.empresa} onChange={(e) => setArt({...art, empresa: e.target.value})} placeholder="Nombre empresa" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>CUIT</label>
+                    <input type="text" value={art.cuit} onChange={(e) => setArt({...art, cuit: e.target.value})} placeholder="XX-XXXXXXXX-X" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Empleados *</label>
+                    <select value={art.empleados} onChange={(e) => setArt({...art, empleados: e.target.value})} className={inputClass}>
                       <option value="">Seleccionar</option>
-                      {TIPOS_COMERCIO.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      <option value="1-5">1 a 5</option>
+                      <option value="6-10">6 a 10</option>
+                      <option value="11-25">11 a 25</option>
+                      <option value="26-50">26 a 50</option>
+                      <option value="51-100">51 a 100</option>
+                      <option value="100+">Más de 100</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>Rubro *</label>
-                    <select value={comercio.rubro} onChange={(e) => setComercio({...comercio, rubro: e.target.value})} className={inputClass} required>
-                      <option value="">Seleccionar</option>
-                      {RUBROS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Superficie m² *</label>
-                    <input type="number" value={comercio.superficie} onChange={(e) => setComercio({...comercio, superficie: e.target.value})} className={inputClass} placeholder="Ej: 100" required />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Suma contenido $</label>
-                    <input type="number" value={comercio.sumaContenido} onChange={(e) => setComercio({...comercio, sumaContenido: e.target.value})} className={inputClass} placeholder="Ej: 5000000" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Suma edificio $</label>
-                    <input type="number" value={comercio.sumaEdificio} onChange={(e) => setComercio({...comercio, sumaEdificio: e.target.value})} className={inputClass} placeholder="Ej: 20000000" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Zona</label>
-                    <input type="text" value={comercio.zona} onChange={(e) => setComercio({...comercio, zona: e.target.value})} className={inputClass} placeholder="Ej: Centro" />
+                    <label className={labelClass}>Actividad *</label>
+                    <input type="text" value={art.actividad} onChange={(e) => setArt({...art, actividad: e.target.value})} placeholder="Rubro principal" className={inputClass} />
                   </div>
                   <div className="flex items-end">
-                    <button type="submit" disabled={loading} className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold transition shadow-lg flex items-center justify-center gap-2">
-                      {loading ? <span className="animate-spin">⏳</span> : <>💬 Cotizar</>}
-                    </button>
+                    <button onClick={() => enviarWhatsApp('art')} className={buttonClass}>Cotizar</button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* ========== VIDA / SALUD ========== */}
-              {activeTab === 'vida' && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {/* TAB: COMERCIO */}
+            {activeTab === 'comercio' && (
+              <div>
+                <h3 className="text-white font-semibold mb-4 text-lg">Cotizá tu seguro de comercio</h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
-                    <label className={labelClass}>Nombre *</label>
-                    <input type="text" value={vida.nombre} onChange={(e) => setVida({...vida, nombre: e.target.value})} className={inputClass} placeholder="Tu nombre" required />
+                    <label className={labelClass}>Tipo *</label>
+                    <select value={comercio.tipo} onChange={(e) => setComercio({...comercio, tipo: e.target.value})} className={inputClass}>
+                      <option value="">Seleccionar</option>
+                      <option value="local">Local comercial</option>
+                      <option value="oficina">Oficina</option>
+                      <option value="deposito">Depósito</option>
+                      <option value="fabrica">Fábrica</option>
+                      <option value="galpon">Galpón</option>
+                    </select>
                   </div>
+                  <div>
+                    <label className={labelClass}>Metros² *</label>
+                    <input type="number" value={comercio.metros} onChange={(e) => setComercio({...comercio, metros: e.target.value})} placeholder="Ej: 150" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Ubicación *</label>
+                    <input type="text" value={comercio.ubicacion} onChange={(e) => setComercio({...comercio, ubicacion: e.target.value})} placeholder="Ciudad, Barrio" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Rubro</label>
+                    <input type="text" value={comercio.rubro} onChange={(e) => setComercio({...comercio, rubro: e.target.value})} placeholder="Actividad" className={inputClass} />
+                  </div>
+                  <div className="flex items-end">
+                    <button onClick={() => enviarWhatsApp('comercio')} className={buttonClass}>Cotizar</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: VIDA/SALUD */}
+            {activeTab === 'vida' && (
+              <div>
+                <h3 className="text-white font-semibold mb-4 text-lg">Cotizá tu seguro de vida</h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
                     <label className={labelClass}>Edad *</label>
-                    <input type="number" value={vida.edad} onChange={(e) => setVida({...vida, edad: e.target.value})} className={inputClass} placeholder="Ej: 35" required />
+                    <input type="number" value={vida.edad} onChange={(e) => setVida({...vida, edad: e.target.value})} placeholder="Años" className={inputClass} />
                   </div>
                   <div>
-                    <label className={labelClass}>Ocupación</label>
-                    <input type="text" value={vida.ocupacion} onChange={(e) => setVida({...vida, ocupacion: e.target.value})} className={inputClass} placeholder="Ej: Empleado" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Tipo seguro *</label>
-                    <select value={vida.tipo} onChange={(e) => setVida({...vida, tipo: e.target.value})} className={inputClass} required>
+                    <label className={labelClass}>Tipo *</label>
+                    <select value={vida.cobertura} onChange={(e) => setVida({...vida, cobertura: e.target.value})} className={inputClass}>
                       <option value="">Seleccionar</option>
-                      {TIPOS_VIDA.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      <option value="vida">Vida</option>
+                      <option value="sepelio">Sepelio</option>
+                      <option value="accidentes">Accidentes Personales</option>
+                      <option value="salud">Salud</option>
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass}>Suma asegurada $</label>
-                    <input type="number" value={vida.sumaAsegurada} onChange={(e) => setVida({...vida, sumaAsegurada: e.target.value})} className={inputClass} placeholder="Ej: 10000000" />
+                    <label className={labelClass}>Fumador</label>
+                    <select value={vida.fumador} onChange={(e) => setVida({...vida, fumador: e.target.value})} className={inputClass}>
+                      <option value="">Seleccionar</option>
+                      <option value="no">No</option>
+                      <option value="si">Sí</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Monto</label>
+                    <select value={vida.monto} onChange={(e) => setVida({...vida, monto: e.target.value})} className={inputClass}>
+                      <option value="">Seleccionar</option>
+                      <option value="10000">USD 10.000</option>
+                      <option value="25000">USD 25.000</option>
+                      <option value="50000">USD 50.000</option>
+                      <option value="100000">USD 100.000</option>
+                      <option value="otro">Otro monto</option>
+                    </select>
                   </div>
                   <div className="flex items-end">
-                    <button type="submit" disabled={loading} className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-bold transition shadow-lg flex items-center justify-center gap-2">
-                      {loading ? <span className="animate-spin">⏳</span> : <>💬 Cotizar</>}
-                    </button>
+                    <button onClick={() => enviarWhatsApp('vida')} className={buttonClass}>Cotizar</button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-            </form>
-
-            <p className="text-white/70 text-xs text-center mt-3">
-              💬 Te contactamos por WhatsApp en menos de 2 minutos · Sin compromiso
-            </p>
           </div>
-        </div>
 
-        {/* Teléfono */}
-        <div className="text-center mt-6">
-          <p className="text-white/90">
-            📞 O llamanos: <a href="tel:+5493416952259" className="text-yellow-300 font-bold hover:underline">341 695-2259</a>
-          </p>
-        </div>
-
-        {/* Aseguradoras */}
-        <div className="text-center mt-6">
-          <p className="text-white/80 font-semibold mb-3">Trabajamos con las mejores aseguradoras</p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {['San Cristóbal', 'Nación Seguros', 'Mapfre', 'SMG Seguros'].map(a => (
-              <span key={a} className="bg-white px-3 py-1.5 rounded-lg text-gray-800 font-medium text-sm shadow">{a}</span>
-            ))}
+          {/* Trust badges */}
+          <div className="flex flex-wrap justify-center gap-6 mt-6 text-white/60 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-[#C9A227]">✓</span> Sin compromiso
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[#C9A227]">✓</span> Respuesta en 24hs
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[#C9A227]">✓</span> Mejores precios
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[#C9A227]">✓</span> +17 años de experiencia
+            </div>
           </div>
         </div>
       </div>
