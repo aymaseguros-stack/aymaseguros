@@ -1,0 +1,56 @@
+# EditorConfig para Ayma Seguros
+# https://editorconfig.org
+
+root = true
+
+# Configuración por defecto para todos los archivos
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# JavaScript y JSX
+[*.{js,jsx,mjs,cjs}]
+indent_size = 2
+max_line_length = 100
+
+# HTML
+[*.html]
+indent_size = 2
+max_line_length = 120
+
+# JSON
+[*.json]
+indent_size = 2
+
+# CSS, SCSS
+[*.{css,scss}]
+indent_size = 2
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = 80
+
+# YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# Makefiles
+[Makefile]
+indent_style = tab
+
+# Package files
+[{package.json,package-lock.json}]
+indent_size = 2
+
+# Config files
+[*.config.{js,cjs,mjs}]
+indent_size = 2
+
+# Test files
+[*.{spec,test}.{js,jsx}]
+indent_size = 2

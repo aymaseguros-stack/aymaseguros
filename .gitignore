@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+/test-results/
+/playwright/.cache/
+.vitest/
+
+# Build outputs
+dist/
+build/
+.cache/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.test
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema
+.DS_Store
+.venv/
+venv/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Backups
+*.backup
+
+# Binarios locales y temporales
+tailwindcss
+lighthouse-*.html
+.vercel
+
+# Git branches accidentalmente trackeadas
+main
+claude/*
