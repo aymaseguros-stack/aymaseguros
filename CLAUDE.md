@@ -29,7 +29,108 @@ Ayma Advisors es una plataforma web completa para la cotización y gestión de s
 ├── index.html              # Landing page principal con chatbot de cotización
 ├── admin.html              # Panel administrativo CRM
 ├── index.html.original     # Backup de versión anterior
+├── CLAUDE.md               # Documentación técnica completa (este archivo)
 └── README.md               # Documentación básica
+```
+
+### Flujo de Datos del Sistema
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        LANDING PAGE                             │
+│                                                                 │
+│  Usuario → Chatbot → Cotización → localStorage → WhatsApp      │
+│              ↓                         ↓                        │
+│         React State              Google Sheets                  │
+│              ↓                         ↓                        │
+│       Validaciones               Backup automático              │
+│              ↓                                                  │
+│      A/B Testing Track                                          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                       PANEL ADMIN                               │
+│                                                                 │
+│  Login → Dashboard → Cotizaciones → Acciones                   │
+│            ↓              ↓              ↓                      │
+│        Métricas       Filtros      Notas/Recordatorios         │
+│            ↓              ↓              ↓                      │
+│     Auto-reload    localStorage    Google Sheets               │
+│       (5 seg)         Sync            Backup                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Arquitectura de Componentes React
+
+**Landing Page (index.html):**
+```
+AymaAdvisorsApp (Root Component)
+├── Header
+│   ├── AymaLogo
+│   └── Título/Subtítulo
+├── Landing View (showChat = false)
+│   ├── Hero Section
+│   │   ├── Headline (A/B Testing)
+│   │   └── CTA Button
+│   ├── Beneficios Grid (3 cards)
+│   ├── Features Section (4 items)
+│   ├── Garantía Banner
+│   ├── Aseguradoras Grid
+│   ├── Testimonios Grid (3 cards)
+│   └── Social Proof + Footer
+└── Chat View (showChat = true)
+    ├── Chat Header
+    │   ├── AymaLogo (small)
+    │   └── Botón Volver
+    ├── Messages Container
+    │   ├── Bot Messages (con avatar)
+    │   ├── User Messages (con avatar)
+    │   ├── Typing Indicator
+    │   └── Auto-scroll Ref
+    ├── Success Panel (showSuccess = true)
+    │   ├── WhatsApp Button
+    │   └── Nueva Cotización Button
+    └── Input Area
+        ├── Text Input
+        └── Send Button
+```
+
+**Panel Admin (admin.html):**
+```
+App (Root Component)
+├── Login View (isAuth = false)
+│   ├── Logo
+│   ├── Username Input
+│   ├── Password Input
+│   └── Submit Button
+└── Dashboard View (isAuth = true)
+    ├── Top Navigation
+    │   ├── Dashboard Tab
+    │   ├── Calendario Tab
+    │   └── Logout Button
+    ├── Dashboard View (view = 'dashboard')
+    │   ├── Metrics Grid (6 cards)
+    │   └── Quotes List
+    │       └── Quote Card (por cada cotización)
+    │           ├── Client Info
+    │           ├── Action Buttons
+    │           ├── Reminders Badge
+    │           ├── Contact History
+    │           └── Pending Reminders
+    ├── Calendar View (view = 'calendar')
+    │   ├── Overdue Reminders (alerta roja)
+    │   └── Today Reminders
+    ├── Note Modal (showNoteModal = true)
+    │   ├── Textarea
+    │   ├── Save Button
+    │   └── Cancel Button
+    └── Reminder Modal (showReminderModal = true)
+        ├── Date Input
+        ├── Time Input
+        ├── Type Select
+        ├── Notes Textarea
+        ├── Save Button
+        └── Cancel Button
 ```
 
 ---
@@ -731,9 +832,600 @@ if (!reminderDate || !reminderTime) {
 
 ---
 
+## Mejores Prácticas de Desarrollo
+
+### Gestión de Estado en React
+
+**Landing Page:**
+```javascript
+// Estados principales del chatbot
+const [showChat, setShowChat] = useState(false);           // Toggle landing/chat
+const [messages, setMessages] = useState([]);              // Historial de mensajes
+const [currentStep, setCurrentStep] = useState('inicio');  // Paso del flujo
+const [currentQuote, setCurrentQuote] = useState({});      // Datos acumulados
+const [isTyping, setIsTyping] = useState(false);          // Indicador bot escribiendo
+const [showSuccess, setShowSuccess] = useState(false);     // Panel de éxito
+
+// Buena práctica: Un solo estado para controlar el flujo
+// Evitar múltiples booleanos que puedan entrar en conflicto
+```
+
+**Panel Admin:**
+```javascript
+// Estado centralizado
+const [quotes, setQuotes] = useState([]);              // Todas las cotizaciones
+const [view, setView] = useState('dashboard');         // Vista actual
+const [isAuth, setIsAuth] = useState(false);          // Autenticación
+const [selectedQuote, setSelectedQuote] = useState(null);  // Cotización activa
+
+// Modales controlados
+const [showNoteModal, setShowNoteModal] = useState(false);
+const [showReminderModal, setShowReminderModal] = useState(false);
+
+// Buena práctica: Estados separados para modales
+// Permite múltiples modales sin conflictos
+```
+
+### Manejo de Side Effects
+
+**Auto-reload en Admin:**
+```javascript
+React.useEffect(() => {
+    if (isAuth) {
+        loadData();                                    // Carga inicial
+        const interval = setInterval(loadData, 5000);  // Polling cada 5 seg
+        return () => clearInterval(interval);          // Cleanup
+    }
+}, [isAuth]);
+
+// Buena práctica: Siempre limpiar intervalos y listeners
+// Evita memory leaks
+```
+
+**Auto-scroll del Chat:**
+```javascript
+const messagesEndRef = useRef(null);
+
+React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+}, [messages]);
+
+// Buena práctica: Usar refs para manipulación DOM directa
+// Evitar jQuery o document.querySelector
+```
+
+### Validación de Datos
+
+**Validación progresiva:**
+```javascript
+// Año del vehículo
+const anio = parseInt(userInput);
+if (isNaN(anio) || anio < 1980 || anio > 2026) {
+    addBotMessage("Por favor, ingresá un año válido.");
+    return;  // Stop execution
+}
+
+// Input vacío
+if (!input.trim()) return;
+
+// Fecha/hora de recordatorio
+if (!reminderDate || !reminderTime) {
+    alert('Completá fecha y hora');
+    return;
+}
+
+// Buena práctica: Validar temprano y fallar rápido
+// Dar feedback inmediato al usuario
+```
+
+### Persistencia de Datos
+
+**localStorage con manejo de errores:**
+```javascript
+function saveQuoteToStorage(quote) {
+    try {
+        const quoteWithId = { ...quote, id: Date.now(), /* ... */ };
+        const existingQuotes = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
+        existingQuotes.push(quoteWithId);
+        localStorage.setItem('ayma_quotes', JSON.stringify(existingQuotes));
+
+        sendToGoogleSheets(quoteWithId);  // Backup externo
+        console.log('✅ Cotización guardada:', quoteWithId);
+    } catch (error) {
+        console.error('❌ Error guardando cotización:', error);
+        // Fallback: Mostrar alerta al usuario
+        alert('Error al guardar. Por favor intente nuevamente.');
+    }
+}
+
+// Buena práctica: Siempre usar try-catch con localStorage
+// Puede fallar si el storage está lleno o bloqueado
+```
+
+### Performance Tips
+
+**Evitar re-renders innecesarios:**
+```javascript
+// ❌ MAL: Crear función en cada render
+<button onClick={() => changeStatus(q.id, 'nueva')}>Nueva</button>
+
+// ✅ BIEN: Usar handler con closure
+const handleStatusChange = (id, status) => () => changeStatus(id, status);
+<button onClick={handleStatusChange(q.id, 'nueva')}>Nueva</button>
+
+// O mejor aún: Memoizar componentes repetitivos
+const QuoteCard = React.memo(({ quote, onStatusChange }) => { /* ... */ });
+```
+
+**Optimizar listas largas:**
+```javascript
+// Si hay muchas cotizaciones, considerar:
+// 1. Paginación
+const [page, setPage] = useState(1);
+const quotesPerPage = 10;
+const displayedQuotes = quotes.slice((page - 1) * quotesPerPage, page * quotesPerPage);
+
+// 2. Virtualización (para listas muy largas)
+// Usar librerías como react-window o react-virtualized
+```
+
+---
+
+## Troubleshooting Común
+
+### Problema: Cotizaciones no se guardan
+
+**Síntomas:**
+- Datos desaparecen al recargar
+- localStorage vacío en DevTools
+
+**Soluciones:**
+```javascript
+// 1. Verificar que localStorage está disponible
+if (typeof(Storage) !== "undefined") {
+    console.log("✅ localStorage disponible");
+} else {
+    console.log("❌ localStorage NO disponible");
+    // Usar fallback: cookies o state en memoria
+}
+
+// 2. Verificar espacio disponible
+try {
+    const test = 'x'.repeat(1024 * 1024); // 1MB
+    localStorage.setItem('test', test);
+    localStorage.removeItem('test');
+    console.log("✅ Espacio suficiente");
+} catch (e) {
+    console.log("❌ localStorage lleno");
+    // Limpiar datos antiguos
+}
+
+// 3. Revisar modo incógnito
+console.log("Private mode:",
+    localStorage.getItem('test') === null &&
+    sessionStorage.getItem('test') === null
+);
+```
+
+### Problema: A/B Testing no funciona
+
+**Síntomas:**
+- Siempre muestra la misma versión
+- headlineVersion no se guarda
+
+**Soluciones:**
+```javascript
+// 1. Verificar randomización
+const [headlineVersion] = useState(() => {
+    const version = Math.random() > 0.5 ? 'A' : 'B';
+    console.log('📊 A/B Test - Versión:', version);
+    return version;
+});
+
+// 2. Trackear en cada cotización
+const quoteWithId = {
+    ...quote,
+    headlineVersion: headlineVersion,  // Importante: capturar versión
+    // ...
+};
+
+// 3. Analizar resultados
+const quotesA = quotes.filter(q => q.headlineVersion === 'A');
+const quotesB = quotes.filter(q => q.headlineVersion === 'B');
+const conversionA = (quotesA.filter(q => q.status === 'vendida').length / quotesA.length * 100).toFixed(1);
+const conversionB = (quotesB.filter(q => q.status === 'vendida').length / quotesB.length * 100).toFixed(1);
+console.log(`Conversión A: ${conversionA}% | Conversión B: ${conversionB}%`);
+```
+
+### Problema: Chatbot se traba en un paso
+
+**Síntomas:**
+- No avanza al siguiente paso
+- Input deshabilitado
+- Bot no responde
+
+**Soluciones:**
+```javascript
+// 1. Resetear chatbot desde consola
+localStorage.removeItem('ayma_quotes');
+location.reload();
+
+// 2. Ver estado actual
+console.log('Current Step:', currentStep);
+console.log('Current Quote:', currentQuote);
+console.log('Messages:', messages);
+
+// 3. Forzar paso siguiente (debugging)
+setCurrentStep('cobertura');  // Cambiar al paso que necesites
+
+// 4. Verificar validaciones
+// Revisar si alguna validación está bloqueando el flujo
+```
+
+### Problema: Panel Admin no carga datos
+
+**Síntomas:**
+- Dashboard vacío
+- Métricas en 0
+- No aparecen cotizaciones
+
+**Soluciones:**
+```javascript
+// 1. Verificar localStorage
+const data = localStorage.getItem('ayma_quotes');
+console.log('Data:', data ? JSON.parse(data) : 'VACÍO');
+
+// 2. Verificar autenticación
+console.log('Authenticated:', isAuth);
+
+// 3. Forzar recarga
+loadData();
+
+// 4. Verificar formato de datos
+const quotes = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
+quotes.forEach((q, i) => {
+    if (!q.id || !q.nombre || !q.status) {
+        console.warn(`⚠️ Cotización ${i} tiene datos inválidos:`, q);
+    }
+});
+```
+
+### Problema: Google Sheets no recibe datos
+
+**Síntomas:**
+- Console muestra envío exitoso
+- Pero Google Sheets está vacío
+
+**Soluciones:**
+```javascript
+// 1. Verificar URL del script
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/...';
+console.log('Script URL:', GOOGLE_SCRIPT_URL);
+
+// 2. Probar envío manual
+fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        quotes: quotes,
+        timestamp: new Date().toISOString()
+    })
+})
+.then(() => console.log('✅ Enviado'))
+.catch(err => console.error('❌ Error:', err));
+
+// 3. Nota sobre 'no-cors'
+// Con mode: 'no-cors' no verás errores en console
+// Verificar manualmente en Google Sheets
+// Revisar logs del Apps Script
+```
+
+### Problema: WhatsApp no abre con el mensaje
+
+**Síntomas:**
+- Botón no hace nada
+- WhatsApp abre vacío
+- Caracteres raros en el mensaje
+
+**Soluciones:**
+```javascript
+// 1. Verificar formato del número
+const PHONE = '5493416952259';  // Sin espacios, con código país
+console.log('Phone:', PHONE);
+
+// 2. Verificar encoding del mensaje
+const message = `*TEST*\nNombre: ${nombre}`;
+const encoded = encodeURIComponent(message);
+console.log('Encoded:', encoded);
+
+// 3. URL completa
+const whatsappURL = `https://wa.me/${PHONE}?text=${encoded}`;
+console.log('URL:', whatsappURL);
+
+// 4. Probar apertura
+window.open(whatsappURL, '_blank');
+```
+
+---
+
+## Guía de Testing
+
+### Testing Manual
+
+**Landing Page:**
+```bash
+# 1. Test de flujo completo
+- Abrir index.html
+- Click "Cotizar Gratis Ahora"
+- Completar todos los campos:
+  * Nombre: "Test User"
+  * CP: "2000"
+  * Marca: "Toyota"
+  * Modelo: "Corolla"
+  * Año: "2020"
+  * Cobertura: "Todo Riesgo"
+- Verificar botón WhatsApp aparece
+- Click en WhatsApp
+- Verificar mensaje se genera correctamente
+
+# 2. Test de validaciones
+- Ingresar año inválido (1900 o 2050)
+- Verificar mensaje de error
+- Dejar input vacío y presionar Enter
+- Verificar que no se envía
+
+# 3. Test de persistencia
+- Completar cotización
+- Abrir DevTools → Application → localStorage
+- Verificar 'ayma_quotes' existe
+- Verificar estructura de datos correcta
+```
+
+**Panel Admin:**
+```bash
+# 1. Test de login
+- Abrir admin.html
+- Intentar login incorrecto
+- Verificar mensaje de error
+- Login correcto: ayma / Mimamamemima14
+- Verificar acceso al dashboard
+
+# 2. Test de métricas
+- Verificar contadores correctos
+- Cambiar estado de cotización
+- Verificar métricas se actualizan
+
+# 3. Test de notas
+- Click "Agregar Nota"
+- Escribir nota de prueba
+- Guardar
+- Verificar aparece en historial
+- Verificar timestamp correcto
+
+# 4. Test de recordatorios
+- Click "Programar Recordatorio"
+- Seleccionar fecha futura
+- Seleccionar hora
+- Elegir tipo: "Llamada"
+- Agregar notas
+- Guardar
+- Verificar aparece en lista
+- Ir a vista Calendario
+- Verificar recordatorio visible
+
+# 5. Test de auto-reload
+- Abrir dos pestañas del admin
+- En pestaña 1: Agregar nota
+- En pestaña 2: Esperar 5 segundos
+- Verificar datos se actualizan automáticamente
+```
+
+### Testing de Integración
+
+**localStorage ↔ Google Sheets:**
+```javascript
+// 1. Agregar cotización en landing
+// 2. Verificar en localStorage
+// 3. Login en admin
+// 4. Verificar cotización aparece
+// 5. Cambiar estado
+// 6. Verificar Google Sheets se actualiza
+```
+
+### Testing de Responsive
+
+```bash
+# Tamaños a probar:
+- Mobile: 375px (iPhone)
+- Tablet: 768px (iPad)
+- Desktop: 1920px
+
+# Verificar:
+- Grids se adaptan correctamente
+- Texto legible en todos los tamaños
+- Botones accesibles con dedos
+- No hay overflow horizontal
+- Imágenes no se deforman
+```
+
+### Checklist de Pre-Deploy
+
+```
+Landing Page:
+[ ] SEO meta tags completos
+[ ] Favicon cargando
+[ ] A/B testing funcionando
+[ ] Chatbot flujo completo OK
+[ ] WhatsApp abre correctamente
+[ ] localStorage guardando datos
+[ ] Responsive en 3 tamaños
+[ ] Sin errores en console
+[ ] Performance < 3 seg carga
+
+Panel Admin:
+[ ] Login funciona
+[ ] Métricas calculan correctamente
+[ ] Notas se guardan
+[ ] Recordatorios funcionan
+[ ] Calendario muestra vencidos
+[ ] Auto-reload activado
+[ ] Google Sheets conectado
+[ ] Sin errores en console
+[ ] Responsive OK
+
+General:
+[ ] Sin errores 404
+[ ] CDNs cargando
+[ ] No hay warnings de React
+[ ] localStorage no lleno
+[ ] Tested en Chrome, Firefox, Safari
+[ ] Tested en iOS y Android
+```
+
+---
+
+## Guía de Implementación de Nuevas Features
+
+### Agregar Nuevo Campo al Chatbot
+
+```javascript
+// 1. Agregar al flujo (index.html)
+// En processUserInput(), agregar nuevo caso:
+
+case 'cobertura':
+    setCurrentQuote(prev => ({ ...prev, cobertura: userInput }));
+    setCurrentStep('email');  // Nuevo paso
+    addBotMessage("¿Cuál es tu email?");
+    break;
+
+case 'email':  // Nuevo paso
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(userInput)) {
+        addBotMessage("Por favor, ingresá un email válido.");
+        return;
+    }
+    const finalQuote = { ...currentQuote, email: userInput };
+    // ... resto del código
+    break;
+
+// 2. Actualizar estructura de cotización
+// En saveQuoteToStorage():
+const quoteWithId = {
+    ...quote,
+    email: quote.email,  // Agregar nuevo campo
+    // ...
+};
+
+// 3. Actualizar template de WhatsApp
+const message = `*SOLICITUD DE COTIZACIÓN*
+...
+*EMAIL:* ${currentQuote.email}
+...`;
+
+// 4. Actualizar panel admin para mostrar nuevo campo
+// En admin.html, en la card de cotización:
+<div>
+    <span className="text-gray-600">Email:</span>
+    <span className="font-semibold">{q.email}</span>
+</div>
+```
+
+### Agregar Nuevo Estado de Cotización
+
+```javascript
+// 1. Actualizar estados disponibles (admin.html)
+// En la sección de botones, agregar:
+
+<button
+    onClick={() => changeStatus(q.id, 'en_proceso')}
+    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
+>
+    🔄 En Proceso
+</button>
+
+// 2. Actualizar cálculo de métricas
+const enProceso = quotes.filter(q => q.status === 'en_proceso').length;
+
+// 3. Agregar card de métrica
+<div className="bg-white rounded-xl shadow-md p-6">
+    <p className="text-sm text-purple-600 font-semibold">En Proceso</p>
+    <p className="text-3xl font-bold text-purple-700">{enProceso}</p>
+</div>
+
+// 4. Actualizar colores de estado
+const statusColors = {
+    nueva: 'blue-500',
+    cotizada: 'yellow-500',
+    vendida: 'green-600',
+    perdida: 'red-500',
+    en_proceso: 'purple-500'  // Nuevo color
+};
+```
+
+### Agregar Notificaciones por Email
+
+```javascript
+// 1. Configurar EmailJS (https://www.emailjs.com/)
+// Agregar script en <head>:
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+// 2. Inicializar
+emailjs.init("YOUR_PUBLIC_KEY");
+
+// 3. Actualizar sendAutoEmail()
+function sendAutoEmail(quote) {
+    const templateParams = {
+        to_email: quote.email,
+        to_name: quote.nombre,
+        marca: quote.marca,
+        modelo: quote.modelo,
+        anio: quote.anio,
+        cobertura: quote.cobertura
+    };
+
+    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+        .then((response) => {
+            console.log('✅ Email enviado:', response.status);
+        }, (error) => {
+            console.error('❌ Error enviando email:', error);
+        });
+}
+
+// 4. Crear template en EmailJS con variables:
+// Hola {{to_name}},
+// Tu cotización para {{marca}} {{modelo}} {{anio}}...
+```
+
+---
+
 ## Changelog
 
-### Versión Actual (2025-11-24)
+### Versión Actual 2.0.0 (2025-11-28)
+
+**🎉 Actualización Mayor de Documentación:**
+
+**Nuevo Contenido Agregado:**
+- ✅ Diagramas de flujo de datos ASCII del sistema completo
+- ✅ Arquitectura de componentes React detallada (árbol completo)
+- ✅ Mejores prácticas de desarrollo (estado, effects, validaciones)
+- ✅ Performance tips y optimizaciones
+- ✅ Guía completa de troubleshooting (6 problemas comunes)
+- ✅ Guía de testing manual e integración
+- ✅ Checklist de pre-deploy exhaustivo
+- ✅ Guía de implementación de nuevas features
+- ✅ Ejemplos de código con comentarios best practices
+- ✅ Tips de debugging avanzados
+
+**Secciones Mejoradas:**
+- ✅ Estructura de archivos actualizada
+- ✅ Flujo de datos visualizado
+- ✅ Referencias de líneas de código precisas
+- ✅ Documentación de 1.400+ líneas
+
+**Total:** 1.400+ líneas de documentación técnica completa
+
+### Versión 1.1.0 (2025-11-24)
 - ✅ Landing page con SEO optimizado completo
 - ✅ A/B testing de headlines con tracking
 - ✅ Chatbot de cotización funcional con validaciones
@@ -746,6 +1438,18 @@ if (!reminderDate || !reminderTime) {
 - ✅ Template de email preparado
 - ✅ 10 iconos SVG personalizados
 - ✅ Animaciones CSS pulse-glow y typing
+- ✅ Detalles técnicos de implementación
+- ✅ Mensajes específicos del chatbot
+- ✅ Template WhatsApp completo
+- ✅ Paleta de colores documentada
+- ✅ Validaciones documentadas
+
+### Versión 1.0.0 (2025-01-18)
+- ✅ Versión inicial de CLAUDE.md
+- ✅ Documentación básica del proyecto
+- ✅ Estructura de archivos
+- ✅ Componentes principales
+- ✅ Roadmap de mejoras
 
 ### Versiones Anteriores
 - **index.html.original:** Versión backup anterior a optimizaciones SEO
@@ -758,70 +1462,156 @@ Copyright © 2008-2025 Ayma Advisors. Todos los derechos reservados.
 
 ---
 
-## Notas del Desarrollador
+## Contribuciones
 
-### Arquitectura de Archivos HTML Estáticos
-Este proyecto utiliza una arquitectura inusual pero efectiva de archivos HTML estáticos con React cargado via CDN. Esto permite:
-- Deploy instantáneo sin build
-- Sin dependencias de Node.js
-- Hosting gratuito en Vercel
-- Modificaciones rápidas sin compilar
+### Cómo Contribuir
 
-### Consideraciones de Escalabilidad
-El uso de localStorage tiene límites (5-10MB típicamente). Si el negocio crece significativamente, considerar migrar a:
-- Backend con base de datos
-- API para sincronización
-- Caché distribuido
+Si querés mejorar este proyecto:
 
-### Personalización
-Para personalizar colores, buscar:
-- Tailwind config (línea 78-88 en index.html)
-- Variables CSS customizadas
-- Clases `ayma-blue-*`
+1. **Fork del repositorio**
+2. **Crear rama feature:** `git checkout -b feature/nueva-funcionalidad`
+3. **Hacer cambios y commit:** `git commit -m "feat: agregar nueva funcionalidad"`
+4. **Push a la rama:** `git push origin feature/nueva-funcionalidad`
+5. **Crear Pull Request**
 
-### Tips de Debugging
+### Convenciones de Código
 
-**Ver estado del chatbot en consola:**
-```javascript
-// En DevTools mientras se usa el chat
-console.log('Step:', currentStep);
-console.log('Quote:', currentQuote);
-console.log('Messages:', messages);
-```
+**Commits:**
+- `feat:` Nueva funcionalidad
+- `fix:` Corrección de bugs
+- `docs:` Cambios en documentación
+- `style:` Formato, espacios, etc.
+- `refactor:` Refactorización de código
+- `test:` Agregar o modificar tests
+- `chore:` Tareas de mantenimiento
 
-**Forzar una versión del A/B test:**
-```javascript
-// Modificar línea 222 en index.html
-const [headlineVersion] = useState('A'); // Forzar versión A
-// o
-const [headlineVersion] = useState('B'); // Forzar versión B
-```
-
-**Simular cotizaciones en admin:**
-```javascript
-// En DevTools del admin.html
-const testQuote = {
-  id: Date.now(),
-  nombre: "Test User",
-  codigoPostal: "2000",
-  marca: "Toyota",
-  modelo: "Corolla",
-  anio: "2020",
-  cobertura: "Todo Riesgo",
-  status: "nueva",
-  createdAt: new Date().toISOString(),
-  headlineVersion: "A",
-  contactHistory: [],
-  reminders: []
-};
-const quotes = JSON.parse(localStorage.getItem('ayma_quotes') || '[]');
-quotes.push(testQuote);
-localStorage.setItem('ayma_quotes', JSON.stringify(quotes));
-location.reload();
-```
+**Código:**
+- Usar comentarios descriptivos
+- Seguir estructura de componentes React actual
+- Mantener consistencia con Tailwind CSS
+- Validar datos antes de guardar
+- Manejar errores con try-catch
+- Console.log para debugging (usar emojis ✅ ❌ 📊)
 
 ---
 
-**Última actualización:** 2025-11-24
-**Versión:** 1.1.0
+## Notas del Desarrollador
+
+### Arquitectura de Archivos HTML Estáticos
+
+Este proyecto utiliza una arquitectura inusual pero efectiva de archivos HTML estáticos con React cargado via CDN. Esto permite:
+
+**Ventajas:**
+- ✅ Deploy instantáneo sin build
+- ✅ Sin dependencias de Node.js
+- ✅ Hosting gratuito en Vercel
+- ✅ Modificaciones rápidas sin compilar
+- ✅ Fácil debugging (código visible)
+- ✅ No requiere npm/yarn
+- ✅ Portable (un solo archivo)
+
+**Desventajas:**
+- ❌ No hay code splitting
+- ❌ Bundle size más grande
+- ❌ No hay tree shaking
+- ❌ Sin TypeScript nativo
+- ❌ Testing más complejo
+- ❌ Sin hot reload
+
+### Consideraciones de Escalabilidad
+
+**localStorage (5-10MB límite):**
+
+Si el negocio crece significativamente (>1000 cotizaciones), considerar:
+
+```javascript
+// 1. Implementar paginación
+const ITEMS_PER_PAGE = 50;
+const paginatedQuotes = quotes.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE);
+
+// 2. Archivar cotizaciones antiguas
+const archiveOldQuotes = () => {
+    const sixMonthsAgo = Date.now() - (180 * 24 * 60 * 60 * 1000);
+    const activeQuotes = quotes.filter(q => new Date(q.createdAt).getTime() > sixMonthsAgo);
+    const archivedQuotes = quotes.filter(q => new Date(q.createdAt).getTime() <= sixMonthsAgo);
+
+    localStorage.setItem('ayma_quotes', JSON.stringify(activeQuotes));
+    localStorage.setItem('ayma_quotes_archived', JSON.stringify(archivedQuotes));
+};
+
+// 3. Migrar a backend
+// Backend con Node.js + Express + PostgreSQL/MongoDB
+// API RESTful para cotizaciones
+// Autenticación con JWT
+```
+
+### Personalización de Estilos
+
+**Cambiar colores principales:**
+
+```javascript
+// 1. Tailwind config (index.html y admin.html)
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'ayma-blue': '#1e40af',        // Cambiar este
+        'ayma-blue-dark': '#1e3a8a',   // Y este
+        'ayma-blue-light': '#3b82f6',  // Y este
+      }
+    }
+  }
+}
+
+// 2. Buscar y reemplazar en todo el archivo
+// Buscar: "ayma-blue"
+// Reemplazar con tu clase custom
+
+// 3. Gradientes de CTA
+// Buscar: "from-green-500 to-green-600"
+// Cambiar por tus colores de marca
+```
+
+**Cambiar fuentes:**
+
+```html
+<!-- Agregar en <head> -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+</style>
+```
+
+### Recursos Útiles
+
+**React:**
+- [Documentación oficial](https://react.dev/)
+- [Hooks explicados](https://react.dev/reference/react)
+
+**Tailwind CSS:**
+- [Documentación](https://tailwindcss.com/docs)
+- [Cheat Sheet](https://nerdcave.com/tailwind-cheat-sheet)
+
+**localStorage:**
+- [MDN Web Docs](https://developer.mozilla.org/es/docs/Web/API/Window/localStorage)
+
+**Google Apps Script:**
+- [Guía de inicio](https://developers.google.com/apps-script)
+- [Conectar con Sheets](https://developers.google.com/apps-script/guides/sheets)
+
+**EmailJS:**
+- [Documentación](https://www.emailjs.com/docs/)
+- [Ejemplos React](https://www.emailjs.com/docs/examples/reactjs/)
+
+**WhatsApp API:**
+- [URL Scheme](https://faq.whatsapp.com/5913398998672934)
+
+---
+
+**Última actualización:** 2025-11-28
+**Versión:** 2.0.0
 **Mantenedor:** Ayma Advisors Development Team
+**Líneas de documentación:** 1.400+
