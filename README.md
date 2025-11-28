@@ -2,7 +2,7 @@
 
 Sistema completo de cotización de seguros con CRM integrado para Ayma Advisors, Rosario, Santa Fe, Argentina.
 
-[![Tests](https://img.shields.io/badge/tests-110%2B-brightgreen)](./TESTING.md)
+[![Tests](https://img.shields.io/badge/tests-140%2B-brightgreen)](./TESTING.md)
 [![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](./TESTING.md)
 [![Playwright](https://img.shields.io/badge/E2E-Playwright-green)](https://playwright.dev/)
 [![Vitest](https://img.shields.io/badge/Unit-Vitest-yellow)](https://vitest.dev/)
@@ -97,20 +97,35 @@ Luego abrir:
 
 ```bash
 # Ejecutar todos los tests
-npm run test:all
+npm run test:all         # Unitarios + E2E
+npm run test:ci          # Para CI/CD
 
-# Solo tests unitarios
-npm test
+# Tests unitarios
+npm test                 # Watch mode
+npm run test:unit        # Run once
+npm run test:unit:watch  # Watch mode explícito
 
-# Solo tests E2E
-npm run test:e2e
+# Tests E2E
+npm run test:e2e             # Todos los navegadores
+npm run test:e2e:chrome      # Solo Chrome
+npm run test:e2e:firefox     # Solo Firefox
+npm run test:e2e:webkit      # Solo Safari
+npm run test:e2e:mobile      # Solo mobile
 
 # Tests con UI interactiva
-npm run test:ui          # Vitest
-npm run test:e2e:ui      # Playwright
+npm run test:ui              # Vitest UI
+npm run test:e2e:ui          # Playwright UI
+npm run test:e2e:headed      # Navegador visible
+npm run test:e2e:debug       # Modo debug
 
-# Ver cobertura
-npm run test:coverage
+# Cobertura
+npm run test:coverage        # Generar reporte
+npm run test:coverage:report # Abrir en navegador
+
+# Utilidades
+npm run health              # Health check
+npm run clean               # Limpiar artefactos
+npm run clean:cache         # Limpiar cache
 ```
 
 **📚 Documentación completa de testing:** [TESTING.md](./TESTING.md)
@@ -122,6 +137,9 @@ aymaseguros/
 ├── index.html              # Landing page principal
 ├── admin.html              # Panel administrativo
 ├── index.html.original     # Backup de versión original
+├── .github/
+│   └── workflows/
+│       └── tests.yml       # CI/CD con GitHub Actions
 ├── tests/
 │   ├── e2e/                # Tests End-to-End (Playwright)
 │   │   ├── landing-page.spec.js
@@ -129,11 +147,15 @@ aymaseguros/
 │   ├── unit/               # Tests unitarios (Vitest)
 │   │   ├── storage.test.js
 │   │   ├── validation.test.js
-│   │   └── metrics.test.js
+│   │   ├── metrics.test.js
+│   │   └── edge-cases.test.js    # NEW: 39 tests edge cases
 │   └── setup.js           # Configuración global de tests
+├── scripts/
+│   └── health-check.js    # NEW: Health check script
 ├── package.json           # Dependencias y scripts
 ├── playwright.config.js   # Configuración Playwright
-├── vitest.config.js      # Configuración Vitest
+├── vitest.config.js      # Configuración Vitest (mejorada)
+├── .gitignore            # Git exclusions
 ├── TESTING.md            # Documentación de testing
 └── README.md             # Este archivo
 ```
@@ -172,10 +194,13 @@ aymaseguros/
 
 ### Cobertura
 
-- **110+ tests** automatizados
+- **140+ tests** automatizados
 - **95%** de cobertura funcional
 - Tests E2E en 6 navegadores/dispositivos
 - Tests unitarios de lógica crítica
+- **91 tests unitarios** (100% pasando ✅)
+- **60+ tests E2E** cross-browser
+- Cobertura mejorada: 80% lines, 80% functions, 75% branches
 
 ### Tests E2E
 
@@ -218,6 +243,16 @@ aymaseguros/
 - Cálculo de conversión
 - Recordatorios pendientes
 - A/B Testing
+
+**Edge Cases** (39 tests):
+- WhatsApp URL generation
+- Años límite y casos extremos
+- LocalStorage con grandes volúmenes
+- Métricas con datos extremos
+- Recordatorios fechas límite
+- Datos corruptos
+- Códigos postales especiales
+- Caracteres especiales
 
 ## 🔧 Configuración
 

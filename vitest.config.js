@@ -18,22 +18,34 @@ export default defineConfig({
     /* Cobertura */
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      reporter: ['text', 'json', 'html', 'lcov', 'text-summary'],
+      reportsDirectory: './coverage',
       exclude: [
         'node_modules/',
         'tests/',
         'test-results/',
         '*.config.js',
         'playwright-report/',
-        '.github/'
+        '.github/',
+        'scripts/',
+        'coverage/',
+        '**/*.spec.js',
+        '**/*.test.js'
       ],
       include: [
         'tests/unit/**/*.test.js'
       ],
-      lines: 70,
-      functions: 70,
-      branches: 70,
-      statements: 70
+      all: true,
+      lines: 80,
+      functions: 80,
+      branches: 75,
+      statements: 80,
+      watermarks: {
+        lines: [70, 80],
+        functions: [70, 80],
+        branches: [60, 75],
+        statements: [70, 80]
+      }
     },
 
     /* Incluir archivos de test */

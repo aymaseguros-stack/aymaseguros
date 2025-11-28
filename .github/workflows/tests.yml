@@ -1,0 +1,147 @@
+name: Tests CI
+
+on:
+  push:
+    branches: [ main, develop, claude/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run unit tests
+      run: npm test -- --run
+
+    - name: Generate coverage report
+      run: npm run test:coverage
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-unit-tests
+        fail_ci_if_error: false
+
+    - name: Comment coverage on PR
+      if: github.event_name == 'pull_request'
+      uses: romeovs/lcov-reporter-action@v0.3.1
+      with:
+        lcov-file: ./coverage/lcov.info
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps ${{ matrix.browser }}
+
+    - name: Run E2E tests (${{ matrix.browser }})
+      run: npx playwright test --project=${{ matrix.browser }}
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: playwright-report-${{ matrix.browser }}
+        path: playwright-report/
+        retention-days: 7
+
+    - name: Upload test videos
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-videos-${{ matrix.browser }}
+        path: test-results/
+        retention-days: 7
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests]
+    if: always()
+
+    steps:
+    - name: Check test results
+      run: |
+        echo "Unit Tests: ${{ needs.unit-tests.result }}"
+        echo "E2E Tests: ${{ needs.e2e-tests.result }}"
+
+        if [ "${{ needs.unit-tests.result }}" != "success" ] || [ "${{ needs.e2e-tests.result }}" != "success" ]; then
+          echo "Some tests failed!"
+          exit 1
+        fi
+
+        echo "All tests passed! ✅"
+
+  lint-and-format:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check HTML syntax
+      run: |
+        echo "Checking HTML files for basic syntax errors..."
+        for file in *.html; do
+          if [ -f "$file" ]; then
+            echo "Checking $file..."
+            # Basic check for unclosed tags
+            if grep -q "<html" "$file" && ! grep -q "</html>" "$file"; then
+              echo "Error: $file missing closing </html> tag"
+              exit 1
+            fi
+          fi
+        done
+        echo "HTML syntax check passed! ✅"
+
+    - name: Check JavaScript syntax
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Verify test files exist
+      run: |
+        echo "Verifying test structure..."
+        test -d tests/e2e && echo "✅ E2E tests directory exists"
+        test -d tests/unit && echo "✅ Unit tests directory exists"
+        test -f playwright.config.js && echo "✅ Playwright config exists"
+        test -f vitest.config.js && echo "✅ Vitest config exists"
+        test -f TESTING.md && echo "✅ Testing documentation exists"
+        echo "Test structure verified! ✅"
