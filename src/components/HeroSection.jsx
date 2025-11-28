@@ -125,6 +125,357 @@ const MODELOS = {
   'default': ['Consultar modelo']
 };
 
+// ============================================================================
+// BASE DE DATOS DE VERSIONES POR MARCA/MODELO
+// Versiones reales del mercado argentino
+// ============================================================================
+
+const VERSIONES = {
+  // ========== TOYOTA ==========
+  'TOYOTA_Hilux': ['DX 4x2 SC', 'DX 4x2 DC', 'DX 4x4 DC', 'SR 4x2 MT', 'SR 4x2 AT', 'SR 4x4 MT', 'SR 4x4 AT', 'SRV 4x2 AT', 'SRV 4x4 MT', 'SRV 4x4 AT', 'SRX 4x4 AT', 'GR-S 4x4 AT', 'Limited 4x4 AT'],
+  'TOYOTA_Hilux GR-S': ['4x4 AT V6', '4x4 AT'],
+  'TOYOTA_Hilux DX': ['4x2 SC', '4x2 DC', '4x4 DC'],
+  'TOYOTA_Hilux SR': ['4x2 MT', '4x2 AT', '4x4 MT', '4x4 AT'],
+  'TOYOTA_Hilux SRV': ['4x2 AT', '4x4 MT', '4x4 AT'],
+  'TOYOTA_Hilux SRX': ['4x4 AT'],
+  'TOYOTA_Corolla': ['XLI MT', 'XLI CVT', 'XEI CVT', 'SEG CVT', 'SEG Hybrid', 'GR-S Hybrid'],
+  'TOYOTA_Corolla Cross': ['XLI CVT', 'XEI CVT', 'SEG CVT', 'SEG Hybrid'],
+  'TOYOTA_Corolla Cross Hybrid': ['XEI', 'SEG'],
+  'TOYOTA_Yaris': ['XS MT', 'XS CVT', 'XLS CVT', 'XLS Pack CVT', 'S CVT'],
+  'TOYOTA_Yaris Cross': ['XS CVT', 'XLS CVT', 'XLS Pack CVT', 'S CVT', 'Limited'],
+  'TOYOTA_Etios': ['X 5P', 'XS 5P', 'XLS 5P', 'X 4P', 'XS 4P', 'XLS 4P', 'Cross'],
+  'TOYOTA_SW4': ['SR 4x2 AT', 'SR 4x4 AT', 'SRX 4x4 AT', 'Diamond 4x4 AT', 'GR-S 4x4 AT'],
+  'TOYOTA_RAV4': ['XLE CVT', 'Limited CVT', 'Adventure AWD'],
+  'TOYOTA_RAV4 Hybrid': ['XLE', 'Limited'],
+  'TOYOTA_Camry': ['3.5 V6 AT'],
+  'TOYOTA_Land Cruiser': ['VX AT', 'VX-R AT', 'GR-S AT'],
+  'TOYOTA_Land Cruiser Prado': ['TX AT', 'TX-L AT', 'VX AT'],
+
+  // ========== FORD ==========
+  'FORD_Ranger': ['XL 4x2 SC MT', 'XL 4x2 DC MT', 'XL 4x4 DC MT', 'XLS 4x2 MT', 'XLS 4x2 AT', 'XLS 4x4 MT', 'XLS 4x4 AT', 'XLT 4x2 AT', 'XLT 4x4 AT', 'Limited 4x2 AT', 'Limited 4x4 AT', 'Wildtrak 4x4 AT', 'Raptor 4x4 AT'],
+  'FORD_Ranger Raptor': ['3.0 V6 AT'],
+  'FORD_Ranger XLT': ['4x2 AT', '4x4 AT'],
+  'FORD_Ranger Limited': ['4x2 AT', '4x4 AT'],
+  'FORD_Ranger Wildtrak': ['4x4 AT'],
+  'FORD_Territory': ['Trend 1.5T', 'Titanium 1.5T'],
+  'FORD_Bronco Sport': ['Big Bend', 'Outer Banks', 'Badlands', 'Wildtrak'],
+  'FORD_Bronco': ['Base', 'Big Bend', 'Black Diamond', 'Outer Banks', 'Badlands', 'Wildtrak', 'Raptor'],
+  'FORD_Explorer': ['XLT 4x4', 'Limited 4x4', 'ST-Line 4x4', 'Platinum 4x4'],
+  'FORD_Mustang': ['EcoBoost 2.3T', 'GT 5.0 V8', 'Mach 1', 'Shelby GT500'],
+  'FORD_Mustang Mach-E': ['Standard Range', 'Extended Range', 'GT'],
+  'FORD_EcoSport': ['SE 1.5 MT', 'SE 1.5 AT', 'Titanium 1.5 AT', 'Storm 2.0 4x4 AT'],
+  'FORD_Kuga': ['SEL 1.5T', 'Titanium 1.5T', 'ST-Line 2.5 Hybrid'],
+  'FORD_F-150': ['XL 4x2', 'XLT 4x4', 'Lariat 4x4', 'Platinum 4x4', 'Limited 4x4', 'Raptor 4x4'],
+
+  // ========== VOLKSWAGEN ==========
+  'VOLKSWAGEN_Amarok': ['Trendline 4x2 MT', 'Trendline 4x4 MT', 'Comfortline 4x2 AT', 'Comfortline 4x4 AT', 'Highline 4x2 AT', 'Highline 4x4 AT', 'Extreme 4x4 AT', 'V6 Comfortline 4x4', 'V6 Highline 4x4', 'V6 Extreme 4x4', 'V6 Black Style'],
+  'VOLKSWAGEN_Amarok V6': ['Comfortline 4x4', 'Highline 4x4', 'Extreme 4x4', 'Black Style'],
+  'VOLKSWAGEN_Taos': ['Trendline 1.4T MT', 'Comfortline 1.4T AT', 'Highline 1.4T AT', 'Hero Edition 1.4T AT'],
+  'VOLKSWAGEN_T-Cross': ['Trendline 1.6 MT', 'Trendline 1.6 AT', 'Comfortline 1.6 AT', 'Highline 1.4T AT', 'Hero 1.4T AT'],
+  'VOLKSWAGEN_Tiguan': ['Trendline 1.4T', 'Comfortline 1.4T', 'Highline 1.4T', 'R-Line 2.0T'],
+  'VOLKSWAGEN_Tiguan Allspace': ['Trendline 1.4T', 'Comfortline 1.4T', 'Highline 2.0T', 'R-Line 2.0T'],
+  'VOLKSWAGEN_Polo': ['Track 1.6 MSI', 'Trendline 1.6 MSI', 'Comfortline 1.6 MSI', 'Comfortline 1.0 TSI', 'Highline 1.0 TSI', 'GTS 1.4 TSI'],
+  'VOLKSWAGEN_Polo Track': ['1.6 MSI MT'],
+  'VOLKSWAGEN_Polo GTS': ['1.4 TSI AT'],
+  'VOLKSWAGEN_Virtus': ['Trendline 1.6 MSI', 'Comfortline 1.6 MSI', 'Comfortline 1.0 TSI', 'Highline 1.0 TSI', 'GTS 1.4 TSI'],
+  'VOLKSWAGEN_Virtus GTS': ['1.4 TSI AT'],
+  'VOLKSWAGEN_Nivus': ['Comfortline 1.0 TSI', 'Highline 1.0 TSI', 'Hero 1.0 TSI'],
+  'VOLKSWAGEN_Golf': ['250 TSI Comfortline', '250 TSI Highline', 'GTI 2.0 TSI', 'R 2.0 TSI 4Motion'],
+  'VOLKSWAGEN_Golf GTI': ['2.0 TSI MT', '2.0 TSI DSG'],
+  'VOLKSWAGEN_Golf R': ['2.0 TSI 4Motion'],
+  'VOLKSWAGEN_Vento': ['Comfortline 1.4 TSI', 'Highline 1.4 TSI', 'GLI 2.0 TSI'],
+  'VOLKSWAGEN_Saveiro': ['Trendline CS', 'Trendline CD', 'Comfortline CS', 'Comfortline CD', 'Cross CS', 'Cross CD'],
+  'VOLKSWAGEN_Saveiro Cross': ['CS', 'CD'],
+
+  // ========== FIAT ==========
+  'FIAT_Cronos': ['Like 1.3 MT', 'Drive 1.3 MT', 'Drive 1.3 AT', 'Drive 1.8 MT', 'Drive 1.8 AT', 'Precision 1.8 AT', 'Impetus 1.3T AT'],
+  'FIAT_Argo': ['Like 1.3', 'Drive 1.3', 'Drive 1.8', 'Precision 1.8', 'Trekking 1.3', 'Trekking 1.8', 'HGT 1.8'],
+  'FIAT_Argo Trekking': ['1.3 MT', '1.8 MT', '1.8 AT'],
+  'FIAT_Pulse': ['Drive 1.3 MT', 'Drive 1.3 AT', 'Drive 1.3 CVT', 'Audace 1.0T AT', 'Impetus 1.0T AT'],
+  'FIAT_Pulse Impetus': ['1.0T AT'],
+  'FIAT_Fastback': ['Audace 1.0T AT', 'Impetus 1.0T AT', 'Limited 1.0T AT', 'Abarth 1.3T AT'],
+  'FIAT_Fastback Abarth': ['1.3T AT'],
+  'FIAT_Strada': ['Endurance 1.4 CS', 'Freedom 1.3 CS', 'Freedom 1.3 CD', 'Volcano 1.3 CD', 'Volcano 1.3T CD', 'Ranch 1.3T CD', 'Ultra 1.3T CD'],
+  'FIAT_Strada Volcano': ['1.3 MT CD', '1.3T MT CD'],
+  'FIAT_Strada Ranch': ['1.3T MT CD'],
+  'FIAT_Toro': ['Endurance 1.3T MT', 'Freedom 1.3T AT', 'Volcano 1.3T AT', 'Ranch 2.0TD AT 4x4', 'Ultra 2.0TD AT 4x4'],
+  'FIAT_Toro Ultra': ['2.0 TD AT 4x4'],
+  'FIAT_Toro Ranch': ['2.0 TD AT 4x4'],
+  'FIAT_Mobi': ['Like', 'Trekking', 'Way'],
+  'FIAT_500': ['Pop', 'Lounge', 'Cult', 'Abarth'],
+
+  // ========== CHEVROLET ==========
+  'CHEVROLET_S10': ['LS 4x2 SC MT', 'LS 4x2 DC MT', 'LS 4x4 DC MT', 'LT 4x2 MT', 'LT 4x2 AT', 'LT 4x4 MT', 'LT 4x4 AT', 'LTZ 4x4 AT', 'High Country 4x4 AT', 'Z71 4x4 AT'],
+  'CHEVROLET_S10 Z71': ['4x4 AT'],
+  'CHEVROLET_Montana': ['LS 1.2T MT', 'LT 1.2T MT', 'LT 1.2T AT', 'LTZ 1.2T AT', 'Premier 1.2T AT'],
+  'CHEVROLET_Tracker': ['LT 1.2T MT', 'LT 1.2T AT', 'LTZ 1.2T AT', 'Premier 1.2T AT', 'RS 1.2T AT', 'Midnight 1.2T AT'],
+  'CHEVROLET_Tracker RS': ['1.2T AT'],
+  'CHEVROLET_Onix': ['Joy 1.0', 'Joy Plus 1.0', 'LT 1.0T MT', 'LT 1.0T AT', 'LTZ 1.0T AT', 'Premier 1.0T AT', 'Premier II 1.0T AT', 'RS 1.0T AT', 'Midnight 1.0T AT'],
+  'CHEVROLET_Onix Plus': ['Joy', 'LT MT', 'LT AT', 'LTZ AT', 'Premier AT'],
+  'CHEVROLET_Onix RS': ['1.0T AT'],
+  'CHEVROLET_Cruze': ['LT 1.4T MT', 'LT 1.4T AT', 'LTZ 1.4T AT', 'Premier 1.4T AT', 'RS 1.4T AT', 'Midnight 1.4T AT'],
+  'CHEVROLET_Cruze RS': ['1.4T AT'],
+  'CHEVROLET_Spin': ['LT 1.8 MT', 'LT 1.8 AT', 'LTZ 1.8 AT', 'Premier 1.8 AT', 'Activ 1.8 AT'],
+  'CHEVROLET_Equinox': ['LT 1.5T AT', 'Premier 1.5T AT', 'RS 1.5T AT'],
+  'CHEVROLET_Equinox RS': ['1.5T AT AWD'],
+  'CHEVROLET_Tahoe': ['LT 4x4', 'Premier 4x4', 'RST 4x4', 'High Country 4x4'],
+  'CHEVROLET_Camaro': ['LT 2.0T', 'SS 6.2 V8', 'ZL1 6.2 V8 SC'],
+
+  // ========== PEUGEOT ==========
+  'PEUGEOT_208': ['Like 1.6', 'Active 1.6', 'Active Pack 1.6', 'Allure 1.6', 'Feline 1.6', 'GT 1.6 THP'],
+  'PEUGEOT_208 GT': ['1.6 THP AT'],
+  'PEUGEOT_208 Allure': ['1.6 MT', '1.6 AT'],
+  'PEUGEOT_2008': ['Active 1.6', 'Active Pack 1.6', 'Allure 1.6', 'Allure Pack 1.6', 'Feline 1.6 THP', 'GT 1.6 THP'],
+  'PEUGEOT_2008 GT': ['1.6 THP AT'],
+  'PEUGEOT_308': ['Active 1.6', 'Allure 1.6', 'Allure Pack 1.6', 'Feline 1.6 THP', 'GT 1.6 THP'],
+  'PEUGEOT_308 GT': ['1.6 THP AT'],
+  'PEUGEOT_3008': ['Active 1.6 THP', 'Allure 1.6 THP', 'Allure Pack 1.6 THP', 'GT 1.6 THP', 'GT Pack 1.6 THP', 'Hybrid4'],
+  'PEUGEOT_3008 GT': ['1.6 THP AT', 'Hybrid4'],
+  'PEUGEOT_408': ['Allure 1.6 THP', 'Allure Pack 1.6 THP', 'GT 1.6 THP'],
+  'PEUGEOT_5008': ['Allure 1.6 THP', 'Allure Pack 1.6 THP', 'GT 1.6 THP'],
+  'PEUGEOT_Partner': ['Confort 1.6', 'Furgon 1.6', 'Patagonica 1.6'],
+
+  // ========== RENAULT ==========
+  'RENAULT_Sandero': ['Life 1.6', 'Zen 1.6', 'Intens 1.6', 'Intens CVT'],
+  'RENAULT_Sandero Stepway': ['Zen 1.6', 'Intens 1.6', 'Intens CVT'],
+  'RENAULT_Logan': ['Life 1.6', 'Zen 1.6', 'Intens 1.6'],
+  'RENAULT_Duster': ['Zen 1.6', 'Intens 1.6', 'Iconic 1.3T CVT', 'Outsider 1.3T CVT 4x4'],
+  'RENAULT_Captur': ['Zen 1.6', 'Intens 1.3T CVT', 'Iconic 1.3T CVT'],
+  'RENAULT_Koleos': ['Zen 2.5', 'Intens 2.5', 'Iconic 2.5 4x4'],
+  'RENAULT_Arkana': ['Zen 1.3T', 'Intens 1.3T', 'Iconic 1.3T', 'RS Line 1.3T'],
+  'RENAULT_Kwid': ['Life 1.0', 'Zen 1.0', 'Intens 1.0', 'Outsider 1.0'],
+  'RENAULT_Kwid Outsider': ['1.0 MT'],
+  'RENAULT_Alaskan': ['Confort 2.3 4x2', 'Confort 2.3 4x4', 'Intens 2.3 4x4', 'Iconic 2.3 4x4'],
+  'RENAULT_Kangoo': ['Express Confort 1.5 dCi', 'Stepway 1.5 dCi'],
+
+  // ========== HYUNDAI ==========
+  'HYUNDAI_Tucson': ['Comfort 2.0', 'Premium 2.0', 'Style 2.0', 'N Line 1.6T', 'Limited 2.0'],
+  'HYUNDAI_Creta': ['Comfort 1.6', 'Premium 1.6', 'Limited 1.6', 'Ultimate 1.0T'],
+  'HYUNDAI_Santa Fe': ['Style 2.4', 'Premium 2.4', 'N Line 2.5T', 'Limited 2.5T'],
+  'HYUNDAI_Kona': ['Comfort 2.0', 'Premium 2.0', 'Ultimate 1.6T', 'N 2.0T', 'Electric'],
+  'HYUNDAI_HB20': ['Comfort 1.0', 'Style 1.0', 'Premium 1.0', 'X Premium 1.0'],
+  'HYUNDAI_HB20 X': ['Premium 1.0'],
+  'HYUNDAI_Elantra': ['Comfort 2.0', 'Premium 2.0', 'N 2.0T'],
+  'HYUNDAI_i30': ['Style 2.0', 'N 2.0T', 'N Performance 2.0T'],
+  'HYUNDAI_Venue': ['Style 1.6', 'Premium 1.6'],
+  'HYUNDAI_Ioniq 5': ['Standard Range', 'Long Range', 'Long Range AWD'],
+  'HYUNDAI_Grand i10': ['Base 1.2', 'GL 1.2', 'GLS 1.2'],
+
+  // ========== KIA ==========
+  'KIA_Seltos': ['LX 1.6', 'EX 1.6', 'EX Premium 1.6', 'SX 1.6T', 'GT-Line 1.6T'],
+  'KIA_Sportage': ['LX 2.0', 'EX 2.0', 'EX Pack 2.0', 'SX 2.0T', 'GT-Line 2.0T', 'X-Line 2.0T'],
+  'KIA_Sorento': ['LX 2.5', 'EX 2.5', 'EX Pack 2.5', 'SX 2.5T', 'GT-Line 2.5T'],
+  'KIA_Cerato': ['LX 2.0', 'EX 2.0', 'SX 2.0', 'GT-Line 2.0', 'GT 1.6T'],
+  'KIA_Cerato GT': ['1.6T AT'],
+  'KIA_Carnival': ['LX 3.5 V6', 'EX 3.5 V6', 'SX 3.5 V6'],
+  'KIA_Picanto': ['LX 1.0', 'EX 1.0', 'GT-Line 1.0T'],
+  'KIA_Rio': ['LX 1.4', 'EX 1.4', 'SX 1.4'],
+  'KIA_Stonic': ['LX 1.4', 'EX 1.4', 'GT-Line 1.0T'],
+  'KIA_EV6': ['Standard', 'Long Range', 'Long Range AWD', 'GT'],
+  'KIA_Stinger': ['GT-Line 2.0T', 'GT 3.3T V6'],
+
+  // ========== HONDA ==========
+  'HONDA_HR-V': ['LX CVT', 'EX CVT', 'EXL CVT', 'Touring CVT'],
+  'HONDA_CR-V': ['LX CVT', 'EX CVT', 'EXL CVT', 'Touring CVT'],
+  'HONDA_WR-V': ['LX MT', 'LX CVT', 'EX CVT', 'EXL CVT'],
+  'HONDA_Civic': ['LX CVT', 'EX CVT', 'EXL CVT', 'Touring CVT', 'Si 1.5T', 'Type R 2.0T'],
+  'HONDA_Civic Si': ['1.5T MT'],
+  'HONDA_Civic Type R': ['2.0T MT'],
+  'HONDA_City': ['LX CVT', 'EX CVT', 'EXL CVT'],
+  'HONDA_City Hatchback': ['LX CVT', 'EX CVT', 'EXL CVT'],
+  'HONDA_Accord': ['EX CVT', 'EXL CVT', 'Touring CVT', 'Hybrid'],
+
+  // ========== NISSAN ==========
+  'NISSAN_Frontier': ['S 4x2 MT', 'SE 4x4 MT', 'XE 4x4 MT', 'XE 4x4 AT', 'LE 4x4 AT', 'Attack 4x4 AT', 'Pro-4X 4x4 AT'],
+  'NISSAN_Frontier Attack': ['4x4 AT'],
+  'NISSAN_Frontier Pro-4X': ['4x4 AT'],
+  'NISSAN_Kicks': ['Sense 1.6', 'Advance 1.6', 'Exclusive 1.6', 'e-Power'],
+  'NISSAN_Sentra': ['Sense 2.0', 'Advance 2.0', 'Exclusive 2.0', 'SR 2.0'],
+  'NISSAN_Sentra SR': ['2.0 CVT'],
+  'NISSAN_Versa': ['Sense 1.6', 'Advance 1.6', 'Exclusive 1.6'],
+  'NISSAN_X-Trail': ['Sense 2.5', 'Advance 2.5', 'Exclusive 2.5', 'e-Power'],
+  'NISSAN_Qashqai': ['Sense 2.0', 'Advance 2.0', 'Exclusive 2.0'],
+
+  // ========== JEEP ==========
+  'JEEP_Renegade': ['Sport 1.8 MT', 'Sport 1.8 AT', 'Longitude 1.8 AT', 'Longitude 1.3T AT', 'Limited 1.3T AT', 'Trailhawk 1.3T AT 4x4'],
+  'JEEP_Renegade Trailhawk': ['1.3T AT 4x4'],
+  'JEEP_Compass': ['Sport 1.3T MT', 'Sport 1.3T AT', 'Longitude 1.3T AT', 'Limited 1.3T AT', 'Limited 1.3T AT 4x4', 'Trailhawk 1.3T AT 4x4', '4xe PHEV'],
+  'JEEP_Compass Trailhawk': ['1.3T AT 4x4'],
+  'JEEP_Commander': ['Limited 1.3T AT', 'Limited 1.3T AT 4x4', 'Overland 2.0TD AT 4x4'],
+  'JEEP_Grand Cherokee': ['Laredo 3.6 V6', 'Limited 3.6 V6', 'Overland 3.6 V6', 'Summit 5.7 V8', 'SRT 6.4 V8', 'Trackhawk 6.2 V8 SC', '4xe PHEV'],
+  'JEEP_Grand Cherokee L': ['Laredo 3.6 V6', 'Limited 3.6 V6', 'Overland 3.6 V6', 'Summit 5.7 V8'],
+  'JEEP_Wrangler': ['Sport 3.6 V6', 'Sahara 3.6 V6', 'Rubicon 3.6 V6', 'Rubicon 392 6.4 V8', '4xe PHEV'],
+  'JEEP_Wrangler Rubicon': ['3.6 V6', '392 6.4 V8'],
+  'JEEP_Gladiator': ['Sport 3.6 V6', 'Overland 3.6 V6', 'Rubicon 3.6 V6'],
+  'JEEP_Gladiator Rubicon': ['3.6 V6 MT', '3.6 V6 AT'],
+
+  // ========== BMW ==========
+  'BMW_Serie 1': ['118i', '120i', '128ti', 'M135i xDrive'],
+  'BMW_Serie 2 Gran Coupe': ['218i', '220i', '220i M Sport', 'M235i xDrive'],
+  'BMW_Serie 3': ['318i', '320i', '320i M Sport', '330i', '330i M Sport', '330e', 'M340i', 'M340i xDrive'],
+  'BMW_Serie 4 Coupe': ['420i', '430i', '430i M Sport', 'M440i xDrive'],
+  'BMW_Serie 4 Gran Coupe': ['420i', '430i', '430i M Sport', 'M440i xDrive'],
+  'BMW_Serie 5': ['520i', '530i', '530i M Sport', '540i', '545e', 'M550i xDrive'],
+  'BMW_Serie 7': ['740i', '750i xDrive', '760i xDrive', 'i7 xDrive60'],
+  'BMW_X1': ['sDrive18i', 'sDrive20i', 'xDrive25i', 'xDrive25e'],
+  'BMW_X2': ['sDrive18i', 'sDrive20i', 'xDrive25i', 'M35i'],
+  'BMW_X3': ['sDrive20i', 'xDrive20i', 'xDrive30i', 'xDrive30e', 'M40i', 'M Competition'],
+  'BMW_X4': ['xDrive20i', 'xDrive30i', 'M40i', 'M Competition'],
+  'BMW_X5': ['xDrive40i', 'xDrive45e', 'xDrive50i', 'M50i', 'M Competition'],
+  'BMW_X6': ['xDrive40i', 'M50i', 'M Competition'],
+  'BMW_X7': ['xDrive40i', 'xDrive50i', 'M60i xDrive'],
+  'BMW_Z4': ['sDrive20i', 'sDrive30i', 'M40i'],
+  'BMW_M2': ['Competition', 'CS'],
+  'BMW_M3': ['Competition', 'CS', 'Competition xDrive'],
+  'BMW_M4': ['Competition', 'Competition xDrive', 'CSL'],
+  'BMW_M5': ['Competition', 'CS'],
+  'BMW_i4': ['eDrive35', 'eDrive40', 'M50'],
+  'BMW_iX': ['xDrive40', 'xDrive50', 'M60'],
+  'BMW_iX3': ['eDrive'],
+
+  // ========== MERCEDES-BENZ ==========
+  'MERCEDES-BENZ_A 200': ['Progressive', 'AMG Line'],
+  'MERCEDES-BENZ_A 250': ['Progressive', 'AMG Line'],
+  'MERCEDES-BENZ_A 35 AMG': ['4Matic'],
+  'MERCEDES-BENZ_A 45 AMG': ['S 4Matic+'],
+  'MERCEDES-BENZ_C 200': ['Avantgarde', 'AMG Line'],
+  'MERCEDES-BENZ_C 300': ['Avantgarde', 'AMG Line'],
+  'MERCEDES-BENZ_C 43 AMG': ['4Matic'],
+  'MERCEDES-BENZ_C 63 AMG': ['S'],
+  'MERCEDES-BENZ_CLA 200': ['Progressive', 'AMG Line'],
+  'MERCEDES-BENZ_CLA 250': ['AMG Line'],
+  'MERCEDES-BENZ_CLA 35 AMG': ['4Matic'],
+  'MERCEDES-BENZ_CLA 45 AMG': ['S 4Matic+'],
+  'MERCEDES-BENZ_E 200': ['Avantgarde', 'AMG Line'],
+  'MERCEDES-BENZ_E 300': ['Avantgarde', 'AMG Line'],
+  'MERCEDES-BENZ_E 53 AMG': ['4Matic+'],
+  'MERCEDES-BENZ_GLA 200': ['Progressive', 'AMG Line'],
+  'MERCEDES-BENZ_GLA 250': ['4Matic AMG Line'],
+  'MERCEDES-BENZ_GLA 35 AMG': ['4Matic'],
+  'MERCEDES-BENZ_GLA 45 AMG': ['S 4Matic+'],
+  'MERCEDES-BENZ_GLB 200': ['Progressive', 'AMG Line'],
+  'MERCEDES-BENZ_GLB 250': ['4Matic AMG Line'],
+  'MERCEDES-BENZ_GLC 200': ['Avantgarde', 'AMG Line'],
+  'MERCEDES-BENZ_GLC 300': ['4Matic AMG Line'],
+  'MERCEDES-BENZ_GLC 43 AMG': ['4Matic'],
+  'MERCEDES-BENZ_GLE 300': ['d 4Matic'],
+  'MERCEDES-BENZ_GLE 350': ['d 4Matic', '4Matic'],
+  'MERCEDES-BENZ_GLE 450': ['4Matic AMG Line'],
+  'MERCEDES-BENZ_GLE 53 AMG': ['4Matic+'],
+  'MERCEDES-BENZ_GLE 63 AMG': ['S 4Matic+'],
+  'MERCEDES-BENZ_G 500': ['AMG Line'],
+  'MERCEDES-BENZ_G 63 AMG': ['4Matic'],
+
+  // ========== AUDI ==========
+  'AUDI_A3': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro', 'S3 quattro'],
+  'AUDI_A3 Sportback': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro', 'S3 quattro', 'RS3 quattro'],
+  'AUDI_A4': ['40 TFSI', '40 TFSI S line', '45 TFSI quattro', 'S4 TDI', 'RS4 Avant'],
+  'AUDI_A5 Sportback': ['40 TFSI', '40 TFSI S line', '45 TFSI quattro', 'S5 TDI', 'RS5'],
+  'AUDI_A6': ['45 TFSI', '45 TFSI S line', '55 TFSI quattro', 'S6 TDI', 'RS6 Avant'],
+  'AUDI_A7': ['55 TFSI quattro', 'S7 TDI', 'RS7'],
+  'AUDI_Q2': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro'],
+  'AUDI_Q3': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro', 'RSQ3'],
+  'AUDI_Q3 Sportback': ['35 TFSI', '35 TFSI S line', '40 TFSI quattro', 'RSQ3'],
+  'AUDI_Q5': ['40 TFSI', '45 TFSI quattro', '55 TFSIe quattro', 'SQ5 TDI'],
+  'AUDI_Q7': ['45 TFSI', '55 TFSI quattro', 'SQ7 TDI'],
+  'AUDI_Q8': ['55 TFSI quattro', 'SQ8 TDI', 'RSQ8'],
+  'AUDI_e-tron': ['50 quattro', '55 quattro', 'S quattro'],
+  'AUDI_TT': ['45 TFSI', '45 TFSI quattro', 'TTS'],
+
+  // ========== MITSUBISHI ==========
+  'MITSUBISHI_L200': ['GLX 4x2 SC', 'GLX 4x2 DC', 'GLX 4x4 DC', 'GLS 4x4 MT', 'GLS 4x4 AT', 'HPE 4x4 AT', 'HPE-S 4x4 AT'],
+  'MITSUBISHI_L200 Triton': ['GLS 4x4 MT', 'GLS 4x4 AT', 'HPE 4x4 AT', 'HPE-S 4x4 AT'],
+  'MITSUBISHI_Outlander': ['ES', 'SE', 'SEL', 'GT', 'PHEV'],
+  'MITSUBISHI_Outlander PHEV': ['GT-S', 'Instyle'],
+  'MITSUBISHI_Eclipse Cross': ['ES', 'SE', 'SEL', 'SEL S-AWC', 'PHEV'],
+  'MITSUBISHI_ASX': ['ES', 'SE', 'SEL'],
+  'MITSUBISHI_Pajero Sport': ['GLS', 'HPE', 'HPE-S'],
+
+  // ========== RAM ==========
+  'RAM_1500': ['Big Horn 5.7 V8', 'Laramie 5.7 V8', 'Limited 5.7 V8', 'Rebel 5.7 V8', 'TRX 6.2 V8 SC'],
+  'RAM_1500 Classic': ['Express 5.7 V8', 'SLT 5.7 V8', 'Warlock 5.7 V8'],
+  'RAM_1500 Rebel': ['5.7 V8 4x4'],
+  'RAM_1500 Laramie': ['5.7 V8 4x4'],
+  'RAM_1500 Limited': ['5.7 V8 4x4'],
+  'RAM_2500': ['Laramie 6.7 TD', 'Limited 6.7 TD', 'Power Wagon 6.4 V8'],
+  'RAM_2500 Laramie': ['6.7 TD 4x4'],
+
+  // ========== OTROS ==========
+  'SSANGYONG_Korando': ['LX', 'EX', 'Limited'],
+  'SSANGYONG_Rexton': ['RX 2.2 TD', 'RX7 2.2 TD', 'Platinum 2.2 TD'],
+  'SSANGYONG_Musso': ['LX', 'EX', 'Limited', 'Grand Musso'],
+
+  'SUBARU_Forester': ['2.0i', '2.0i-L', '2.0i-S', '2.0i-S EyeSight', 'Sport'],
+  'SUBARU_Outback': ['2.5i', '2.5i-S', '2.5i-S EyeSight', 'XT'],
+  'SUBARU_XV': ['1.6i', '2.0i', '2.0i-S', '2.0i-S EyeSight'],
+  'SUBARU_WRX': ['Base', 'Premium', 'Limited', 'STI'],
+  'SUBARU_BRZ': ['Base', 'Premium', 'tS'],
+
+  'MAZDA_CX-30': ['i 2.0', 'i Grand Touring 2.0', 'i Signature 2.5'],
+  'MAZDA_CX-5': ['i 2.0', 'i Sport 2.5', 'i Grand Touring 2.5', 'i Signature 2.5'],
+  'MAZDA_CX-50': ['Preferred', 'Premium', 'Premium Plus', 'Turbo'],
+  'MAZDA_3': ['i 2.0', 'i Sport 2.5', 'i Grand Touring 2.5', 'i Signature 2.5'],
+  'MAZDA_MX-5': ['i Sport', 'i Grand Touring', 'RF Grand Touring'],
+
+  'MG_ZS': ['Style 1.5', 'Comfort 1.5', 'Luxury 1.5', 'Excite 1.3T'],
+  'MG_ZS EV': ['Standard', 'Luxury', 'Exclusive'],
+  'MG_HS': ['Style 1.5T', 'Comfort 1.5T', 'Luxury 2.0T', 'PHEV'],
+  'MG_MG4': ['Standard', 'Comfort', 'Luxury', 'XPOWER'],
+
+  'CHERY_Tiggo 4': ['Comfort', 'Luxury', 'Pro Comfort', 'Pro Luxury'],
+  'CHERY_Tiggo 7': ['Comfort', 'Luxury', 'Pro Comfort', 'Pro Luxury'],
+  'CHERY_Tiggo 8': ['Comfort', 'Luxury', 'Pro Comfort', 'Pro Luxury'],
+  'CHERY_Omoda 5': ['Comfort', 'Luxury', 'GT'],
+
+  'BYD_Dolphin': ['Standard', 'Comfort', 'Design'],
+  'BYD_Seal': ['Dynamic', 'Premium', 'Performance'],
+  'BYD_Song Plus': ['Comfort', 'Flagship'],
+  'BYD_Yuan Plus': ['GL', 'GS'],
+
+  'HAVAL_H6': ['Comfort', 'Supreme', 'Supreme+', 'GT', 'Hybrid'],
+  'HAVAL_Jolion': ['Comfort', 'Premium', 'Luxury', 'Hybrid'],
+  'HAVAL_Dargo': ['Supreme', 'Supreme+'],
+
+  'GWM_Ora 03': ['Standard', 'Luxury', 'GT'],
+  'GWM_Ora 07': ['Standard', 'Performance'],
+  'GWM_Tank 300': ['Luxury', 'Flagship'],
+  'GWM_Tank 500': ['Hybrid', 'Hybrid Flagship'],
+
+  'CUPRA_Formentor': ['VZ 2.0 TSI', 'VZ5 2.5 TSI', 'e-Hybrid'],
+  'CUPRA_Leon': ['VZ 2.0 TSI', 'VZ e-Hybrid'],
+  'CUPRA_Born': ['58 kWh', '77 kWh', 'VZ 77 kWh'],
+
+  'CITROEN_C3': ['Live 1.2', 'Feel 1.2', 'Feel Pack 1.6', 'Shine 1.6'],
+  'CITROEN_C3 Aircross': ['Live 1.6', 'Feel 1.6', 'Feel Pack 1.6', 'Shine 1.6', 'Shine Pack 1.6'],
+  'CITROEN_C4 Cactus': ['Live 1.6', 'Feel 1.6', 'Feel Pack 1.6', 'Shine 1.6'],
+  'CITROEN_C5 Aircross': ['Feel 1.6 THP', 'Feel Pack 1.6 THP', 'Shine 1.6 THP', 'Hybrid'],
+
+  // === VERSIONES GENÉRICAS PARA FALLBACK ===
+  'GENERICA_AUTO': ['Base', 'Comfort', 'Style', 'Premium', 'Luxury', 'Sport', 'Active', 'Trend', 'Life', 'Titanium', 'Limited', 'Highline', 'Intense', 'Sense', 'Full'],
+  'GENERICA_MOTO': ['Standard', 'Base', 'Plus', 'Sport', 'Racing', 'Adventure', 'Touring', 'Custom', 'Café Racer', 'Scrambler', 'Pro', 'R', 'S'],
+  'GENERICA_CAMION': ['4x2 Tractor', '4x2 Chasis', '6x2 Tractor', '6x4 Tractor', '6x4 Volcador', '8x4 Mixer', '8x4 Volcador', 'Chasis Largo', 'Chasis Corto', 'Cabina Simple', 'Cabina Doble', 'Furgón', 'Volcador', 'Hormigonero']
+};
+
+// Función para obtener versiones según marca/modelo o genéricas
+const getVersiones = (marca, modelo, tipoVehiculo) => {
+  // 1. Buscar versión específica marca_modelo
+  const key = `${marca}_${modelo}`;
+  if (VERSIONES[key]) {
+    return VERSIONES[key];
+  }
+  
+  // 2. Buscar versión genérica por tipo
+  if (tipoVehiculo === 'moto') {
+    return VERSIONES['GENERICA_MOTO'];
+  }
+  if (tipoVehiculo === 'camion') {
+    return VERSIONES['GENERICA_CAMION'];
+  }
+  
+  // 3. Fallback: versiones genéricas auto/camioneta
+  return VERSIONES['GENERICA_AUTO'];
+};
+
 const COBERTURAS_AUTO = [
   { value: 'rc', label: 'Responsabilidad Civil' }, 
   { value: 'terceros', label: 'Terceros' }, 
@@ -198,7 +549,7 @@ const HeroSection = () => {
   const [loading, setLoading] = useState(false);
 
   // Estados por tipo de seguro
-  const [vehiculo, setVehiculo] = useState({ tipo: '', marca: '', modelo: '', año: '', cobertura: '' });
+  const [vehiculo, setVehiculo] = useState({ tipo: '', marca: '', modelo: '', version: '', año: '', cobertura: '' });
   const [hogar, setHogar] = useState({ tipo: '', metros: '', zona: '', antiguedad: '', cobertura: '' });
   const [art, setArt] = useState({ razonSocial: '', cuit: '', actividad: '', empleados: '', masaSalarial: '', provincia: '' });
   const [comercio, setComercio] = useState({ tipo: '', rubro: '', superficie: '', sumaContenido: '', sumaEdificio: '', zona: '' });
@@ -207,20 +558,30 @@ const HeroSection = () => {
   // Dinámicos para vehículos
   const [marcasDisp, setMarcasDisp] = useState([]);
   const [modelosDisp, setModelosDisp] = useState([]);
+  const [versionesDisp, setVersionesDisp] = useState([]);
 
   useEffect(() => {
     if (vehiculo.tipo) {
       setMarcasDisp(MARCAS[vehiculo.tipo] || []);
-      setVehiculo(p => ({ ...p, marca: '', modelo: '' }));
+      setVehiculo(p => ({ ...p, marca: '', modelo: '', version: '' }));
     }
   }, [vehiculo.tipo]);
 
   useEffect(() => {
     if (vehiculo.marca) {
       setModelosDisp(MODELOS[vehiculo.marca] || MODELOS.default);
-      setVehiculo(p => ({ ...p, modelo: '' }));
+      setVehiculo(p => ({ ...p, modelo: '', version: '' }));
     }
   }, [vehiculo.marca]);
+
+  // NUEVO: Actualizar versiones cuando cambia el modelo
+  useEffect(() => {
+    if (vehiculo.modelo && vehiculo.marca) {
+      const versiones = getVersiones(vehiculo.marca, vehiculo.modelo, vehiculo.tipo);
+      setVersionesDisp(versiones);
+      setVehiculo(p => ({ ...p, version: '' }));
+    }
+  }, [vehiculo.modelo, vehiculo.marca, vehiculo.tipo]);
 
   // ============================================================================
   // SUBMIT POR TIPO
@@ -236,7 +597,7 @@ const HeroSection = () => {
         if (!vehiculo.tipo || !vehiculo.marca || !vehiculo.modelo || !vehiculo.año || !vehiculo.cobertura) {
           alert('Completá todos los campos'); setLoading(false); return;
         }
-        mensaje = `🚗 *COTIZACIÓN VEHÍCULO*\n\nTipo: ${vehiculo.tipo}\nMarca: ${vehiculo.marca}\nModelo: ${vehiculo.modelo}\nAño: ${vehiculo.año}\nCobertura: ${COBERTURAS_AUTO.find(c => c.value === vehiculo.cobertura)?.label}`;
+        mensaje = `🚗 *COTIZACIÓN VEHÍCULO*\n\nTipo: ${vehiculo.tipo}\nMarca: ${vehiculo.marca}\nModelo: ${vehiculo.modelo}${vehiculo.version ? `\nVersión: ${vehiculo.version}` : ''}\nAño: ${vehiculo.año}\nCobertura: ${COBERTURAS_AUTO.find(c => c.value === vehiculo.cobertura)?.label}`;
         break;
         
       case 'hogar':
@@ -320,7 +681,7 @@ const HeroSection = () => {
         </div>
 
         {/* SISTEMA DE PESTAÑAS */}
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           
           {/* Tabs */}
           <div className="flex flex-wrap justify-center gap-2 mb-4">
@@ -343,9 +704,9 @@ const HeroSection = () => {
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
             <form onSubmit={handleSubmit}>
               
-              {/* ========== VEHÍCULOS ========== */}
+              {/* ========== VEHÍCULOS (CON VERSIÓN) ========== */}
               {activeTab === 'vehiculos' && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
                   <div>
                     <label className={labelClass}>Tipo *</label>
                     <select value={vehiculo.tipo} onChange={(e) => setVehiculo({...vehiculo, tipo: e.target.value})} className={inputClass} required>
@@ -365,6 +726,14 @@ const HeroSection = () => {
                     <select value={vehiculo.modelo} onChange={(e) => setVehiculo({...vehiculo, modelo: e.target.value})} className={inputClass} disabled={!vehiculo.marca} required>
                       <option value="">Seleccionar</option>
                       {modelosDisp.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                  </div>
+                  {/* NUEVO: CAMPO VERSIÓN */}
+                  <div>
+                    <label className={labelClass}>Versión</label>
+                    <select value={vehiculo.version} onChange={(e) => setVehiculo({...vehiculo, version: e.target.value})} className={inputClass} disabled={!vehiculo.modelo}>
+                      <option value="">Opcional</option>
+                      {versionesDisp.map(v => <option key={v} value={v}>{v}</option>)}
                     </select>
                   </div>
                   <div>
