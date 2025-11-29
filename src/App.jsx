@@ -1,3 +1,4 @@
+import Header from './components/Header';
 import HeroSection from './components/HeroSection';
 import { WhyChooseUs, Services, Testimonials, FinalCTA } from './components/Sections';
 import Footer from './components/Footer';
@@ -6,8 +7,11 @@ import ChatBot from './components/ChatBot';
 function App() {
   return (
     <div className="min-h-screen">
-      {/* ChatBot flotante - arriba izquierda */}
+      {/* ChatBot flotante */}
       <ChatBot />
+      
+      {/* Header con logo y navegación */}
+      <Header />
       
       {/* Hero con formulario de cotización por pestañas */}
       <HeroSection />
@@ -18,7 +22,7 @@ function App() {
       {/* Nuestros Servicios */}
       <Services />
       
-      {/* Testimonios (opcional - podés comentarlo si no lo querés) */}
+      {/* Testimonios */}
       <Testimonials />
       
       {/* CTA Final */}

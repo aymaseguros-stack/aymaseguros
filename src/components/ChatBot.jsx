@@ -95,7 +95,7 @@ const ChatBot = () => {
       {!isOpen && (
         <button
           onClick={handleOpen}
-          className="fixed top-6 left-6 bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 hover:scale-110 transition-all z-50 group"
+          className="fixed top-6 left-6 bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 hover:scale-110 transition-all z-[60] group"
           aria-label="Abrir chat"
         >
           {/* Icono chat */}
@@ -117,7 +117,7 @@ const ChatBot = () => {
       {/* VENTANA CHAT - ARRIBA IZQUIERDA */}
       {/* ============================================ */}
       {isOpen && (
-        <div className="fixed top-6 left-6 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col max-h-[500px] overflow-hidden border border-gray-200">
+        <div className="fixed top-6 left-6 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl z-[60] flex flex-col max-h-[500px] overflow-hidden border border-gray-200">
           
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex items-center justify-between">
