@@ -1,7 +1,6 @@
 {
-claude/improve-test-coverage-01XEwPX7GRSgfXnYKXumychc
   "name": "ayma-advisors",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Sistema de cotización de seguros con CRM - Ayma Advisors",
   "type": "module",
   "scripts": {
@@ -9,8 +8,8 @@ claude/improve-test-coverage-01XEwPX7GRSgfXnYKXumychc
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "test:coverage:report": "vitest --coverage && open coverage/index.html",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:report": "vitest run --coverage && open coverage/index.html",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
@@ -21,15 +20,22 @@ claude/improve-test-coverage-01XEwPX7GRSgfXnYKXumychc
     "test:e2e:mobile": "playwright test --project='Mobile Chrome'",
     "test:all": "npm run test:coverage && npm run test:e2e",
     "test:ci": "npm run test:unit && npm run test:e2e",
+    "test:perf": "node scripts/performance-test.js",
+    "test:visual": "playwright test --grep @visual",
     "playwright:install": "playwright install",
     "playwright:install:deps": "playwright install --with-deps",
     "playwright:codegen": "playwright codegen http://localhost:8080",
-    "serve": "npx http-server -p 8080",
-    "dev": "npx http-server -p 8080",
+    "serve": "npx http-server -p 8080 -c-1",
+    "dev": "npx http-server -p 8080 -c-1",
     "start": "npm run serve",
-    "clean": "rm -rf node_modules coverage test-results playwright-report .vitest",
+    "build": "echo 'Static HTML - no build needed'",
+    "preview": "npm run serve",
+    "clean": "rm -rf node_modules coverage test-results playwright-report .vitest dist",
     "clean:cache": "rm -rf node_modules/.cache .vitest",
+    "clean:all": "npm run clean && rm -rf package-lock.json",
     "health": "node scripts/health-check.js",
+    "benchmark": "node scripts/benchmark.js",
+    "report": "node scripts/generate-report.js",
     "pretest": "node scripts/health-check.js",
     "pretest:e2e": "node scripts/health-check.js"
   },
@@ -39,10 +45,17 @@ claude/improve-test-coverage-01XEwPX7GRSgfXnYKXumychc
     "crm",
     "cotizacion",
     "rosario",
-    "argentina"
+    "argentina",
+    "testing",
+    "playwright",
+    "vitest"
   ],
   "author": "Ayma Advisors",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aymaseguros-stack/aymaseguros.git"
+  },
   "devDependencies": {
     "@playwright/test": "^1.40.1",
     "@testing-library/dom": "^9.3.3",
@@ -60,26 +73,5 @@ claude/improve-test-coverage-01XEwPX7GRSgfXnYKXumychc
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-=======
-  "name": "aymaseguros-landing",
-  "version": "2.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "lucide-react": "^0.554.0",
-    "pdf-parse": "^2.4.5",
-    "pdfjs-dist": "^5.4.394",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
-    "terser": "^5.44.1",
-    "vite": "^5.0.0"
-main
   }
 }
