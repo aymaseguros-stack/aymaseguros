@@ -56,3 +56,11 @@ lighthouse-*.html
 # Performance reports
 benchmarks/
 performance-reports/
+
+# Lighthouse reports
+lighthouse-reports/
+.lighthouseci/
+
+# Visual regression snapshots (mantener solo baselines en git)
+*-actual.png
+*-diff.png

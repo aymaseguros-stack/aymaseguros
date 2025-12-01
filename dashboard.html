@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayma Advisors - Test Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .meta-info {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            font-size: 28px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .card-label {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 1s ease;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .section h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.passed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge.failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge.running {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .refresh-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .refresh-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-button:active {
+            transform: translateY(0);
+        }
+
+        .chart {
+            width: 100%;
+            height: 200px;
+            margin-top: 20px;
+        }
+
+        .timeline {
+            margin-top: 20px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-icon {
+            font-size: 24px;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 30px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .card-value {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                🛡️ Ayma Advisors - Test Dashboard
+                <span class="status-badge success" id="mainStatus">All Systems Operational</span>
+            </h1>
+            <div class="meta-info">
+                <span>Last Updated: <strong id="lastUpdate">Loading...</strong></span> |
+                <span>Build: <strong>#<span id="buildNumber">-</span></strong></span> |
+                <button class="refresh-button" onclick="refreshData()">🔄 Refresh</button>
+            </div>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">✅</span>
+                    <span class="card-title">Unit Tests</span>
+                </div>
+                <div class="card-value" id="unitTests">-</div>
+                <div class="card-label">Tests Passed</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="unitTestsProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🌐</span>
+                    <span class="card-title">E2E Tests</span>
+                </div>
+                <div class="card-value" id="e2eTests">-</div>
+                <div class="card-label">Scenarios Passed</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="e2eTestsProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <span class="card-title">Coverage</span>
+                </div>
+                <div class="card-value" id="coverage">-</div>
+                <div class="card-label">Line Coverage</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="coverageProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">⚡</span>
+                    <span class="card-title">Performance</span>
+                </div>
+                <div class="card-value" id="performance">-</div>
+                <div class="card-label">Score</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="performanceProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">♿</span>
+                    <span class="card-title">Accessibility</span>
+                </div>
+                <div class="card-value" id="a11y">-</div>
+                <div class="card-label">WCAG Compliance</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="a11yProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🔒</span>
+                    <span class="card-title">Security</span>
+                </div>
+                <div class="card-value" id="security">-</div>
+                <div class="card-label">Tests Passed</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="securityProgress" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Recent Test Runs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Test Suite</th>
+                        <th>Status</th>
+                        <th>Duration</th>
+                        <th>Passed/Total</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="testRuns">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #888;">Loading test data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>📈 Performance Metrics</h2>
+            <div class="grid">
+                <div>
+                    <h3 style="font-size: 16px; color: #666; margin-bottom: 10px;">Core Web Vitals</h3>
+                    <table>
+                        <tr>
+                            <td>LCP (Largest Contentful Paint)</td>
+                            <td><span class="badge passed" id="lcp">-</span></td>
+                        </tr>
+                        <tr>
+                            <td>FID (First Input Delay)</td>
+                            <td><span class="badge passed" id="fid">-</span></td>
+                        </tr>
+                        <tr>
+                            <td>CLS (Cumulative Layout Shift)</td>
+                            <td><span class="badge passed" id="cls">-</span></td>
+                        </tr>
+                        <tr>
+                            <td>FCP (First Contentful Paint)</td>
+                            <td><span class="badge passed" id="fcp">-</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <h3 style="font-size: 16px; color: #666; margin-bottom: 10px;">Browser Support</h3>
+                    <table>
+                        <tr>
+                            <td>Chromium</td>
+                            <td><span class="badge passed" id="chromium">✅ Passing</span></td>
+                        </tr>
+                        <tr>
+                            <td>Firefox</td>
+                            <td><span class="badge passed" id="firefox">✅ Passing</span></td>
+                        </tr>
+                        <tr>
+                            <td>WebKit (Safari)</td>
+                            <td><span class="badge passed" id="webkit">✅ Passing</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⏱️ Activity Timeline</h2>
+            <div class="timeline" id="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon">📊</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Loading activity...</div>
+                        <div class="timeline-time">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Ayma Advisors © 2025 | Automated Testing Dashboard</p>
+            <p style="margin-top: 8px; opacity: 0.8;">Real-time monitoring powered by CI/CD pipeline</p>
+        </footer>
+    </div>
+
+    <script>
+        // Simulated data - En producción, esto vendría de una API
+        function loadDashboardData() {
+            // Actualizar timestamp
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('es-AR');
+            document.getElementById('buildNumber').textContent = Math.floor(Math.random() * 1000);
+
+            // Simular carga de métricas
+            setTimeout(() => {
+                updateCard('unitTests', '91', 100);
+                updateCard('e2eTests', '67', 95);
+                updateCard('coverage', '85%', 85);
+                updateCard('performance', '94', 94);
+                updateCard('a11y', '98%', 98);
+                updateCard('security', '24', 100);
+
+                // Web Vitals
+                document.getElementById('lcp').textContent = '1.8s';
+                document.getElementById('fid').textContent = '45ms';
+                document.getElementById('cls').textContent = '0.05';
+                document.getElementById('fcp').textContent = '1.2s';
+
+                // Test runs
+                const testRunsData = [
+                    { suite: 'Unit Tests', status: 'passed', duration: '12.3s', passed: 91, total: 91, time: '2 min ago' },
+                    { suite: 'E2E Tests (Chromium)', status: 'passed', duration: '1m 45s', passed: 30, total: 30, time: '5 min ago' },
+                    { suite: 'E2E Tests (Firefox)', status: 'passed', duration: '1m 52s', passed: 30, total: 30, time: '5 min ago' },
+                    { suite: 'E2E Tests (WebKit)', status: 'passed', duration: '2m 3s', passed: 30, total: 30, time: '6 min ago' },
+                    { suite: 'Performance Tests', status: 'passed', duration: '45.2s', passed: 4, total: 4, time: '8 min ago' },
+                    { suite: 'Security Tests', status: 'passed', duration: '23.1s', passed: 24, total: 24, time: '10 min ago' }
+                ];
+
+                const testRunsHTML = testRunsData.map(run => `
+                    <tr>
+                        <td>${run.suite}</td>
+                        <td><span class="badge ${run.status}">${run.status}</span></td>
+                        <td>${run.duration}</td>
+                        <td>${run.passed}/${run.total}</td>
+                        <td>${run.time}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('testRuns').innerHTML = testRunsHTML;
+
+                // Timeline
+                const timelineData = [
+                    { icon: '✅', title: 'All tests passed successfully', time: '2 minutes ago' },
+                    { icon: '🚀', title: 'Deployment to staging completed', time: '15 minutes ago' },
+                    { icon: '🔄', title: 'CI/CD pipeline started', time: '18 minutes ago' },
+                    { icon: '💾', title: 'New commit pushed to main', time: '20 minutes ago' },
+                    { icon: '📊', title: 'Performance report generated', time: '1 hour ago' }
+                ];
+
+                const timelineHTML = timelineData.map(item => `
+                    <div class="timeline-item">
+                        <div class="timeline-icon">${item.icon}</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">${item.title}</div>
+                            <div class="timeline-time">${item.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('timeline').innerHTML = timelineHTML;
+            }, 500);
+        }
+
+        function updateCard(id, value, percentage) {
+            document.getElementById(id).textContent = value;
+            document.getElementById(id + 'Progress').style.width = percentage + '%';
+        }
+
+        function refreshData() {
+            document.getElementById('mainStatus').textContent = 'Refreshing...';
+            document.getElementById('mainStatus').className = 'status-badge warning';
+
+            setTimeout(() => {
+                loadDashboardData();
+                document.getElementById('mainStatus').textContent = 'All Systems Operational';
+                document.getElementById('mainStatus').className = 'status-badge success';
+            }, 1000);
+        }
+
+        // Auto-refresh cada 30 segundos
+        setInterval(loadDashboardData, 30000);
+
+        // Cargar datos inicial
+        loadDashboardData();
+    </script>
+</body>
+</html>
