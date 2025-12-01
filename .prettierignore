@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+.cache/
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Git
+.git/
+
+# Config files
+*.config.js
+*.config.cjs
+
+# Old HTML files (legacy)
+index.html.original
+admin.html
+index_backup.html
