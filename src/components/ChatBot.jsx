@@ -84,7 +84,7 @@ const ChatBot = () => {
         'event_label': 'chatbot_whatsapp'
       });
     }
-    window.open('https://wa.me/5493415302929?text=Hola! Vengo del chatbot de la web', '_blank');
+    window.open('https://wa.me/5493416952259?text=Hola! Vengo del chatbot de la web', '_blank');
   };
 
   return (

@@ -14,7 +14,7 @@ const Footer = () => {
     }
     
     const msg = `📩 *NUEVO CONTACTO WEB*\n\n👤 Nombre: ${form.nombre}\n📧 Email: ${form.email}\n📱 Teléfono: ${form.telefono || 'No indicado'}\n\n💬 Mensaje:\n${form.mensaje}`;
-    window.open(`https://wa.me/5493415302929?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/5493416952259?text=${encodeURIComponent(msg)}`, '_blank');
     
     setForm({ nombre: '', email: '', telefono: '', mensaje: '' });
     setSent(true);
@@ -240,7 +240,7 @@ const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="https://wa.me/5493415302929" target="_blank" rel="noopener noreferrer" className="hover:text-white transition flex items-center gap-2">
+                  <a href="https://wa.me/5493416952259" target="_blank" rel="noopener noreferrer" className="hover:text-white transition flex items-center gap-2">
                     💬 WhatsApp
                   </a>
                 </li>
