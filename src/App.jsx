@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
@@ -5,6 +6,7 @@ import { WhyChooseUs, Services, Testimonials, FinalCTA } from './components/Sect
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import AdminPanel from './components/AdminPanel';
+import { retryPendingTokens } from './utils/tokenVault';
 
 // Landing Page
 function LandingPage() {
@@ -24,6 +26,11 @@ function LandingPage() {
 
 // App con rutas
 function App() {
+  // Reintentar tokens pendientes al cargar la app
+  useEffect(() => {
+    retryPendingTokens();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

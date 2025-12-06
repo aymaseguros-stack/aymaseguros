@@ -1,20 +1,13 @@
 // src/components/ChatBot.jsx
-// ChatBot AYMA - Versión TOKENIZADA
-// TODAS las acciones generan tokens para trazabilidad
-// Fecha: 5 Dic 2025
+// ChatBot AYMA - Versión TRIPLE RESPALDO
+// Todas las acciones van al Worker → KV + PG + Sheets
+// Fecha: 6 Dic 2025
 
 import { useState, useRef, useEffect } from 'react';
+import { tokenizar, TIPOS } from '../utils/tokenVault';
 
 const BACKEND_URL = 'https://ayma-portal-backend.onrender.com/api/v1';
 const WHATSAPP_ROSARIO = '5493416952259';
-
-// ==================== GENERADOR DE TOKENS ====================
-const generarToken = (prefijo) => {
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 14);
-  const hash = Math.random().toString(36).substring(2, 10).toUpperCase();
-  return `${prefijo}-${timestamp}-${hash}`;
-};
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,13 +16,8 @@ const ChatBot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Token de sesión único por apertura de bot
   const [sessionToken, setSessionToken] = useState(null);
-  
-  // Registro de acciones de la sesión
-  const [acciones, setAcciones] = useState([]);
 
-  // Estado del flujo
   const [flujo, setFlujo] = useState({
     modo: 'inicio',
     step: 'inicio',
@@ -43,7 +31,6 @@ const ChatBot = () => {
     telefono: null
   });
 
-  // Cache de datos ACARA
   const [cache, setCache] = useState({
     marcas: [],
     modelos: [],
@@ -58,54 +45,31 @@ const ChatBot = () => {
     scrollToBottom();
   }, [messages]);
 
-  // ==================== REGISTRO DE ACCIONES ====================
+  // ==================== REGISTRO VÍA WORKER ====================
   const registrarAccion = async (tipoAccion, datos = {}) => {
-    const token = generarToken('ACT-BOT');
-    const accion = {
-      token,
+    const result = await tokenizar(TIPOS.BOT_ACTION, {
+      accion: tipoAccion,
       session_token: sessionToken,
-      tipo: tipoAccion,
-      datos,
-      timestamp: new Date().toISOString(),
-      url: window.location.href,
-      utm_source: new URLSearchParams(window.location.search).get('utm_source'),
-      utm_medium: new URLSearchParams(window.location.search).get('utm_medium'),
-      utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign')
-    };
-    
-    setAcciones(prev => [...prev, accion]);
-    
-    // Enviar al backend (fire and forget)
-    try {
-      await fetch(`${BACKEND_URL}/bot/acciones`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(accion)
-      });
-    } catch (err) {
-      // Si falla, guardar en localStorage para retry
-      const pending = JSON.parse(localStorage.getItem('ayma_bot_pending') || '[]');
-      pending.push(accion);
-      localStorage.setItem('ayma_bot_pending', JSON.stringify(pending));
-    }
-    
-    console.log(`📝 Acción: ${token}`, accion);
-    return token;
+      ...datos
+    }, 'chatbot');
+    return result.token;
   };
 
   // Mensaje inicial al abrir
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Generar token de sesión
-      const newSessionToken = generarToken('AYMA-BOT');
-      setSessionToken(newSessionToken);
-      
-      // Registrar apertura
-      registrarAccion('BOT_ABIERTO', { session_token: newSessionToken });
-      
-      setMessages([{
-        role: 'assistant',
-        content: `¡Hola! 👋 Soy el asistente de AYMA Advisors.
+      (async () => {
+        // Generar sesión vía Worker
+        const sessionResult = await tokenizar(TIPOS.BOT_SESSION, {
+          evento: 'apertura_bot'
+        }, 'chatbot');
+        
+        const newSessionToken = sessionResult.token || `LOCAL-${Date.now()}`;
+        setSessionToken(newSessionToken);
+
+        setMessages([{
+          role: 'assistant',
+          content: `¡Hola! 👋 Soy el asistente de AYMA Advisors.
 
 ¿En qué puedo ayudarte?
 
@@ -114,23 +78,15 @@ const ChatBot = () => {
 3️⃣ Hablar con un ejecutivo
 
 Escribí el número o lo que necesitás.`,
-        token: newSessionToken
-      }]);
-      
-      // GA4
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'bot_opened', {
-          event_category: 'engagement',
-          event_label: newSessionToken
-        });
-      }
+          token: newSessionToken
+        }]);
+      })();
     }
   }, [isOpen, messages.length]);
 
   // ==================== LLAMADAS AL BACKEND ====================
-
   const fetchMarcas = async (tipo) => {
-    const actionToken = await registrarAccion('FETCH_MARCAS', { tipo });
+    await registrarAccion('FETCH_MARCAS', { tipo });
     try {
       const res = await fetch(`${BACKEND_URL}/acara/marcas?tipo=${tipo}`);
       const data = await res.json();
@@ -143,7 +99,7 @@ Escribí el número o lo que necesitás.`,
   };
 
   const fetchModelos = async (tipo, marca) => {
-    const actionToken = await registrarAccion('FETCH_MODELOS', { tipo, marca });
+    await registrarAccion('FETCH_MODELOS', { tipo, marca });
     try {
       const res = await fetch(`${BACKEND_URL}/acara/modelos?tipo=${tipo}&marca=${encodeURIComponent(marca)}`);
       const data = await res.json();
@@ -156,7 +112,7 @@ Escribí el número o lo que necesitás.`,
   };
 
   const fetchVersiones = async (tipo, marca, modelo) => {
-    const actionToken = await registrarAccion('FETCH_VERSIONES', { tipo, marca, modelo });
+    await registrarAccion('FETCH_VERSIONES', { tipo, marca, modelo });
     try {
       const res = await fetch(`${BACKEND_URL}/acara/versiones?tipo=${tipo}&marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}`);
       const data = await res.json();
@@ -169,12 +125,20 @@ Escribí el número o lo que necesitás.`,
   };
 
   const guardarLead = async (leadData) => {
-    const leadToken = generarToken('LEAD-BOT');
-    const actionToken = await registrarAccion('LEAD_CAPTURADO', { 
-      lead_token: leadToken,
-      ...leadData 
-    });
-    
+    // Tokenizar cotización completa
+    const cotResult = await tokenizar(TIPOS.COT_AUTO, {
+      vehiculo: `${leadData.marca} ${leadData.modelo} ${leadData.anio}`,
+      tipo: leadData.tipo,
+      marca: leadData.marca,
+      modelo: leadData.modelo,
+      version: leadData.version,
+      anio: leadData.anio,
+      cobertura: leadData.cobertura,
+      nombre: leadData.nombre,
+      telefono: leadData.telefono,
+      session_token: sessionToken
+    }, 'chatbot');
+
     try {
       const res = await fetch(`${BACKEND_URL}/leads/`, {
         method: 'POST',
@@ -191,7 +155,7 @@ Escribí el número o lo que necesitás.`,
           cobertura: leadData.cobertura,
           origen: 'chatbot',
           session_token: sessionToken,
-          bot_token: leadToken,
+          vault_token: cotResult.token,
           utm_source: new URLSearchParams(window.location.search).get('utm_source'),
           utm_medium: new URLSearchParams(window.location.search).get('utm_medium'),
           utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign')
@@ -199,62 +163,39 @@ Escribí el número o lo que necesitás.`,
       });
       const data = await res.json();
       console.log('✅ Lead guardado:', data);
-      
-      // GA4
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'lead_captured', { 
-          event_category: 'conversion',
-          event_label: leadToken,
-          value: 1
-        });
-      }
-      
-      return { ...data, bot_token: leadToken };
+      return { ...data, vault_token: cotResult.token };
     } catch (err) {
       console.error('Error guardando lead:', err);
-      return null;
+      return { vault_token: cotResult.token };
     }
   };
 
-  // Tracking cuando se abre el bot
   const handleOpen = () => {
     setIsOpen(true);
   };
 
-  const handleClose = () => {
-    registrarAccion('BOT_CERRADO', { 
-      duracion_segundos: Math.floor((Date.now() - new Date(acciones[0]?.timestamp).getTime()) / 1000),
-      total_acciones: acciones.length,
-      lead_capturado: acciones.some(a => a.tipo === 'LEAD_CAPTURADO')
+  const handleClose = async () => {
+    await registrarAccion('BOT_CERRADO', { 
+      session_token: sessionToken
     });
     setIsOpen(false);
   };
 
   const addResponse = (content, extraData = {}) => {
-    const msgToken = generarToken('MSG');
     setMessages(prev => [...prev, { 
       role: 'assistant', 
       content,
-      token: msgToken,
       ...extraData
     }]);
     setIsTyping(false);
   };
 
-  const abrirWhatsApp = (mensaje = 'Hola! Vengo del chatbot de la web') => {
-    const waToken = generarToken('WA-BOT');
-    registrarAccion('WHATSAPP_CLICK', { 
-      token: waToken,
+  const abrirWhatsApp = async (mensaje = 'Hola! Vengo del chatbot de la web') => {
+    await tokenizar(TIPOS.WA_CLICK, {
       mensaje_preview: mensaje.substring(0, 50),
-      vehiculo: flujo.marca ? `${flujo.marca} ${flujo.modelo}` : null
-    });
-    
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'whatsapp_click', {
-        event_category: 'engagement',
-        event_label: waToken
-      });
-    }
+      vehiculo: flujo.marca ? `${flujo.marca} ${flujo.modelo}` : null,
+      session_token: sessionToken
+    }, 'chatbot');
     
     window.open(`https://wa.me/${WHATSAPP_ROSARIO}?text=${encodeURIComponent(mensaje)}`, '_blank');
   };
@@ -263,15 +204,12 @@ Escribí el número o lo que necesitás.`,
     if (!input.trim()) return;
 
     const userMessage = input.trim();
-    const msgToken = generarToken('USR-MSG');
     
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage, token: msgToken }]);
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsTyping(true);
 
-    // Registrar mensaje del usuario
     await registrarAccion('MENSAJE_USUARIO', { 
-      token: msgToken,
       mensaje: userMessage,
       step_actual: flujo.step,
       modo_actual: flujo.modo
@@ -297,20 +235,20 @@ Escribí el tipo.`);
       }
       
       if (lowerMessage === '2' || lowerMessage.includes('cobertura') || lowerMessage.includes('consulta') || lowerMessage.includes('info')) {
-        await registrarAccion('CONSULTA_COBERTURAS', {});
+        await tokenizar(TIPOS.CONSULTA, { consulta: 'coberturas' }, 'chatbot');
         setFlujo(prev => ({ ...prev, modo: 'consulta' }));
         addResponse(`Te cuento sobre nuestras coberturas:
 
 🚗 **VEHÍCULOS:**
-• RC (Responsabilidad Civil): Lo básico obligatorio
-• Terceros Completo: RC + Robo + Incendio + Granizo
-• Todo Riesgo: Cobertura total incluyendo daños propios
+- RC (Responsabilidad Civil): Lo básico obligatorio
+- Terceros Completo: RC + Robo + Incendio + Granizo
+- Todo Riesgo: Cobertura total incluyendo daños propios
 
 🏠 **HOGAR:**
-• Incendio, robo, RC, daños por agua
+- Incendio, robo, RC, daños por agua
 
 🏢 **EMPRESAS:**
-• ART, Vida Patronal, RC Comercial
+- ART, Vida Patronal, RC Comercial
 
 ¿Querés cotizar alguno o hablamos por WhatsApp?`);
         return;
@@ -347,7 +285,6 @@ Escribí el número.`);
     // ==================== FLUJO COTIZAR ====================
     if (flujo.modo === 'cotizar') {
       
-      // PASO: TIPO DE VEHÍCULO
       if (flujo.step === 'tipo') {
         let tipoVehiculo = null;
         
@@ -384,7 +321,6 @@ Escribí la marca.`);
         return;
       }
 
-      // PASO: MARCA
       if (flujo.step === 'marca') {
         let marcaEncontrada = cache.marcas.find(m => 
           m.marca.toLowerCase() === lowerMessage || 
@@ -430,7 +366,6 @@ Ej: Ford, Toyota, Fiat, Volkswagen`);
         return;
       }
 
-      // PASO: MODELO
       if (flujo.step === 'modelo') {
         let modeloEncontrado = cache.modelos.find(m => 
           m.modelo.toLowerCase() === lowerMessage || 
@@ -455,7 +390,6 @@ Escribí el año (ej: 2020, 2023)`);
         return;
       }
 
-      // PASO: AÑO
       if (flujo.step === 'anio') {
         const anioMatch = lowerMessage.match(/\d{4}/);
         if (anioMatch) {
@@ -496,7 +430,6 @@ Escribí el año (ej: 2020, 2022, 2024)`);
         return;
       }
 
-      // PASO: COBERTURA
       if (flujo.step === 'cobertura') {
         let cobertura = 'terceros_completo';
         let coberturaTexto = 'Terceros Completo';
@@ -525,7 +458,6 @@ Escribí el año (ej: 2020, 2022, 2024)`);
         return;
       }
 
-      // PASO: NOMBRE
       if (flujo.step === 'nombre') {
         await registrarAccion('NOMBRE_INGRESADO', { nombre: userMessage });
         setFlujo(prev => ({ ...prev, step: 'telefono', nombre: userMessage }));
@@ -537,13 +469,11 @@ Escribí el año (ej: 2020, 2022, 2024)`);
         return;
       }
 
-      // PASO: TELÉFONO (captura lead)
       if (flujo.step === 'telefono') {
         const telMatch = lowerMessage.match(/[\d\s\-]{7,}/);
         if (telMatch) {
           const telefono = telMatch[0].replace(/\D/g, '');
           
-          // Guardar lead en backend (genera su propio token)
           const leadResult = await guardarLead({
             ...flujo,
             telefono
@@ -555,17 +485,6 @@ Escribí el año (ej: 2020, 2022, 2024)`);
             'todo_riesgo': 'Todo Riesgo'
           }[flujo.cobertura] || flujo.cobertura;
 
-          // Registrar conversión completa
-          await registrarAccion('COTIZACION_COMPLETADA', {
-            lead_id: leadResult?.id,
-            lead_token: leadResult?.bot_token,
-            vehiculo: `${flujo.marca} ${flujo.modelo} ${flujo.anio}`,
-            cobertura: flujo.cobertura,
-            nombre: flujo.nombre,
-            telefono
-          });
-
-          // Reset flujo
           const flujoAnterior = { ...flujo };
           setFlujo({
             modo: 'fin',
@@ -579,7 +498,7 @@ Escribí el año (ej: 2020, 2022, 2024)`);
 🚗 ${flujoAnterior.marca} ${flujoAnterior.modelo} ${flujoAnterior.anio}
 📄 ${coberturaTexto}
 📱 ${telefono}
-🔖 Ref: ${leadResult?.bot_token || sessionToken}
+🔖 Ref: ${leadResult?.vault_token || sessionToken}
 
 ⏰ Te contactamos en menos de 2 horas con las mejores opciones.
 
@@ -653,12 +572,11 @@ Ej: 341 555-1234`);
       addResponse(`¡Gracias por elegirnos! 😊
 
 ¿Necesitás algo más?
-• Escribí "cotizar" para otra cotización
-• Escribí "whatsapp" para hablar con un asesor`);
+- Escribí "cotizar" para otra cotización
+- Escribí "whatsapp" para hablar con un asesor`);
       return;
     }
 
-    // Saludos
     if (lowerMessage.includes('hola') || lowerMessage.includes('buenas') || lowerMessage.includes('buen dia')) {
       await registrarAccion('SALUDO', {});
       addResponse(`¡Hola! 👋 ¿Cómo estás?
@@ -672,21 +590,19 @@ Ej: 341 555-1234`);
       return;
     }
 
-    // Contacto
     if (lowerMessage.includes('contacto') || lowerMessage.includes('telefono') || lowerMessage.includes('llamar')) {
       await registrarAccion('CONSULTA_CONTACTO', {});
       addResponse(`📞 Nuestros canales:
 
-• WhatsApp: 341 695-2259
-• Teléfono Rosario: 341 695-2259
-• Teléfono CABA: 11 5302-2929
-• Email: aymaseguros@hotmail.com
+- WhatsApp: 341 695-2259
+- Teléfono Rosario: 341 695-2259
+- Teléfono CABA: 11 5302-2929
+- Email: aymaseguros@hotmail.com
 
 ¿Te abro WhatsApp?`);
       return;
     }
 
-    // Agradecimiento
     if (lowerMessage.includes('gracias') || lowerMessage.includes('genial') || lowerMessage.includes('perfecto')) {
       await registrarAccion('AGRADECIMIENTO', {});
       addResponse(`¡De nada! 😊 
@@ -695,7 +611,6 @@ Ej: 341 555-1234`);
       return;
     }
 
-    // Default
     await registrarAccion('MENSAJE_NO_ENTENDIDO', { mensaje: userMessage });
     addResponse(`No entendí bien. ¿Qué necesitás?
 
@@ -724,7 +639,6 @@ Escribí el número o lo que necesitás.`);
 
   return (
     <>
-      {/* BOTÓN FLOTANTE */}
       {!isOpen && (
         <button
           onClick={handleOpen}
@@ -741,11 +655,9 @@ Escribí el número o lo que necesitás.`);
         </button>
       )}
 
-      {/* VENTANA CHAT */}
       {isOpen && (
         <div className="fixed top-6 left-6 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col max-h-[500px] overflow-hidden border border-gray-200">
           
-          {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -769,7 +681,6 @@ Escribí el número o lo que necesitás.`);
             </button>
           </div>
 
-          {/* Mensajes */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
             {messages.map((msg, index) => (
               <div
@@ -803,7 +714,6 @@ Escribí el número o lo que necesitás.`);
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Acciones rápidas */}
           <div className="px-4 py-2 bg-white border-t border-gray-100">
             <div className="flex gap-2 overflow-x-auto pb-2">
               <button 
@@ -811,8 +721,8 @@ Escribí el número o lo que necesitás.`);
                   await registrarAccion('BOTON_RAPIDO_COTIZAR', {});
                   setFlujo({ ...flujo, modo: 'cotizar', step: 'tipo' });
                   setMessages(prev => [...prev, 
-                    { role: 'user', content: 'Quiero cotizar', token: generarToken('USR-MSG') },
-                    { role: 'assistant', content: '¡Perfecto! ¿Qué tipo de vehículo?\n\n🚗 Auto\n🏍️ Moto\n🚙 Camioneta', token: generarToken('MSG') }
+                    { role: 'user', content: 'Quiero cotizar' },
+                    { role: 'assistant', content: '¡Perfecto! ¿Qué tipo de vehículo?\n\n🚗 Auto\n🏍️ Moto\n🚙 Camioneta' }
                   ]);
                 }}
                 className="flex-shrink-0 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full transition"
@@ -821,11 +731,11 @@ Escribí el número o lo que necesitás.`);
               </button>
               <button 
                 onClick={async () => {
-                  await registrarAccion('BOTON_RAPIDO_COBERTURAS', {});
+                  await tokenizar(TIPOS.CONSULTA, { consulta: 'coberturas_boton' }, 'chatbot');
                   setFlujo({ ...flujo, modo: 'consulta' });
                   setMessages(prev => [...prev,
-                    { role: 'user', content: 'Consulta sobre coberturas', token: generarToken('USR-MSG') },
-                    { role: 'assistant', content: 'Te cuento sobre nuestras coberturas:\n\n🚗 VEHÍCULOS:\n• RC: Lo básico obligatorio\n• Terceros Completo: RC + Robo + Incendio\n• Todo Riesgo: Cobertura total\n\n¿Querés cotizar alguno?', token: generarToken('MSG') }
+                    { role: 'user', content: 'Consulta sobre coberturas' },
+                    { role: 'assistant', content: 'Te cuento sobre nuestras coberturas:\n\n🚗 VEHÍCULOS:\n• RC: Lo básico obligatorio\n• Terceros Completo: RC + Robo + Incendio\n• Todo Riesgo: Cobertura total\n\n¿Querés cotizar alguno?' }
                   ]);
                 }}
                 className="flex-shrink-0 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full transition"
@@ -841,7 +751,6 @@ Escribí el número o lo que necesitás.`);
             </div>
           </div>
 
-          {/* Input */}
           <div className="p-3 bg-white border-t border-gray-200">
             <div className="flex gap-2">
               <input

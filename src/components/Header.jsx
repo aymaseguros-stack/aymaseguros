@@ -1,6 +1,31 @@
 import { useState, useEffect } from 'react';
+import { tokenizar, TIPOS } from '../utils/tokenVault';
 
 const WHATSAPP_ROSARIO = '5493416952259';
+
+// Iconos SVG de redes sociales
+const SocialIcons = {
+  instagram: (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+    </svg>
+  ),
+  facebook: (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+    </svg>
+  ),
+  linkedin: (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+    </svg>
+  ),
+  x: (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  ),
+};
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -18,14 +43,27 @@ const Header = () => {
     { href: '#empresas', label: 'Empresas' },
     { href: '#nosotros', label: 'Nosotros' },
     { href: '#contacto', label: 'Contacto' },
+    { href: 'https://centro.aymaseguros.com.ar', label: 'Centro AYMA', external: true },
   ];
 
-  const handleWhatsApp = () => {
-    if (typeof gtag !== 'undefined') gtag('event', 'whatsapp_click', { event_category: 'engagement', event_label: 'header' });
+  const socialLinks = [
+    { href: 'https://instagram.com/aymaseguros', icon: 'instagram', color: 'hover:text-pink-500' },
+    { href: 'https://facebook.com/61584119926136', icon: 'facebook', color: 'hover:text-blue-500' },
+    { href: 'https://linkedin.com/company/ayma-seguros', icon: 'linkedin', color: 'hover:text-blue-600' },
+    { href: 'https://x.com/AymaSeguros', icon: 'x', color: 'hover:text-gray-900' },
+  ];
+
+  const handleWhatsApp = async () => {
+    await tokenizar(TIPOS.WA_CLICK, { ubicacion: 'header' }, 'header');
     window.open(`https://wa.me/${WHATSAPP_ROSARIO}?text=Hola! Quiero información sobre seguros`, '_blank');
   };
 
-  const scrollToSection = (e, href) => {
+  const handlePhoneClick = async () => {
+    await tokenizar(TIPOS.PHONE_CLICK, { ubicacion: 'header', numero: '3416952259' }, 'header');
+  };
+
+  const scrollToSection = (e, href, external) => {
+    if (external) return; // Let external links work normally
     e.preventDefault();
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
     setIsMobileMenuOpen(false);
@@ -35,6 +73,7 @@ const Header = () => {
     <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
+          {/* Logo */}
           <a href="/" className="flex items-center gap-3">
             <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-lg" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
             <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-lg items-center justify-center text-white font-bold text-lg hidden">AA</div>
@@ -44,13 +83,34 @@ const Header = () => {
               <p className={`text-xs ${isScrolled ? 'text-gray-500' : 'text-gray-300'}`}>Gestores de Riesgos</p>
             </div>
           </a>
+
+          {/* Nav Desktop */}
           <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} onClick={(e) => scrollToSection(e, link.href)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-blue-600/10 ${isScrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white/90 hover:text-white'}`}>{link.label}</a>
+              link.external ? (
+                <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className={`px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-blue-600/10 ${isScrolled ? 'text-blue-600 hover:text-blue-700' : 'text-cyan-300 hover:text-white'}`}>
+                  {link.label} ↗
+                </a>
+              ) : (
+                <a key={link.href} href={link.href} onClick={(e) => scrollToSection(e, link.href, link.external)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-blue-600/10 ${isScrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white/90 hover:text-white'}`}>
+                  {link.label}
+                </a>
+              )
             ))}
           </nav>
-          <div className="hidden md:flex items-center gap-4">
-            <a href="tel:+5493416952259" className={`flex items-center gap-2 text-sm font-medium ${isScrolled ? 'text-gray-600 hover:text-blue-600' : 'text-white/80 hover:text-white'}`} onClick={() => typeof gtag !== 'undefined' && gtag('event', 'phone_click', { event_category: 'engagement', event_label: 'header' })}>
+
+          {/* Actions Desktop */}
+          <div className="hidden md:flex items-center gap-3">
+            {/* Social Icons */}
+            <div className="flex items-center gap-1 mr-2">
+              {socialLinks.map((social) => (
+                <a key={social.href} href={social.href} target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full transition-all ${isScrolled ? `text-gray-400 ${social.color}` : `text-white/60 hover:text-white`}`} aria-label={social.icon}>
+                  {SocialIcons[social.icon]}
+                </a>
+              ))}
+            </div>
+
+            <a href="tel:+5493416952259" onClick={handlePhoneClick} className={`flex items-center gap-2 text-sm font-medium ${isScrolled ? 'text-gray-600 hover:text-blue-600' : 'text-white/80 hover:text-white'}`}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
               <span className="hidden xl:inline">341 695-2259</span>
             </a>
@@ -59,19 +119,43 @@ const Header = () => {
               <span>Cotizá ahora</span>
             </button>
           </div>
+
+          {/* Mobile Menu Button */}
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={`lg:hidden p-2 rounded-lg ${isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`} aria-label="Menú">
             {isMobileMenuOpen ? <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg> : <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>}
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-white border-t border-gray-100 shadow-xl">
           <nav className="container mx-auto px-4 py-4">
             <div className="flex flex-col gap-1">
-              {navLinks.map((link) => <a key={link.href} href={link.href} onClick={(e) => scrollToSection(e, link.href)} className="px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium">{link.label}</a>)}
+              {navLinks.map((link) => (
+                link.external ? (
+                  <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className="px-4 py-3 rounded-lg text-blue-600 hover:bg-blue-50 font-medium">
+                    {link.label} ↗
+                  </a>
+                ) : (
+                  <a key={link.href} href={link.href} onClick={(e) => scrollToSection(e, link.href)} className="px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium">
+                    {link.label}
+                  </a>
+                )
+              ))}
             </div>
+
+            {/* Social Links Mobile */}
+            <div className="flex justify-center gap-4 mt-4 pt-4 border-t border-gray-100">
+              {socialLinks.map((social) => (
+                <a key={social.href} href={social.href} target="_blank" rel="noopener noreferrer" className={`p-3 rounded-full bg-gray-100 text-gray-600 ${social.color} transition-all`} aria-label={social.icon}>
+                  {SocialIcons[social.icon]}
+                </a>
+              ))}
+            </div>
+
             <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
-              <a href="tel:+5493416952259" className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-medium">
+              <a href="tel:+5493416952259" onClick={handlePhoneClick} className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-medium">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                 Llamar: 341 695-2259
               </a>
