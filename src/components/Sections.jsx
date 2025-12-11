@@ -20,7 +20,7 @@ export const WhyChooseUs = () => {
         </svg>
       ),
       title: '17 años de experiencia',
-      description: 'Más de 5,000 familias y empresas confían en nosotros'
+      description: 'Trayectoria comprobada en el mercado asegurador'
     },
     {
       icon: (
@@ -178,7 +178,7 @@ export const Testimonials = () => {
           Lo que dicen nuestros clientes
         </h2>
         <p className="text-center text-gray-600 mb-12">
-          Más de 5,000 familias y empresas confían en nosotros
+          Trayectoria comprobada en el mercado asegurador
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
