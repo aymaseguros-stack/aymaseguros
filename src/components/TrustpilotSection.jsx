@@ -98,6 +98,17 @@ function StarRating({ rating }) {
   );
 }
 
+// Logo Trustpilot SVG inline
+function TrustpilotLogo({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 126 31" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M33.3 10.7h-8.1v2.3h2.9v8.8h2.4v-8.8h2.9v-2.3zM36.6 14.3c-.5 0-.9.1-1.3.3-.4.2-.6.5-.8.9v-1.1h-2.2v7.5h2.3v-3.8c0-.6.1-1.1.4-1.4.3-.3.6-.5 1.1-.5.2 0 .4 0 .6.1l.3-2.1c-.2 0-.3-.1-.4 0zM44.1 14.4h-2.2v5.8c0 .4-.1.7-.3.9-.2.2-.5.3-.8.3-.3 0-.6-.1-.8-.3-.2-.2-.3-.5-.3-.9v-5.8h-2.3v6.2c0 .8.3 1.4.8 1.9.5.5 1.2.7 2 .7.5 0 .9-.1 1.3-.3.4-.2.7-.5.9-.8v1h2.2v-7.5h-.5zM51.4 15c-.4-.3-.8-.5-1.3-.7-.5-.2-1-.2-1.5-.2-.6 0-1.2.1-1.7.3-.5.2-1 .5-1.4.9-.4.4-.7.8-.9 1.3-.2.5-.3 1.1-.3 1.7s.1 1.2.3 1.7c.2.5.5.9.9 1.3.4.4.8.7 1.4.9.5.2 1.1.3 1.7.3.9 0 1.7-.2 2.3-.6.6-.4 1.1-.9 1.4-1.5l-2-.8c-.1.3-.3.5-.6.7-.3.2-.6.3-.9.3-.5 0-.9-.2-1.2-.5-.3-.3-.5-.7-.5-1.3h5.4v-.6c0-.6-.1-1.1-.3-1.6-.2-.5-.4-.9-.8-1.2zm-4.2 1.9c.1-.4.2-.8.5-1 .3-.3.6-.4 1.1-.4.4 0 .8.1 1 .4.3.3.4.6.5 1h-3.1zM57.3 17.8c0 .4-.1.7-.3.9-.2.2-.5.3-.9.3-.2 0-.5-.1-.6-.2-.2-.1-.2-.3-.2-.6 0-.2.1-.4.2-.5.2-.1.4-.2.6-.3l1.2-.3v.7zm2.2 1.5v-4.5c0-.8-.3-1.4-.9-1.9-.6-.5-1.4-.7-2.4-.7-1.6 0-2.7.6-3.2 1.9l2 .6c.1-.3.3-.5.5-.6.2-.1.5-.2.8-.2.4 0 .7.1.9.3.2.2.3.4.3.7v.2l-1.8.4c-.8.2-1.4.4-1.9.8-.5.4-.7.9-.7 1.6 0 .6.2 1.1.6 1.5.4.4 1 .6 1.8.6.4 0 .9-.1 1.2-.2.4-.2.7-.4.9-.7 0 .2.1.4.1.6h2.2c-.2-.5-.3-1-.3-1.7l-.1.3zM67.6 14.4h-2.2v5.8c0 .4-.1.7-.3.9-.2.2-.5.3-.8.3-.3 0-.6-.1-.8-.3-.2-.2-.3-.5-.3-.9v-5.8h-2.3v6.2c0 .8.3 1.4.8 1.9.5.5 1.2.7 2 .7.5 0 .9-.1 1.3-.3.4-.2.7-.5.9-.8v1h2.2v-7.5l-.5-.2zM72.9 10.7h-2.3v11.2h2.3V10.7zM80.8 15c-.4-.3-.8-.5-1.3-.7-.5-.2-1-.2-1.5-.2-.6 0-1.2.1-1.7.3-.5.2-1 .5-1.4.9-.4.4-.7.8-.9 1.3-.2.5-.3 1.1-.3 1.7s.1 1.2.3 1.7c.2.5.5.9.9 1.3.4.4.8.7 1.4.9.5.2 1.1.3 1.7.3.9 0 1.7-.2 2.3-.6.6-.4 1.1-.9 1.4-1.5l-2-.8c-.1.3-.3.5-.6.7-.3.2-.6.3-.9.3-.5 0-.9-.2-1.2-.5-.3-.3-.5-.7-.5-1.3h5.4v-.6c0-.6-.1-1.1-.3-1.6-.2-.5-.4-.9-.8-1.2zm-4.2 1.9c.1-.4.2-.8.5-1 .3-.3.6-.4 1.1-.4.4 0 .8.1 1 .4.3.3.4.6.5 1h-3.1zM88.8 15c-.4-.3-.8-.5-1.3-.7-.5-.2-1-.2-1.5-.2-.6 0-1.2.1-1.7.3-.5.2-1 .5-1.4.9-.4.4-.7.8-.9 1.3-.2.5-.3 1.1-.3 1.7s.1 1.2.3 1.7c.2.5.5.9.9 1.3.4.4.8.7 1.4.9.5.2 1.1.3 1.7.3.5 0 .9-.1 1.3-.2.4-.1.8-.3 1.1-.6v.7c0 .5-.2.9-.5 1.2-.3.3-.8.4-1.3.4-.4 0-.7-.1-1-.2-.3-.2-.5-.4-.6-.7l-2.1.7c.2.6.6 1.1 1.2 1.5.6.4 1.4.6 2.4.6.7 0 1.3-.1 1.9-.3.5-.2 1-.5 1.3-.8.4-.3.6-.7.8-1.2.2-.5.3-1 .3-1.5v-7.3h-2.2v.8c-.1-.1-.3-.2-.7-.4zm-.3 4c-.2.2-.4.4-.6.5-.3.1-.5.2-.8.2s-.6-.1-.8-.2c-.3-.1-.5-.3-.6-.5-.2-.2-.3-.5-.4-.8-.1-.3-.1-.6-.1-.9 0-.3 0-.6.1-.9.1-.3.2-.6.4-.8.2-.2.4-.4.6-.5.3-.1.5-.2.8-.2s.6.1.8.2c.3.1.5.3.6.5.2.2.3.5.4.8.1.3.1.6.1.9 0 .3 0 .6-.1.9-.1.3-.2.5-.4.8z"/>
+      <path fill="#00B67A" d="M12 0l3.7 7.6 8.3 1.2-6 5.9 1.4 8.3L12 19l-7.4 3.9 1.4-8.3-6-5.9 8.3-1.2z"/>
+      <path fill="#005128" d="M17.1 17.6l-.7-2.1-4.4 3.2z"/>
+    </svg>
+  );
+}
+
 function TestimonialCard({ testimonio }) {
   return (
     <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 h-full flex flex-col">
@@ -138,7 +149,6 @@ export default function TrustpilotSection() {
 
   const handlePrev = () => {
     setCurrentIndex(prev => Math.max(0, prev - 1));
-    // GA4 tracking
     if (window.gtag) {
       window.gtag('event', 'testimonial_arrow_click', {
         direction: 'prev',
@@ -149,7 +159,6 @@ export default function TrustpilotSection() {
 
   const handleNext = () => {
     setCurrentIndex(prev => Math.min(maxIndex, prev + 1));
-    // GA4 tracking
     if (window.gtag) {
       window.gtag('event', 'testimonial_arrow_click', {
         direction: 'next',
@@ -179,14 +188,10 @@ export default function TrustpilotSection() {
               href="https://www.trustpilot.com/review/aymaseguros.com.ar" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors"
+              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <span className="text-sm">+400 reseñas en</span>
-              <img 
-                src="https://cdn.trustpilot.net/brand-assets/4.1.0/logo-black.svg" 
-                alt="Trustpilot" 
-                className="h-4"
-              />
+              <TrustpilotLogo className="h-5 w-auto" />
             </a>
           </div>
 
@@ -195,7 +200,6 @@ export default function TrustpilotSection() {
             <button
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              data-track="testimonial-prev"
               className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:border-gray-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               aria-label="Anterior"
             >
@@ -206,7 +210,6 @@ export default function TrustpilotSection() {
             <button
               onClick={handleNext}
               disabled={currentIndex >= maxIndex}
-              data-track="testimonial-next"
               className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:border-gray-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               aria-label="Siguiente"
             >
