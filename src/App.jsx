@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
 import LogosAseguradoras from './components/LogosAseguradoras';
-import { WhyChooseUs, Services, FinalCTA } from './components/Sections';
+import { WhyChooseUs, Services, SeccionHogar, SeccionComercio, SeccionEmpresas, FinalCTA } from './components/Sections';
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import AdminPanel from './components/AdminPanel';
@@ -17,10 +17,13 @@ function LandingPage() {
       <Header />
       <ChatBot />
       <HeroSection />
-      <WhyChooseUs />
       <LogosAseguradoras />
-      <Services />
       <TrustpilotSection />
+      <WhyChooseUs />
+      <Services />
+      <SeccionHogar />
+      <SeccionComercio />
+      <SeccionEmpresas />
       <FinalCTA />
       <Footer />
     </div>

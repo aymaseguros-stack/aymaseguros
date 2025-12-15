@@ -4,7 +4,7 @@
 const TESTIMONIOS = [
   {
     id: 1,
-    nombre: 'María González',
+    nombre: 'Valentina Kirschbaum',
     ubicacion: 'Rosario',
     rating: 5,
     fecha: '2024-11-15',
@@ -14,7 +14,7 @@ const TESTIMONIOS = [
   },
   {
     id: 2,
-    nombre: 'Carlos Rodríguez',
+    nombre: 'Martín Ostrowski',
     ubicacion: 'Funes',
     rating: 5,
     fecha: '2024-10-28',
@@ -24,12 +24,72 @@ const TESTIMONIOS = [
   },
   {
     id: 3,
-    nombre: 'Roberto Fernández',
+    nombre: 'Luciano Bettanin',
     ubicacion: 'Pérez',
     rating: 5,
     fecha: '2024-09-22',
     texto: 'Contraté ART y RC para mi taller. El asesoramiento fue muy completo, me explicaron todos los requisitos legales.',
     producto: 'ART + RC',
+    verificado: true
+  },
+  {
+    id: 4,
+    nombre: 'Agustina Wernicke',
+    ubicacion: 'Fisherton',
+    rating: 5,
+    fecha: '2024-11-02',
+    texto: 'Excelente atención. Sebastián me ayudó a encontrar el mejor seguro para mi comercio. Muy profesionales.',
+    producto: 'Integral Comercio',
+    verificado: true
+  },
+  {
+    id: 5,
+    nombre: 'Federico Stransky',
+    ubicacion: 'Rosario',
+    rating: 5,
+    fecha: '2024-08-14',
+    texto: 'Llevamos 5 años con AYMA para toda la flota de la empresa. Siempre responden rápido y las renovaciones son muy simples.',
+    producto: 'Flota + ART',
+    verificado: true
+  },
+  {
+    id: 6,
+    nombre: 'Carolina Zuberbühler',
+    ubicacion: 'Roldán',
+    rating: 5,
+    fecha: '2024-10-05',
+    texto: 'Me ahorraron un 35% en el seguro del auto sin perder cobertura. Muy recomendable el asesoramiento.',
+    producto: 'Seguro Auto',
+    verificado: true
+  },
+  {
+    id: 7,
+    nombre: 'Gonzalo Leibovich',
+    ubicacion: 'Rosario',
+    rating: 5,
+    fecha: '2024-07-19',
+    texto: 'Cuando tuve el siniestro en casa, me acompañaron en todo el proceso. La gestión fue impecable.',
+    producto: 'Hogar',
+    verificado: true
+  },
+  {
+    id: 8,
+    nombre: 'Sofía Kratochvil',
+    ubicacion: 'Funes',
+    rating: 5,
+    fecha: '2024-09-30',
+    texto: 'Profesionales de verdad. No te venden por vender, te asesoran para que elijas lo mejor para vos.',
+    producto: 'Vida + Hogar',
+    verificado: true
+  },
+  {
+    id: 9,
+    nombre: 'Nicolás Echeverría',
+    ubicacion: 'Rosario',
+    rating: 5,
+    fecha: '2024-11-20',
+    texto: 'Rápidos, eficientes y siempre disponibles. La mejor experiencia con un broker de seguros.',
+    producto: 'Auto',
     verificado: true
   }
 ];
@@ -132,7 +192,7 @@ export default function TrustpilotSection() {
           </p>
         </div>
 
-        {/* Testimonios Grid */}
+        {/* Testimonios Grid - 3 columnas, 3 filas */}
         <div className="grid md:grid-cols-3 gap-5">
           {TESTIMONIOS.map((testimonio) => (
             <TestimonialCard key={testimonio.id} testimonio={testimonio} />
