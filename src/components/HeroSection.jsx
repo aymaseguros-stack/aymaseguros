@@ -15,11 +15,11 @@ const HeroSection = () => {
   const WHATSAPP = '5493416952259';
 
   const tabs = [
-    { id: 'auto', icon: '🚗', label: 'Auto/Moto' },
-    { id: 'hogar', icon: '🏠', label: 'Hogar' },
-    { id: 'art', icon: '🏢', label: 'ART' },
-    { id: 'comercio', icon: '🏪', label: 'Comercio' },
-    { id: 'vida', icon: '❤️', label: 'Vida' },
+    { id: 'auto', icon: '/icons/icons500x500_vehiculo.png', label: 'Vehículo' },
+    { id: 'hogar', icon: '/icons/icons500x500_vivienda.png', label: 'Hogar' },
+    { id: 'art', icon: '/icons/seguroart.png', label: 'ART' },
+    { id: 'comercio', icon: '/icons/seguros_integral.png', label: 'Comercio' },
+    { id: 'vida', icon: '/icons/Segurodevida.png', label: 'Vida' },
   ];
 
   const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900";
@@ -326,14 +326,14 @@ const HeroSection = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 min-w-max px-4 py-4 text-sm font-medium transition flex items-center justify-center gap-2 ${
+                  className={`flex-1 min-w-max px-3 py-3 text-sm font-medium transition flex items-center justify-center gap-2 ${
                     activeTab === tab.id 
                       ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
                       : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <span>{tab.icon}</span>
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  <img src={tab.icon} alt={tab.label} className="w-8 h-8 object-contain" />
+                  <span>{tab.label}</span>
                 </button>
               ))}
             </div>

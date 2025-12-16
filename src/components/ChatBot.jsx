@@ -640,17 +640,19 @@ Escribí el número o lo que necesitás.`);
   return (
     <>
       {!isOpen && (
-        <button
-          onClick={handleOpen}
-          className="fixed top-10 left-1 bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 hover:scale-110 transition-all z-50 group"
-          aria-label="Abrir chat"
-        >
-          <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-10 h-10 rounded-full object-cover" />
-          <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-            ¿Necesitás ayuda?
-          </span>
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
-        </button>
+        <div className="fixed top-24 left-4 z-50">
+          <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white bg-blue-600 px-2 py-0.5 rounded-full tracking-wider">ATENCIÓN</span>
+          <button
+            onClick={handleOpen}
+            className="bg-blue-600 text-white p-3 rounded-full shadow-2xl hover:bg-blue-700 hover:scale-110 transition-all group"
+            aria-label="Abrir chat"
+          >
+            <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-12 h-12 rounded-full object-cover" />
+            <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">¿Necesitás ayuda?</span>
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
+          </button>
+          <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white bg-blue-600 px-2 py-0.5 rounded-full tracking-wider">24HS</span>
+        </div>
       )}
 
       {isOpen && (
