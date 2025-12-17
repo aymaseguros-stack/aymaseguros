@@ -1,4 +1,13 @@
-import { useState, useEffect } from 'react';
+#!/usr/bin/env python3
+"""
+Script para actualizar TrustpilotSection.jsx con widget oficial de Trustpilot
+Ejecutar desde la carpeta aymaseguros-landing:
+    python3 update_trustpilot.py
+"""
+
+import os
+
+TRUSTPILOT_SECTION_JSX = '''import { useState, useEffect } from 'react';
 
 // ============================================================================
 // DATOS DE TESTIMONIOS
@@ -347,3 +356,52 @@ export default function TrustpilotSection() {
     </section>
   );
 }
+'''
+
+def main():
+    # Detectar path del archivo
+    paths_to_try = [
+        'src/components/TrustpilotSection.jsx',
+        './src/components/TrustpilotSection.jsx',
+    ]
+    
+    target_path = None
+    for path in paths_to_try:
+        if os.path.exists(os.path.dirname(path) or '.'):
+            target_path = path
+            break
+    
+    if not target_path:
+        target_path = 'src/components/TrustpilotSection.jsx'
+    
+    # Crear backup
+    if os.path.exists(target_path):
+        backup_path = target_path + '.backup'
+        with open(target_path, 'r', encoding='utf-8') as f:
+            original = f.read()
+        with open(backup_path, 'w', encoding='utf-8') as f:
+            f.write(original)
+        print(f"✅ Backup creado: {backup_path}")
+    
+    # Escribir nuevo archivo
+    with open(target_path, 'w', encoding='utf-8') as f:
+        f.write(TRUSTPILOT_SECTION_JSX)
+    
+    print(f"✅ Archivo actualizado: {target_path}")
+    print("")
+    print("MEJORAS APLICADAS:")
+    print("  • Widget oficial Trustpilot integrado")
+    print("  • Logo SVG de Trustpilot inline")
+    print("  • Auto-scroll cada 5 segundos")
+    print("  • Diseño mejorado con gradientes")
+    print("  • Botón CTA 'Dejanos tu opinión'")
+    print("  • Tracking GA4 en todos los clicks")
+    print("  • Animaciones suaves")
+    print("")
+    print("PRÓXIMOS PASOS:")
+    print("  git add -A")
+    print("  git commit -m 'Feat: Trustpilot widget oficial + mejoras UI'")
+    print("  git push")
+
+if __name__ == '__main__':
+    main()
