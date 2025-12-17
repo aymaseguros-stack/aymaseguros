@@ -208,7 +208,7 @@ const Footer = () => {
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12">
-                  <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-full h-full object-contain rounded-full" />
+                  <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-full h-full object-cover rounded-full bg-white p-1" />
                 </div>
                 <div>
                   <h3 className="font-bold text-xl">AYMA</h3>
@@ -234,11 +234,11 @@ const Footer = () => {
             <div>
               <h4 className="font-bold mb-4">Seguros</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#vehiculos" className="hover:text-white transition"><img src="/icons/icons500x500_vehiculo.png" alt="" className="w-6 h-6 inline-block mr-2" />Vehículos</a></li>
-                <li><a href="#hogar" className="hover:text-white transition"><img src="/icons/icons500x500_vivienda.png" alt="" className="w-6 h-6 inline-block mr-2" />Hogar</a></li>
-                <li><a href="#vida" className="hover:text-white transition"><img src="/icons/Segurodevida.png" alt="" className="w-6 h-6 inline-block mr-2" />Vida y Salud</a></li>
-                <li><a href="#comercio" className="hover:text-white transition"><img src="/icons/seguros_integral.png" alt="" className="w-6 h-6 inline-block mr-2" />Comercio</a></li>
-                <li><a href="#art" className="hover:text-white transition"><img src="/icons/seguroart.png" alt="" className="w-6 h-6 inline-block mr-2" />ART Empresas</a></li>
+                <li><a href="#vehiculos" className="hover:text-white transition"><img src="/icons/icons500x500_vehiculo.png" alt="" className="w-8 h-8 inline-block mr-2 rounded-full bg-gray-200 p-1" />Vehículos</a></li>
+                <li><a href="#hogar" className="hover:text-white transition"><img src="/icons/icons500x500_vivienda.png" alt="" className="w-8 h-8 inline-block mr-2 rounded-full bg-gray-200 p-1" />Hogar</a></li>
+                <li><a href="#vida" className="hover:text-white transition"><img src="/icons/Segurodevida.png" alt="" className="w-8 h-8 inline-block mr-2 rounded-full bg-gray-200 p-1" />Vida y Salud</a></li>
+                <li><a href="#comercio" className="hover:text-white transition"><img src="/icons/seguros_integral.png" alt="" className="w-8 h-8 inline-block mr-2 rounded-full bg-gray-200 p-1" />Comercio</a></li>
+                <li><a href="#art" className="hover:text-white transition"><img src="/icons/seguroart.png" alt="" className="w-8 h-8 inline-block mr-2 rounded-full bg-gray-200 p-1" />ART Empresas</a></li>
               </ul>
             </div>
 

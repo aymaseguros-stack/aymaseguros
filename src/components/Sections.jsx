@@ -76,7 +76,7 @@ export const SeccionHogar = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
           {coberturas.map((item, i) => (
             <div key={i} className="bg-white rounded-xl p-5 text-center shadow-lg hover:shadow-xl transition-shadow hover:-translate-y-1">
-              <div className="flex justify-center mb-3"><IconoCorporativo src={item.icon} alt={item.titulo} size="md" /></div>
+              <div className="flex justify-center mb-3"><IconoCorporativo src={item.icon} alt={item.titulo} size="md" className="mix-blend-multiply" /></div>
               <h4 className="font-semibold text-gray-900 text-sm mb-1">{item.titulo}</h4>
               <p className="text-xs text-gray-500">{item.desc}</p>
             </div>
@@ -136,7 +136,7 @@ export const SeccionComercio = () => {
           {soluciones.map((item, i) => (
             <div key={i} className={`rounded-xl p-6 border-2 transition-all hover:shadow-lg ${item.destacado ? 'bg-gradient-to-b from-gray-100 to-emerald-50 border-emerald-300 hover:border-emerald-400' : 'bg-white border-gray-100 hover:border-gray-300'}`}>
               <div className="flex items-start gap-4">
-                <IconoCorporativo src={item.icon} alt={item.titulo} size="md" />
+                <IconoCorporativo src={item.icon} alt={item.titulo} size="md" className="mix-blend-multiply" />
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1 text-lg">{item.titulo}{item.destacado && <span className="ml-2 text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full">RECOMENDADO</span>}</h4>
                   <p className="text-gray-600">{item.desc}</p>
@@ -195,7 +195,7 @@ export const SeccionEmpresas = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {productos.map((item, i) => (
             <div key={i} className={`rounded-xl p-5 transition-all hover:-translate-y-1 ${item.destacado ? 'bg-gradient-to-b from-gray-100 to-yellow-400 text-gray-900' : 'bg-white shadow-lg'}`}>
-              <div className="mb-3"><IconoCorporativo src={item.icon} alt={item.titulo} size="md" /></div>
+              <div className="mb-3"><IconoCorporativo src={item.icon} alt={item.titulo} size="md" className="mix-blend-multiply" /></div>
               <h4 className={`font-bold mb-1 text-lg ${item.destacado ? 'text-gray-900' : 'text-gray-900'}`}>{item.titulo}{item.destacado && <span className="ml-2 text-xs bg-gray-900 text-yellow-400 px-2 py-0.5 rounded-full">OBLIGATORIO</span>}</h4>
               <p className={`text-sm ${item.destacado ? 'text-gray-700' : 'text-gray-600'}`}>{item.desc}</p>
             </div>
