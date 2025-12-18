@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import AdminPanel from './components/AdminPanel';
 import TrustpilotSection from './components/TrustpilotSection';
+import CookieBanner from './components/CookieBanner';
 import { retryPendingTokens } from './utils/tokenVault';
 
 // Landing Page
@@ -26,6 +27,7 @@ function LandingPage() {
       <SeccionEmpresas />
       <FinalCTA />
       <Footer />
+      <CookieBanner />
     </div>
   );
 }
