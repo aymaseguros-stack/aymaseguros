@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
+import viteCompression from 'vite-plugin-compression'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -8,6 +9,26 @@ export default defineConfig({
     react({
       // Enable Fast Refresh
       fastRefresh: true,
+      // JSX runtime optimization
+      jsxRuntime: 'automatic',
+    }),
+    // Gzip compression
+    viteCompression({
+      verbose: true,
+      disable: false,
+      threshold: 10240, // Only compress files larger than 10kb
+      algorithm: 'gzip',
+      ext: '.gz',
+      deleteOriginFile: false,
+    }),
+    // Brotli compression (better than gzip)
+    viteCompression({
+      verbose: true,
+      disable: false,
+      threshold: 10240,
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      deleteOriginFile: false,
     }),
     // Bundle size analyzer - generates stats.html
     visualizer({
@@ -15,6 +36,7 @@ export default defineConfig({
       open: false,
       gzipSize: true,
       brotliSize: true,
+      template: 'treemap', // Use treemap for better visualization
     }),
   ],
 
@@ -30,29 +52,67 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
-        pure_funcs: ['console.log'],
-        passes: 2,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        passes: 3, // More aggressive optimization
+        unsafe: true,
+        unsafe_comps: true,
+        unsafe_math: true,
+        unsafe_methods: true,
       },
       mangle: {
         safari10: true,
+        toplevel: true,
       },
       format: {
         comments: false,
+        ecma: 2015,
       },
+      module: true,
     },
 
     // Optimize chunk splitting
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'chart-vendor': ['chart.js'],
+        manualChunks: (id) => {
+          // Vendor chunks with more granular splitting
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor'
+            }
+            if (id.includes('chart.js')) {
+              return 'chart-vendor'
+            }
+            // All other vendor code
+            return 'vendor'
+          }
         },
-        // Optimize chunk names
-        chunkFileNames: 'assets/js/[name]-[hash].js',
+        // Optimize chunk names with content hash for better caching
+        chunkFileNames: (chunkInfo) => {
+          const facadeModuleId = chunkInfo.facadeModuleId
+          if (facadeModuleId) {
+            const name = facadeModuleId.split('/').pop().replace('.jsx', '')
+            return `assets/js/${name}-[hash].js`
+          }
+          return 'assets/js/[name]-[hash].js'
+        },
         entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.')
+          const ext = info[info.length - 1]
+          if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name)) {
+            return `assets/img/[name]-[hash].[ext]`
+          }
+          if (/\.(woff2?|eot|ttf|otf)$/i.test(assetInfo.name)) {
+            return `assets/fonts/[name]-[hash].[ext]`
+          }
+          return `assets/[ext]/[name]-[hash].[ext]`
+        },
+      },
+      // Tree-shaking optimization
+      treeshake: {
+        moduleSideEffects: 'no-external',
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false,
       },
     },
 
@@ -67,6 +127,14 @@ export default defineConfig({
 
     // Report compressed size
     reportCompressedSize: true,
+
+    // Inline small assets as base64
+    assetsInlineLimit: 4096, // 4kb
+
+    // Preload modules
+    modulePreload: {
+      polyfill: true,
+    },
   },
 
   // Server configuration

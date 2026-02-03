@@ -1,0 +1,14 @@
+# robots.txt for Ayma Advisors
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Sitemaps
+Sitemap: https://aymaseguros.vercel.app/sitemap.xml
+
+# Crawl-delay for politeness
+Crawl-delay: 1
+
+# Block specific bots if needed
+# User-agent: BadBot
+# Disallow: /

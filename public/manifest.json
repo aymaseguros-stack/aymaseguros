@@ -1,0 +1,29 @@
+{
+  "name": "Ayma Advisors - Seguros",
+  "short_name": "Ayma Seguros",
+  "description": "Cotizador de seguros de auto, hogar y vida en Rosario, Santa Fe",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e40af",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "business"],
+  "lang": "es-AR",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
+}
