@@ -596,7 +596,7 @@ Ej: 341 555-1234`);
 
 - WhatsApp: 341 695-2259
 - Teléfono Rosario: 341 695-2259
-- Teléfono CABA: 11 5302-2929
+- Teléfono CABA: 341 695-2259
 - Email: aymaseguros@hotmail.com
 
 ¿Te abro WhatsApp?`);
