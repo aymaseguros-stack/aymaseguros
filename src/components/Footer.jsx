@@ -174,8 +174,8 @@ const Footer = () => {
                     <div>
                       <h3 className="font-bold text-lg">📍 Buenos Aires</h3>
                       <p className="text-gray-400 text-sm">Manzoni 112, CABA</p>
-                      <a href="tel:+5491153022929" onClick={() => handlePhoneClick('1153022929', 'footer_caba')} className="text-blue-400 hover:text-blue-300 text-sm font-medium">
-                        📞 11 5302-2929
+                      <a href="tel:+5493416952259" onClick={() => handlePhoneClick('3416952259', 'footer_caba')} className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                        📞 341 695-2259
                       </a>
                     </div>
                   </div>
@@ -252,8 +252,8 @@ const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="tel:+5491153022929" onClick={() => handlePhoneClick('1153022929', 'footer_contacto')} className="hover:text-white transition flex items-center gap-2">
-                    📞 11 5302-2929
+                  <a href="tel:+5493416952259" onClick={() => handlePhoneClick('3416952259', 'footer_contacto')} className="hover:text-white transition flex items-center gap-2">
+                    📞 341 695-2259
                   </a>
                 </li>
                 <li>
