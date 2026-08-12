@@ -33,7 +33,7 @@ const TESTIMONIOS = [
     nombre: 'Agustina Wernicke',
     ubicacion: 'Fisherton',
     rating: 5,
-    texto: 'Excelente atención. Me ayudaron a encontrar el mejor seguro para mi comercio.',
+    texto: 'Excelente atención. Me ayudaron a encontrar la cobertura adecuada para mi comercio.',
     producto: 'Integral Comercio',
   },
   {
@@ -49,7 +49,7 @@ const TESTIMONIOS = [
     nombre: 'Carolina Zuberbühler',
     ubicacion: 'Roldán',
     rating: 5,
-    texto: 'Me ahorraron un 35% en el seguro del auto sin perder cobertura.',
+    texto: 'Me asesoraron bien y conseguí una cobertura mejor sin perder nada a cambio.',
     producto: 'Seguro Auto',
   },
   {

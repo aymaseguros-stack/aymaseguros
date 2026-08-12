@@ -284,8 +284,8 @@ const HeroSection = () => {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-lg">
-              Comparamos las mejores aseguradoras del mercado y te conseguimos 
-              <strong className="text-white"> hasta 35% de ahorro</strong> en tu póliza.
+              Comparamos coberturas entre las cuatro compañías que representamos y te
+              asesoramos para que elijas la que mejor se ajusta a vos.
             </p>
 
             {/* Stats */}
@@ -299,17 +299,13 @@ const HeroSection = () => {
                 <div className="text-sm text-blue-200">Aseguradoras top</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-yellow-400">35%</div>
-                <div className="text-sm text-blue-200">Ahorro promedio</div>
+                <div className="text-3xl lg:text-4xl font-bold text-yellow-400">12</div>
+                <div className="text-sm text-blue-200">Ramos asegurables</div>
               </div>
             </div>
 
             {/* Trust badges */}
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-3 py-2 rounded-lg">
-                <span className="text-yellow-400">★★★★★</span>
-                <span className="text-sm">4.9/5 en Google</span>
-              </div>
+            <div className="flex justify-center flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-3 py-2 rounded-lg">
                 <span>🛡️</span>
                 <span className="text-sm">Matrícula SSN</span>
