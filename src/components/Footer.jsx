@@ -278,12 +278,7 @@ const Footer = () => {
                 sujeto a Condiciones Particulares y Normativa SSN vigente.
               </p>
               <p>
-                *El ahorro promedio del 35% está basado en clientes con dos o más pólizas 
-                y perfil de riesgo bajo durante 2024. Los resultados individuales pueden 
-                variar según compañía aseguradora, tipo de cobertura y antecedentes.
-              </p>
-              <p>
-                Protección de datos personales conforme Ley 25.326 (AAIP). 
+                Protección de datos personales conforme Ley 25.326 (AAIP).
                 <a href="/privacidad" className="underline hover:text-white ml-1">Política de Privacidad</a>
                 {' | '}
                 <a href="/terminos" className="underline hover:text-white">Términos y Condiciones</a>
