@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { tokenizar, TIPOS } from '../utils/tokenVault';
 
 const WHATSAPP_ROSARIO = '5493416952259';
-const PORTAL_URL = 'https://ayma-portal-frontend.vercel.app';
+const PORTAL_URL = 'https://portal.aymaseguros.com.ar';
 const SINIESTRO_URL = 'https://centro.aymaseguros.com.ar/siniestros';
 
 const SocialIcons = {
