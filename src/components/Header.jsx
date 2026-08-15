@@ -11,7 +11,7 @@ const SocialIcons = {
   x: (<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>),
 };
 
-const Header = () => {
+const Header = ({ isChatOpen, onOpenChat }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNosotrosOpen, setIsNosotrosOpen] = useState(false);
@@ -83,11 +83,24 @@ const Header = () => {
     <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo solo texto */}
-          <a href="/" className="flex flex-col">
-            <span className={`font-bold text-xl md:text-2xl ${isScrolled ? 'text-gray-900' : 'text-white'}`}>AYMA</span>
-            <span className={`text-xs ${isScrolled ? 'text-gray-500' : 'text-gray-300'}`}>Gestores de Riesgos</span>
-          </a>
+          {/* Widget de chat + Logo */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {!isChatOpen && (
+              <button
+                onClick={onOpenChat}
+                className="relative flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-md hover:scale-105 transition-all group"
+                aria-label="Abrir chat"
+              >
+                <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-full h-full rounded-full object-cover" />
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 md:w-3 md:h-3 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
+                <span className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">¿Necesitás ayuda?</span>
+              </button>
+            )}
+            <a href="/" className="flex flex-col">
+              <span className={`font-bold text-xl md:text-2xl ${isScrolled ? 'text-gray-900' : 'text-white'}`}>AYMA</span>
+              <span className={`text-xs ${isScrolled ? 'text-gray-500' : 'text-gray-300'}`}>Gestores de Riesgos</span>
+            </a>
+          </div>
 
           {/* Nav Desktop */}
           <nav className="hidden lg:flex items-center gap-1">

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
@@ -13,10 +13,12 @@ import { retryPendingTokens } from './utils/tokenVault';
 
 // Landing Page
 function LandingPage() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   return (
     <div className="min-h-screen">
-      <Header />
-      <ChatBot />
+      <Header isChatOpen={isChatOpen} onOpenChat={() => setIsChatOpen(true)} />
+      <ChatBot isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
       <HeroSection />
       <LogosAseguradoras />
       <TrustpilotSection />
