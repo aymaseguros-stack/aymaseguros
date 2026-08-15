@@ -9,8 +9,7 @@ import { tokenizar, TIPOS } from '../utils/tokenVault';
 const BACKEND_URL = 'https://ayma-portal-backend.onrender.com/api/v1';
 const WHATSAPP_ROSARIO = '5493416952259';
 
-const ChatBot = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const ChatBot = ({ isOpen, setIsOpen }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -168,10 +167,6 @@ Escribí el número o lo que necesitás.`,
       console.error('Error guardando lead:', err);
       return { vault_token: cotResult.token };
     }
-  };
-
-  const handleOpen = () => {
-    setIsOpen(true);
   };
 
   const handleClose = async () => {
@@ -639,22 +634,6 @@ Escribí el número o lo que necesitás.`);
 
   return (
     <>
-      {!isOpen && (
-        <div className="fixed top-24 left-4 z-50">
-          <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white bg-blue-600 px-2 py-0.5 rounded-full tracking-wider">ATENCIÓN</span>
-          <button
-            onClick={handleOpen}
-            className="bg-blue-600 text-white p-3 rounded-full shadow-2xl hover:bg-blue-700 hover:scale-110 transition-all group"
-            aria-label="Abrir chat"
-          >
-            <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-12 h-12 rounded-full object-cover" />
-            <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">¿Necesitás ayuda?</span>
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
-          </button>
-          <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white bg-blue-600 px-2 py-0.5 rounded-full tracking-wider">24HS</span>
-        </div>
-      )}
-
       {isOpen && (
         <div className="fixed top-6 left-6 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col max-h-[500px] overflow-hidden border border-gray-200">
           
