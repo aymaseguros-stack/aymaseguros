@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { tokenizar, TIPOS } from '../utils/tokenVault';
+import ChatSealBadge from './ChatSealBadge';
 
 const WHATSAPP_ROSARIO = '5493416952259';
 const PORTAL_URL = 'https://portal.aymaseguros.com.ar';
@@ -84,16 +85,19 @@ const Header = ({ isChatOpen, onOpenChat }) => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Widget de chat + Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             {!isChatOpen && (
               <button
                 onClick={onOpenChat}
-                className="relative flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-md hover:scale-105 transition-all group"
-                aria-label="Abrir chat"
+                className="relative flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-md hover:scale-105 transition-transform group"
+                aria-label="Abrir chat - Disponible las 24 horas"
               >
-                <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-full h-full rounded-full object-cover" />
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 md:w-3 md:h-3 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
-                <span className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">¿Necesitás ayuda?</span>
+                <ChatSealBadge isScrolled={isScrolled} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11">
+                  <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-full h-full rounded-full object-cover shadow" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 md:w-3 md:h-3 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
+                </div>
+                <span className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">¿Necesitás ayuda?</span>
               </button>
             )}
             <a href="/" className="flex flex-col">
