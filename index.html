@@ -78,19 +78,22 @@
 {
   "@context": "https://schema.org",
   "@type": "InsuranceAgency",
-  "name": "Ayma Advisors",
-  "description": "Broker de seguros y gestión de riesgos en Rosario. Productor Asesor de Seguros matrícula SSN 68323, operando desde 2008.",
+  "name": "AYMA Advisors",
+  "alternateName": "Ayma Seguros",
+  "description": "Productor Asesor de Seguros matriculado. Gestión de riesgos para personas y empresas en Rosario, Santa Fe.",
+  "url": "https://aymaseguros.com.ar/",
+  "telephone": "+5493416952259",
+  "email": "sebastian@aymaseguros.com.ar",
   "founder": {
     "@type": "Person",
     "name": "Sebastián Ricardo Ayma",
-    "jobTitle": "Productor Asesor de Seguros — Mat. SSN 68323"
+    "jobTitle": "Productor Asesor de Seguros",
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "Matrícula SSN",
+      "value": "68323"
+    }
   },
-  "areaServed": {
-    "@type": "City",
-    "name": "Rosario"
-  },
-  "url": "https://aymaseguros.com.ar",
-  "telephone": "+54-341-695-2259",
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "Rosario",
@@ -102,10 +105,23 @@
     "latitude": "-32.9468",
     "longitude": "-60.6393"
   },
+  "areaServed": {
+    "@type": "City",
+    "name": "Rosario",
+    "containedInPlace": { "@type": "State", "name": "Santa Fe" }
+  },
+  "foundingDate": "2008",
   "openingHours": "Mo-Fr 09:00-18:00",
   "priceRange": "$$",
+  "knowsAbout": [
+    "Seguro de automotor", "Seguro de hogar", "ART",
+    "Seguro integral de comercio", "Seguro de vida", "Gestión de riesgos"
+  ],
   "sameAs": [
-    "https://www.linkedin.com/company/ayma-advisors"
+    "https://instagram.com/aymaseguros",
+    "https://facebook.com/61584119926136",
+    "https://twitter.com/AymaSeguros",
+    "https://linkedin.com/company/ayma-seguros"
   ]
 }
 </script>

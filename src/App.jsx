@@ -9,11 +9,21 @@ import ChatBot from './components/ChatBot';
 import AdminPanel from './components/AdminPanel';
 import TrustpilotSection from './components/TrustpilotSection';
 import CookieBanner from './components/CookieBanner';
+import Terminos from './pages/Terminos';
+import Privacidad from './pages/Privacidad';
+import NotFound from './pages/NotFound';
+import { useSEO } from './hooks/useSEO';
 import { retryPendingTokens } from './utils/tokenVault';
 
 // Landing Page
 function LandingPage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  useSEO({
+    title: 'Seguros de Auto, Hogar y Empresas en Rosario | AYMA Advisors',
+    description: 'Broker de seguros en Rosario. Comparamos coberturas entre San Cristóbal, Nación Seguros, Mapfre y SMG. Cotización sin cargo. Productor Asesor matrícula SSN 68323.',
+    path: '/',
+  });
 
   return (
     <div className="min-h-screen">
@@ -45,6 +55,9 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/terminos" element={<Terminos />} />
+        <Route path="/privacidad" element={<Privacidad />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

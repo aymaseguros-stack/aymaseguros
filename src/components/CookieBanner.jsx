@@ -144,8 +144,8 @@ export default function CookieBanner() {
                     </div>
                     
                     <div className="mt-4 pt-3 border-t border-gray-200">
-                      <a 
-                        href="/politica-privacidad" 
+                      <a
+                        href="/privacidad"
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         target="_blank"
                       >
@@ -184,7 +184,7 @@ export default function CookieBanner() {
             {/* Legal footer */}
             <p className="text-xs text-gray-500 text-center mt-4">
               Al continuar navegando, aceptás nuestra{' '}
-              <a href="/politica-privacidad" className="underline hover:text-gray-700">Política de Privacidad</a>
+              <a href="/privacidad" className="underline hover:text-gray-700">Política de Privacidad</a>
               {' '}conforme a la Ley 25.326 de Protección de Datos Personales.
             </p>
           </div>
