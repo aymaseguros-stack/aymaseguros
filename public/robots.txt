@@ -1,16 +1,7 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://aymaseguros.com.ar/sitemap.xml
-
+Disallow: /admin
 Disallow: /node_modules/
 Disallow: /*.json$
 
-User-agent: Googlebot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
+Sitemap: https://aymaseguros.com.ar/sitemap.xml
