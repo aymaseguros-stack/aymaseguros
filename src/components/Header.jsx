@@ -84,17 +84,26 @@ const Header = ({ isChatOpen, onOpenChat }) => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Widget de chat + Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5">
             {!isChatOpen && (
-              <button
-                onClick={onOpenChat}
-                className="relative flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-md hover:scale-105 transition-all group"
-                aria-label="Abrir chat"
-              >
-                <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-full h-full rounded-full object-cover" />
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 md:w-3 md:h-3 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
-                <span className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">¿Necesitás ayuda?</span>
-              </button>
+              <div className="flex items-center flex-shrink-0">
+                <button
+                  onClick={onOpenChat}
+                  className={`relative flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-md hover:scale-105 transition-all group ring-2 ring-offset-2 ${isScrolled ? 'ring-ayma-blue ring-offset-white' : 'ring-white ring-offset-transparent'}`}
+                  aria-label="Abrir chat"
+                >
+                  <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-full h-full rounded-full object-cover" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 md:w-3 md:h-3 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
+                  <span className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">¿Necesitás ayuda?</span>
+                </button>
+                <button
+                  onClick={onOpenChat}
+                  aria-label="Abrir chat - Disponible las 24 horas"
+                  className={`ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] md:text-xs font-bold tracking-wide whitespace-nowrap shadow-md transition-colors ${isScrolled ? 'bg-ayma-blue text-white' : 'bg-white text-ayma-blue'}`}
+                >
+                  ONLINE 24/7
+                </button>
+              </div>
             )}
             <a href="/" className="flex flex-col">
               <span className={`font-bold text-xl md:text-2xl ${isScrolled ? 'text-gray-900' : 'text-white'}`}>AYMA</span>
