@@ -1,28 +1,32 @@
 /**
- * Anillo tipo sello alrededor del logo del chat: el texto "ONLINE 24/7"
- * corre curvado sobre el arco inferior, como una palabra estampada en un
- * sello redondo. El propio anillo es el contraste del widget: invierte
- * color con isScrolled igual que el resto del header.
+ * Sello alrededor del logo del chat: el círculo queda sólido y limpio (sin
+ * texto encima), y "ONLINE 24/7" orbita por fuera, sobre el arco inferior,
+ * separado del borde del círculo. El círculo siempre es azul; el color del
+ * texto exterior es lo único que invierte con isScrolled para contrastar
+ * contra el fondo del header.
+ *
+ * viewBox fijo en 64x64: el <button> que lo contiene define el tamaño real
+ * en cada breakpoint (ver Header.jsx), y todo escala proporcionalmente
+ * porque las coordenadas de acá adentro son relativas al viewBox, no a px.
  */
 const ChatSealBadge = ({ isScrolled }) => {
-  const ringColor = isScrolled ? '#1e40af' : '#ffffff';
-  const textColor = isScrolled ? '#ffffff' : '#1e40af';
+  const textColor = isScrolled ? '#1e40af' : '#ffffff';
 
   return (
     <svg
-      viewBox="0 0 100 100"
-      className="absolute inset-0 w-full h-full pointer-events-none"
+      viewBox="0 0 64 64"
+      className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
       aria-hidden="true"
     >
-      <circle cx="50" cy="50" r="48" fill={ringColor} className="transition-colors duration-300" />
-      <path id="chatSealCurve" d="M 14.3,63 A 38 38 0 0 0 85.7,63" fill="none" />
+      <circle cx="32" cy="32" r="16" fill="#1e40af" />
+      <path id="chatSealCurve" d="M 5.5,32 A 26.5 26.5 0 0 0 58.5,32" fill="none" />
       <text
         fill={textColor}
         className="transition-colors duration-300"
-        style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.5px' }}
+        style={{ fontSize: '9.2px', fontWeight: 700, letterSpacing: '0.3px' }}
       >
-        <textPath href="#chatSealCurve" startOffset="50%" textAnchor="middle" textLength="86" lengthAdjust="spacingAndGlyphs">
-          • ONLINE 24/7 •
+        <textPath href="#chatSealCurve" startOffset="50%" textAnchor="middle" textLength="76" lengthAdjust="spacingAndGlyphs">
+          ONLINE 24/7
         </textPath>
       </text>
     </svg>

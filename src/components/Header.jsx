@@ -89,11 +89,11 @@ const Header = ({ isChatOpen, onOpenChat }) => {
             {!isChatOpen && (
               <button
                 onClick={onOpenChat}
-                className="relative flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-md hover:scale-105 transition-transform group"
+                className="relative flex-shrink-0 w-[50px] h-[50px] sm:w-[58px] sm:h-[58px] md:w-16 md:h-16 rounded-full hover:scale-105 transition-transform group"
                 aria-label="Abrir chat - Disponible las 24 horas"
               >
                 <ChatSealBadge isScrolled={isScrolled} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2">
                   <img src="/LOGO_AYMA_II.png" alt="AYMA" className="w-full h-full rounded-full object-cover shadow" />
                   <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 md:w-3 md:h-3 bg-red-500 rounded-full ring-2 ring-white animate-pulse"></span>
                 </div>
