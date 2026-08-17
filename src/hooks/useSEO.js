@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const SITE_URL = 'https://aymaseguros.com.ar';
+const SITE_URL = 'https://www.aymaseguros.com.ar';
 
 /**
  * Actualiza title, meta description y canonical del documento en cada ruta.
