@@ -45,26 +45,17 @@ const ChatBot = ({ isOpen, setIsOpen }) => {
     scrollToBottom();
   }, [messages]);
 
-  // ==================== REGISTRO VÍA WORKER ====================
-  const registrarAccion = async (tipoAccion, datos = {}) => {
-    const result = await tokenizar(TIPOS.BOT_ACTION, {
-      accion: tipoAccion,
-      session_token: sessionToken,
-      ...datos
-    }, 'chatbot');
-    return result.token;
-  };
+  // Telemetría de interacción del bot: NO se asienta en el Vault (es un libro
+  // de actos de negocio, y bot_action no está en la whitelist del Worker).
+  // Si se quiere medir, va por GA4 o por /bot/acciones del backend.
+  const registrarAccion = async () => {};
 
   // Mensaje inicial al abrir
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       (async () => {
-        // Generar sesión vía Worker
-        const sessionResult = await tokenizar(TIPOS.BOT_SESSION, {
-          evento: 'apertura_bot'
-        }, 'chatbot');
-        
-        const newSessionToken = sessionResult.token || `LOCAL-${Date.now()}`;
+        // ID de sesión local (no se tokeniza en el Vault)
+        const newSessionToken = `BOT-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
         setSessionToken(newSessionToken);
 
         setMessages([{

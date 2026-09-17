@@ -59,12 +59,12 @@ const Header = ({ isChatOpen, onOpenChat }) => {
   };
 
   const handleSiniestro = async () => {
-    await tokenizar(TIPOS.FORM_START, { tipo: 'siniestro', ubicacion: 'header' }, 'header');
+    await tokenizar(TIPOS.CONSULTA, { tipo: 'siniestro', ubicacion: 'header' }, 'header');
     window.open(`https://wa.me/${WHATSAPP_ROSARIO}?text=Hola, necesito denunciar un siniestro. Mis datos son:`, '_blank');
   };
 
   const handlePortal = async () => {
-    await tokenizar(TIPOS.FORM_START, { tipo: 'portal_login', ubicacion: 'header' }, 'header');
+    await tokenizar(TIPOS.CONSULTA, { tipo: 'portal_login', ubicacion: 'header' }, 'header');
     window.open(PORTAL_URL, '_blank');
   };
 
