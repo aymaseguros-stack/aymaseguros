@@ -5,6 +5,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { tokenizar, TIPOS } from '../utils/tokenVault';
+import { crearLead, whatsappUrl, TELEFONO_VISIBLE } from '../utils/leads';
 
 const BACKEND_URL = 'https://ayma-portal-backend.onrender.com/api/v1';
 const WHATSAPP_ROSARIO = '5493416952259';
@@ -123,51 +124,21 @@ Escribí el número o lo que necesitás.`,
     }
   };
 
-  const guardarLead = async (leadData) => {
-    // Tokenizar cotización completa
-    const cotResult = await tokenizar(TIPOS.COT_AUTO, {
-      vehiculo: `${leadData.marca} ${leadData.modelo} ${leadData.anio}`,
-      tipo: leadData.tipo,
-      marca: leadData.marca,
-      modelo: leadData.modelo,
-      version: leadData.version,
-      anio: leadData.anio,
-      cobertura: leadData.cobertura,
-      nombre: leadData.nombre,
-      telefono: leadData.telefono,
-      session_token: sessionToken
-    }, 'chatbot');
-
-    try {
-      const res = await fetch(`${BACKEND_URL}/leads/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre: leadData.nombre || 'Cliente Web',
-          telefono: leadData.telefono,
-          tipo_seguro: leadData.tipo || 'auto',
-          vehiculo_tipo: leadData.tipo,
-          vehiculo_marca: leadData.marca,
-          vehiculo_modelo: leadData.modelo,
-          vehiculo_version: leadData.version,
-          vehiculo_anio: leadData.anio,
-          cobertura: leadData.cobertura,
-          origen: 'chatbot',
-          session_token: sessionToken,
-          vault_token: cotResult.token,
-          utm_source: new URLSearchParams(window.location.search).get('utm_source'),
-          utm_medium: new URLSearchParams(window.location.search).get('utm_medium'),
-          utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign')
-        })
-      });
-      const data = await res.json();
-      console.log('✅ Lead guardado:', data);
-      return { ...data, vault_token: cotResult.token };
-    } catch (err) {
-      console.error('Error guardando lead:', err);
-      return { vault_token: cotResult.token };
-    }
-  };
+  // El endpoint de leads crea el lead y emite el token del Vault en la misma
+  // operación. Devuelve { ok, token } — ok solo con respuesta 2xx.
+  const guardarLead = (leadData) => crearLead({
+    nombre: leadData.nombre || 'Cliente Web',
+    telefono: leadData.telefono,
+    tipo_seguro: leadData.tipo || 'auto',
+    vehiculo_tipo: leadData.tipo,
+    vehiculo_marca: leadData.marca,
+    vehiculo_modelo: leadData.modelo,
+    vehiculo_version: leadData.version,
+    vehiculo_anio: leadData.anio,
+    cobertura: leadData.cobertura,
+    origen: 'chatbot',
+    session_token: sessionToken,
+  });
 
   const handleClose = async () => {
     await registrarAccion('BOT_CERRADO', { 
@@ -474,6 +445,19 @@ Escribí el año (ej: 2020, 2022, 2024)`);
             telefono
           });
 
+          if (!leadResult.ok) {
+            await registrarAccion('LEAD_ERROR', { error: leadResult.error });
+            setFlujo(prev => ({ ...prev, telefono }));
+            addResponse(`⚠️ No pudimos registrar tu solicitud por un problema técnico.
+
+Para no perder tu cotización, escribinos por WhatsApp con el botón de abajo o llamanos al ${TELEFONO_VISIBLE}.
+
+También podés reenviar tu teléfono para reintentar.`, {
+              whatsappUrl: whatsappUrl(`Hola! Soy ${flujo.nombre}. Quiero cotizar ${flujo.marca} ${flujo.modelo} ${flujo.anio} (${flujo.cobertura}). Tel: ${telefono}`)
+            });
+            return;
+          }
+
           const coberturaTexto = {
             'responsabilidad_civil': 'Responsabilidad Civil',
             'terceros_completo': 'Terceros Completo',
@@ -493,7 +477,7 @@ Escribí el año (ej: 2020, 2022, 2024)`);
 🚗 ${flujoAnterior.marca} ${flujoAnterior.modelo} ${flujoAnterior.anio}
 📄 ${coberturaTexto}
 📱 ${telefono}
-🔖 Ref: ${leadResult?.vault_token || sessionToken}
+🔖 Ref: ${leadResult.token || sessionToken}
 
 ⏰ Te contactamos en menos de 2 horas con las mejores opciones.
 
@@ -670,6 +654,16 @@ Escribí el número o lo que necesitás.`);
                   }`}
                 >
                   {msg.content}
+                  {msg.whatsappUrl && (
+                    <a
+                      href={msg.whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 block text-center bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-2 rounded-lg"
+                    >
+                      💬 Escribinos por WhatsApp
+                    </a>
+                  )}
                 </div>
               </div>
             ))}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { tokenizar, TIPOS } from '../utils/tokenVault';
+import { crearLead, whatsappUrl } from '../utils/leads';
 
 const HeroSection = () => {
   const [activeTab, setActiveTab] = useState('auto');
@@ -31,21 +32,39 @@ const HeroSection = () => {
   const handleAutoSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    const result = await tokenizar(TIPOS.COT_AUTO, {
-      tipo_vehiculo: autoForm.tipo,
-      marca: autoForm.marca,
-      modelo: autoForm.modelo,
-      anio: autoForm.anio,
-      nombre: autoForm.nombre,
-      telefono: autoForm.telefono
-    }, 'hero_auto');
 
-    const msg = `🚗 *COTIZACIÓN AUTO/MOTO*\n🔖 Ref: ${result.token}\n\n` +
+    // La ventana se abre sincrónicamente (gesto del usuario) para que el
+    // bloqueador de popups no la frene mientras esperamos al backend.
+    const waWindow = window.open('', '_blank');
+
+    // Registro del lead: si falla o tarda, WhatsApp se abre igual.
+    // No se aborta el POST: si el backend tarda (cold start) sigue en curso.
+    const registro = crearLead({
+      nombre: autoForm.nombre,
+      telefono: autoForm.telefono,
+      tipo_seguro: 'auto',
+      vehiculo_tipo: autoForm.tipo,
+      vehiculo_marca: autoForm.marca,
+      vehiculo_modelo: autoForm.modelo,
+      vehiculo_anio: autoForm.anio,
+      origen: 'landing-cotizador',
+    });
+    const result = await Promise.race([
+      registro,
+      new Promise((resolve) => setTimeout(() => resolve({ ok: false, error: 'espera' }), 4000)),
+    ]);
+
+    const ref = result.ok && result.token ? `🔖 Ref: ${result.token}\n\n` : '\n';
+    const msg = `🚗 *COTIZACIÓN AUTO/MOTO*\n${ref}` +
       `Tipo: ${autoForm.tipo}\nMarca: ${autoForm.marca}\nModelo: ${autoForm.modelo}\nAño: ${autoForm.anio}\n\n` +
       `👤 ${autoForm.nombre}\n📱 ${autoForm.telefono}`;
-    
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+
+    const url = whatsappUrl(msg);
+    if (waWindow && !waWindow.closed) {
+      waWindow.location.href = url;
+    } else {
+      window.open(url, '_blank');
+    }
     setLoading(false);
   };
 

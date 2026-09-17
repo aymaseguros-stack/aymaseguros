@@ -1,34 +1,37 @@
 import { useState } from 'react';
 import { tokenizar, TIPOS } from '../utils/tokenVault';
+import { crearLead, whatsappUrl, TELEFONO_VISIBLE } from '../utils/leads';
 
 const Footer = () => {
   const [form, setForm] = useState({ nombre: '', email: '', telefono: '', mensaje: '' });
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState(null); // null | 'ok' | 'error'
   const [tokenRef, setTokenRef] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Tokenizar lead de contacto
-    const result = await tokenizar(TIPOS.LEAD, {
+    setStatus(null);
+
+    const result = await crearLead({
       nombre: form.nombre,
-      email: form.email,
       telefono: form.telefono,
-      mensaje: form.mensaje.substring(0, 200),
-      formulario: 'contacto_footer'
-    }, 'footer');
-    
-    setTokenRef(result.token);
-    
-    const msg = `📩 *NUEVO CONTACTO WEB*\n🔖 Ref: ${result.token}\n\n👤 Nombre: ${form.nombre}\n📧 Email: ${form.email}\n📱 Teléfono: ${form.telefono || 'No indicado'}\n\n💬 Mensaje:\n${form.mensaje}`;
-    window.open(`https://wa.me/5493416952259?text=${encodeURIComponent(msg)}`, '_blank');
-    
-    setForm({ nombre: '', email: '', telefono: '', mensaje: '' });
-    setSent(true);
+      email: form.email,
+      tipo_seguro: 'consulta',
+      mensaje: form.mensaje,
+      origen: 'landing',
+    });
+
     setLoading(false);
-    setTimeout(() => setSent(false), 5000);
+    if (!result.ok) {
+      setStatus('error');
+      return;
+    }
+
+    setTokenRef(result.token);
+    setForm({ nombre: '', email: '', telefono: '', mensaje: '' });
+    setStatus('ok');
+    setTimeout(() => setStatus(null), 8000);
   };
 
   const handlePhoneClick = async (numero, ubicacion) => {
@@ -80,9 +83,10 @@ const Footer = () => {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-300 mb-1">Teléfono</label>
+                <label className="block text-sm text-gray-300 mb-1">Teléfono *</label>
                 <input 
                   type="tel" 
+                  required 
                   value={form.telefono} 
                   onChange={(e) => setForm({...form, telefono: e.target.value})} 
                   className={inputClass} 
@@ -114,9 +118,25 @@ const Footer = () => {
                 )}
               </button>
 
-              {sent && (
-                <div className="bg-green-900/50 border border-green-500 text-green-300 px-4 py-3 rounded-lg text-center">
-                  ✅ ¡Mensaje enviado! Ref: {tokenRef?.slice(-8)}
+              {status === 'ok' && (
+                <div role="status" className="bg-green-900/50 border border-green-500 text-green-300 px-4 py-3 rounded-lg text-center">
+                  ✅ ¡Mensaje enviado!{tokenRef && <> Ref: {tokenRef.slice(-8)}</>}
+                </div>
+              )}
+
+              {status === 'error' && (
+                <div role="alert" className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg text-center">
+                  ❌ No pudimos enviar tu mensaje. Escribinos por{' '}
+                  <a
+                    href={whatsappUrl(`Hola! Soy ${form.nombre}. ${form.mensaje}`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline font-semibold text-white"
+                  >
+                    WhatsApp
+                  </a>{' '}
+                  o llamanos al{' '}
+                  <a href="tel:+5493416952259" className="underline font-semibold text-white">{TELEFONO_VISIBLE}</a>.
                 </div>
               )}
             </form>
