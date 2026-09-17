@@ -30,7 +30,8 @@ const localStorageMock = (() => {
   };
 })();
 
-global.localStorage = localStorageMock;
+// happy-dom >= 15 expone localStorage solo como getter: redefinirlo en vez de asignar
+Object.defineProperty(globalThis, "localStorage", { value: localStorageMock, configurable: true, writable: true });
 
 // Mock de console para tests más limpios (opcional)
 global.console = {
