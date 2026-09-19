@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { tokenizar, TIPOS } from '../utils/tokenVault';
+import { TIPOS } from '../utils/tokenVault';
+import { enviarLead, whatsappUrl } from '../services/leads';
 
 const HeroSection = () => {
   const [activeTab, setActiveTab] = useState('auto');
@@ -12,7 +13,6 @@ const HeroSection = () => {
   const [comercioForm, setComercioForm] = useState({ rubro: '', metros: '', ubicacion: '', nombre: '', telefono: '' });
   const [vidaForm, setVidaForm] = useState({ edad: '', cobertura: '', nombre: '', telefono: '' });
 
-  const WHATSAPP = '5493416952259';
 
   const tabs = [
     { id: 'auto', icon: '/icons/icons500x500_vehiculo.png', label: 'Vehículo' },
@@ -28,104 +28,122 @@ const HeroSection = () => {
 
   // ========== SUBMIT HANDLERS ==========
 
+  /**
+   * Registra el lead y abre WhatsApp con el mismo click.
+   *
+   * Orden: primero se espera el POST al portal, después se navega a wa.me.
+   * Si el POST falla igual se abre WhatsApp — no se pierde el prospecto — y
+   * el error queda en consola y encolado para reintento.
+   *
+   * La ventana se abre en blanco de forma sincrónica (dentro del gesto del
+   * usuario) para que el bloqueador de popups no la frene durante el await.
+   */
+  const enviarYAbrirWhatsApp = async ({ datos, canal, tipoVault, mensaje }) => {
+    setLoading(true);
+    const waWindow = window.open('', '_blank');
+
+    const result = await enviarLead(datos, { canal, tipoVault, timeoutMs: 15000 });
+
+    const ref = result.token ? `🔖 Ref: ${result.token}\n\n` : '\n';
+    const url = whatsappUrl(mensaje(ref));
+
+    if (waWindow && !waWindow.closed) waWindow.location.href = url;
+    else window.open(url, '_blank');
+
+    setLoading(false);
+    return result;
+  };
+
   const handleAutoSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    
-    const result = await tokenizar(TIPOS.COT_AUTO, {
-      tipo_vehiculo: autoForm.tipo,
-      marca: autoForm.marca,
-      modelo: autoForm.modelo,
-      anio: autoForm.anio,
-      nombre: autoForm.nombre,
-      telefono: autoForm.telefono
-    }, 'hero_auto');
-
-    const msg = `🚗 *COTIZACIÓN AUTO/MOTO*\n🔖 Ref: ${result.token}\n\n` +
-      `Tipo: ${autoForm.tipo}\nMarca: ${autoForm.marca}\nModelo: ${autoForm.modelo}\nAño: ${autoForm.anio}\n\n` +
-      `👤 ${autoForm.nombre}\n📱 ${autoForm.telefono}`;
-    
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
-    setLoading(false);
+    await enviarYAbrirWhatsApp({
+      canal: 'hero_auto',
+      tipoVault: TIPOS.COT_AUTO,
+      datos: {
+        nombre: autoForm.nombre,
+        telefono: autoForm.telefono,
+        tipo_seguro: 'auto',
+        vehiculo_tipo: autoForm.tipo,
+        vehiculo_marca: autoForm.marca,
+        vehiculo_modelo: autoForm.modelo,
+        vehiculo_anio: autoForm.anio,
+      },
+      mensaje: (ref) =>
+        `🚗 *COTIZACIÓN AUTO/MOTO*\n${ref}` +
+        `Tipo: ${autoForm.tipo}\nMarca: ${autoForm.marca}\nModelo: ${autoForm.modelo}\nAño: ${autoForm.anio}\n\n` +
+        `👤 ${autoForm.nombre}\n📱 ${autoForm.telefono}`,
+    });
   };
 
   const handleHogarSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    
-    const result = await tokenizar(TIPOS.COT_HOGAR, {
-      tipo_vivienda: hogarForm.tipo,
-      metros: hogarForm.metros,
-      ubicacion: hogarForm.ubicacion,
-      nombre: hogarForm.nombre,
-      telefono: hogarForm.telefono
-    }, 'hero_hogar');
-
-    const msg = `🏠 *COTIZACIÓN HOGAR*\n🔖 Ref: ${result.token}\n\n` +
-      `Tipo: ${hogarForm.tipo}\nM²: ${hogarForm.metros}\nUbicación: ${hogarForm.ubicacion}\n\n` +
-      `👤 ${hogarForm.nombre}\n📱 ${hogarForm.telefono}`;
-    
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
-    setLoading(false);
+    await enviarYAbrirWhatsApp({
+      canal: 'hero_hogar',
+      tipoVault: TIPOS.COT_HOGAR,
+      datos: {
+        nombre: hogarForm.nombre,
+        telefono: hogarForm.telefono,
+        tipo_seguro: 'hogar',
+        codigo_postal: hogarForm.ubicacion,
+      },
+      mensaje: (ref) =>
+        `🏠 *COTIZACIÓN HOGAR*\n${ref}` +
+        `Tipo: ${hogarForm.tipo}\nM²: ${hogarForm.metros}\nUbicación: ${hogarForm.ubicacion}\n\n` +
+        `👤 ${hogarForm.nombre}\n📱 ${hogarForm.telefono}`,
+    });
   };
 
   const handleArtSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    
-    const result = await tokenizar(TIPOS.COT_ART, {
-      empresa: artForm.empresa,
-      empleados: artForm.empleados,
-      actividad: artForm.actividad,
-      nombre: artForm.nombre,
-      telefono: artForm.telefono
-    }, 'hero_art');
-
-    const msg = `🏢 *COTIZACIÓN ART*\n🔖 Ref: ${result.token}\n\n` +
-      `Empresa: ${artForm.empresa}\nEmpleados: ${artForm.empleados}\nActividad: ${artForm.actividad}\n\n` +
-      `👤 ${artForm.nombre}\n📱 ${artForm.telefono}`;
-    
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
-    setLoading(false);
+    await enviarYAbrirWhatsApp({
+      canal: 'hero_art',
+      tipoVault: TIPOS.COT_ART,
+      datos: {
+        nombre: artForm.nombre,
+        telefono: artForm.telefono,
+        tipo_seguro: 'art',
+      },
+      mensaje: (ref) =>
+        `🏢 *COTIZACIÓN ART*\n${ref}` +
+        `Empresa: ${artForm.empresa}\nEmpleados: ${artForm.empleados}\nActividad: ${artForm.actividad}\n\n` +
+        `👤 ${artForm.nombre}\n📱 ${artForm.telefono}`,
+    });
   };
 
   const handleComercioSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    
-    const result = await tokenizar(TIPOS.COT_COMERCIO, {
-      rubro: comercioForm.rubro,
-      metros: comercioForm.metros,
-      ubicacion: comercioForm.ubicacion,
-      nombre: comercioForm.nombre,
-      telefono: comercioForm.telefono
-    }, 'hero_comercio');
-
-    const msg = `🏪 *COTIZACIÓN COMERCIO*\n🔖 Ref: ${result.token}\n\n` +
-      `Rubro: ${comercioForm.rubro}\nM²: ${comercioForm.metros}\nUbicación: ${comercioForm.ubicacion}\n\n` +
-      `👤 ${comercioForm.nombre}\n📱 ${comercioForm.telefono}`;
-    
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
-    setLoading(false);
+    await enviarYAbrirWhatsApp({
+      canal: 'hero_comercio',
+      tipoVault: TIPOS.COT_COMERCIO,
+      datos: {
+        nombre: comercioForm.nombre,
+        telefono: comercioForm.telefono,
+        tipo_seguro: 'comercio',
+        codigo_postal: comercioForm.ubicacion,
+      },
+      mensaje: (ref) =>
+        `🏪 *COTIZACIÓN COMERCIO*\n${ref}` +
+        `Rubro: ${comercioForm.rubro}\nM²: ${comercioForm.metros}\nUbicación: ${comercioForm.ubicacion}\n\n` +
+        `👤 ${comercioForm.nombre}\n📱 ${comercioForm.telefono}`,
+    });
   };
 
   const handleVidaSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    
-    const result = await tokenizar(TIPOS.COT_VIDA, {
-      edad: vidaForm.edad,
-      cobertura: vidaForm.cobertura,
-      nombre: vidaForm.nombre,
-      telefono: vidaForm.telefono
-    }, 'hero_vida');
-
-    const msg = `❤️ *COTIZACIÓN VIDA*\n🔖 Ref: ${result.token}\n\n` +
-      `Edad: ${vidaForm.edad}\nCobertura: ${vidaForm.cobertura}\n\n` +
-      `👤 ${vidaForm.nombre}\n📱 ${vidaForm.telefono}`;
-    
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
-    setLoading(false);
+    await enviarYAbrirWhatsApp({
+      canal: 'hero_vida',
+      tipoVault: TIPOS.COT_VIDA,
+      datos: {
+        nombre: vidaForm.nombre,
+        telefono: vidaForm.telefono,
+        tipo_seguro: 'vida',
+        cobertura: vidaForm.cobertura,
+      },
+      mensaje: (ref) =>
+        `❤️ *COTIZACIÓN VIDA*\n${ref}` +
+        `Edad: ${vidaForm.edad}\nCobertura: ${vidaForm.cobertura}\n\n` +
+        `👤 ${vidaForm.nombre}\n📱 ${vidaForm.telefono}`,
+    });
   };
 
   // ========== FORMULARIOS ==========

@@ -1,13 +1,28 @@
 import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
 
 /**
  * Configuración de Vitest para testing unitario
  * @see https://vitest.dev/config/
  */
 export default defineConfig({
+  /* Necesario para los tests que renderizan componentes JSX */
+  plugins: [react()],
+
   test: {
     /* Entorno de testing */
     environment: 'happy-dom',
+
+    /* Los componentes traen iframes (mapa): que happy-dom no salga a la red */
+    environmentOptions: {
+      happyDOM: {
+        settings: {
+          disableIframePageLoading: true,
+          disableJavaScriptFileLoading: true,
+          disableCSSFileLoading: true,
+        },
+      },
+    },
 
     /* Globals (describe, it, expect disponibles sin import) */
     globals: true,
@@ -37,7 +52,7 @@ export default defineConfig({
     },
 
     /* Incluir archivos de test */
-    include: ['tests/unit/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}'],
+    include: ['tests/unit/**/*.{test,spec}.{js,jsx,mjs,cjs,ts,tsx,mts,cts}'],
 
     /* Excluir archivos */
     exclude: [

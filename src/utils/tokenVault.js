@@ -1,10 +1,23 @@
 /**
- * AYMA Token Vault Client v2.1
- * Con logging visible en consola
+ * AYMA Token Vault Client v3
+ *
+ * - Solo se envían tipos de la whitelist del Worker (TIPOS_VALIDOS).
+ * - Solo se encola para reintento ante error de red o 5xx. Un 4xx es
+ *   "mal formado" y no se reintenta nunca.
+ * - Cada elemento de la cola tiene un tope de MAX_INTENTOS reintentos.
+ * - Al inicializar se purga lo que tenga más de MAX_EDAD_MS (7 días).
  */
 
 const VAULT_URL = 'https://vault.aymaseguros.com.ar';
 
+export const PENDING_KEY = 'ayma_pending_tokens_v2';
+export const LEGACY_PENDING_KEYS = ['ayma_pending_tokens'];
+export const MAX_INTENTOS = 3;
+// Nada se reintenta más de 7 días: una cola vieja ya no le sirve a nadie.
+export const MAX_EDAD_MS = 7 * 24 * 60 * 60 * 1000;
+const MAX_COLA = 50;
+
+// Espejo de la whitelist del Worker. Si el Worker cambia, cambiar acá.
 export const TIPOS = {
   COT_AUTO: 'cotizacion_auto',
   COT_HOGAR: 'cotizacion_hogar',
@@ -12,19 +25,15 @@ export const TIPOS = {
   COT_COMERCIO: 'cotizacion_comercio',
   COT_VIDA: 'cotizacion_vida',
   LEAD: 'lead',
-  CONTACTO: 'contacto',
-  CONSULTA: 'consulta',
   WA_CLICK: 'whatsapp_click',
   PHONE_CLICK: 'phone_click',
-  BOT_SESSION: 'bot_session',
-  BOT_ACTION: 'bot_action',
-  BOT_MESSAGE: 'bot_message',
-  SINIESTRO: 'siniestro',
-  TICKET: 'ticket',
-  POLIZA_VIEW: 'poliza_view',
-  PDF_DOWNLOAD: 'pdf_download',
-  ANULACION: 'anulacion',
+  CONSULTA: 'consulta',
+  CONTACTO: 'contacto',
 };
+
+export const TIPOS_VALIDOS = new Set(Object.values(TIPOS));
+
+export const esTipoValido = (tipo) => TIPOS_VALIDOS.has(tipo);
 
 function getUTMs() {
   if (typeof window === 'undefined') return {};
@@ -36,28 +45,60 @@ function getUTMs() {
   };
 }
 
+function leerCola() {
+  try {
+    const cola = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+    return Array.isArray(cola) ? cola : [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarCola(cola) {
+  try {
+    if (cola.length === 0) localStorage.removeItem(PENDING_KEY);
+    else localStorage.setItem(PENDING_KEY, JSON.stringify(cola.slice(-MAX_COLA)));
+  } catch {
+    // localStorage no disponible: se pierde el reintento, no es crítico
+  }
+}
+
+function postVault(item) {
+  return fetch(`${VAULT_URL}/api/landing`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tipo: item.tipo, payload: item.payload, origen: item.origen }),
+  });
+}
+
+// Error de red (status null) o 5xx: transitorio. Cualquier otro status no.
+const esReintentable = (status) => status === null || status >= 500;
+
 export async function tokenizar(tipo, payload, origen = 'landing') {
-  console.log(`🔐 Tokenizando: ${tipo} desde ${origen}`);
-  
-  const fullPayload = {
-    ...payload,
-    ...getUTMs(),
-    page_url: typeof window !== 'undefined' ? window.location.href : null,
-    timestamp_client: new Date().toISOString(),
+  if (!esTipoValido(tipo)) {
+    console.warn(`⚠️ Token vault: tipo no válido "${tipo}", no se envía`);
+    return { success: false, token: null, hash: null, error: 'tipo_invalido' };
+  }
+
+  const item = {
+    tipo,
+    origen,
+    payload: {
+      ...payload,
+      ...getUTMs(),
+      page_url: typeof window !== 'undefined' ? window.location.href : null,
+      timestamp_client: new Date().toISOString(),
+    },
   };
 
+  let status = null;
   try {
-    const res = await fetch(`${VAULT_URL}/vault/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, payload: fullPayload, origen }),
-    });
-
+    const res = await postVault(item);
+    status = res.status;
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
-    console.log(`✅ Token creado: ${data.token}`);
-    
+
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', tipo, {
         event_category: 'token_vault',
@@ -68,11 +109,11 @@ export async function tokenizar(tipo, payload, origen = 'landing') {
     return { success: true, token: data.token, hash: data.hash };
   } catch (err) {
     console.error(`❌ Token vault error:`, err.message);
-    
-    const pending = JSON.parse(localStorage.getItem('ayma_pending_tokens') || '[]');
-    pending.push({ tipo, payload: fullPayload, origen, timestamp: Date.now() });
-    localStorage.setItem('ayma_pending_tokens', JSON.stringify(pending.slice(-50)));
-    
+
+    if (esReintentable(status)) {
+      guardarCola([...leerCola(), { ...item, intentos: 0, timestamp: Date.now() }]);
+    }
+
     const localToken = `LOCAL-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
     return { success: false, token: localToken, hash: 'pending', error: err.message };
   }
@@ -87,36 +128,57 @@ export async function verificarToken(token) {
   }
 }
 
+/**
+ * Limpieza al montar: borra las colas sin versionar y descarta de la actual
+ * lo que no sea un tipo válido o haya agotado los intentos.
+ */
+export function purgarColaPendiente() {
+  if (typeof window === 'undefined') return;
+  try {
+    LEGACY_PENDING_KEYS.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    return;
+  }
+  const cola = leerCola();
+  const ahora = Date.now();
+  const limpia = cola.filter(
+    (item) =>
+      item &&
+      esTipoValido(item.tipo) &&
+      (item.intentos || 0) < MAX_INTENTOS &&
+      ahora - (item.timestamp || 0) < MAX_EDAD_MS
+  );
+  if (limpia.length !== cola.length) guardarCola(limpia);
+}
+
 export async function retryPendingTokens() {
   if (typeof window === 'undefined') return;
-  const pending = JSON.parse(localStorage.getItem('ayma_pending_tokens') || '[]');
+  purgarColaPendiente();
+
+  const pending = leerCola();
   if (pending.length === 0) return;
-  
-  console.log(`🔄 Reintentando ${pending.length} tokens...`);
+
   const stillPending = [];
-  
+
   for (const item of pending) {
+    let status = null;
     try {
-      const res = await fetch(`${VAULT_URL}/vault/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-      });
-      if (!res.ok) stillPending.push(item);
+      const res = await postVault(item);
+      status = res.status;
+      if (res.ok) continue;
     } catch {
-      stillPending.push(item);
+      // error de red: status queda en null
     }
+    if (!esReintentable(status)) {
+      console.error('❌ Token pendiente descartado por 4xx:', status, item.tipo);
+      continue;
+    }
+    const intentos = (item.intentos || 0) + 1;
+    if (intentos >= MAX_INTENTOS) continue; // tope alcanzado: se descarta
+    stillPending.push({ ...item, intentos });
   }
-  
-  localStorage.setItem('ayma_pending_tokens', JSON.stringify(stillPending));
+
+  guardarCola(stillPending);
 }
 
-export async function anularToken(tokenOriginal, motivo, usuario = 'sistema') {
-  return tokenizar(TIPOS.ANULACION, {
-    token_anulado: tokenOriginal,
-    motivo,
-    anulado_por: usuario,
-  }, 'anulacion');
-}
-
-export default { tokenizar, verificarToken, retryPendingTokens, anularToken, TIPOS };
+export default { tokenizar, verificarToken, retryPendingTokens, purgarColaPendiente, TIPOS };
