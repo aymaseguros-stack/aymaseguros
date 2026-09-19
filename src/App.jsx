@@ -14,6 +14,8 @@ import Privacidad from './pages/Privacidad';
 import NotFound from './pages/NotFound';
 import { useSEO } from './hooks/useSEO';
 import { retryPendingTokens } from './utils/tokenVault';
+import { capturarAtribucion } from './services/attribution';
+import { reintentarLeadsPendientes } from './services/leads';
 
 // Landing Page
 function LandingPage() {
@@ -47,7 +49,10 @@ function LandingPage() {
 // App con rutas
 function App() {
   useEffect(() => {
+    // Antes que nada: la atribución de la URL, que se pierde al navegar.
+    capturarAtribucion();
     retryPendingTokens();
+    reintentarLeadsPendientes();
   }, []);
 
   return (

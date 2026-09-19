@@ -5,6 +5,7 @@ import {
   purgarColaPendiente,
   PENDING_KEY,
   MAX_INTENTOS,
+  MAX_EDAD_MS,
 } from '../../src/utils/tokenVault';
 
 const cola = () => JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
@@ -42,11 +43,12 @@ describe('tokenVault', () => {
   });
 
   it('retry descarta 4xx, saca los 2xx y respeta el tope de intentos', async () => {
+    const ts = Date.now();
     localStorage.setItem(PENDING_KEY, JSON.stringify([
-      { tipo: 'consulta', payload: {}, origen: 'a', intentos: 0 },
-      { tipo: 'lead', payload: {}, origen: 'b', intentos: 0 },
-      { tipo: 'contacto', payload: {}, origen: 'c', intentos: 0 },
-      { tipo: 'phone_click', payload: {}, origen: 'd', intentos: MAX_INTENTOS - 1 },
+      { tipo: 'consulta', payload: {}, origen: 'a', intentos: 0, timestamp: ts },
+      { tipo: 'lead', payload: {}, origen: 'b', intentos: 0, timestamp: ts },
+      { tipo: 'contacto', payload: {}, origen: 'c', intentos: 0, timestamp: ts },
+      { tipo: 'phone_click', payload: {}, origen: 'd', intentos: MAX_INTENTOS - 1, timestamp: ts },
     ]));
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(resp(401))
@@ -54,18 +56,55 @@ describe('tokenVault', () => {
       .mockResolvedValueOnce(resp(500))
       .mockResolvedValueOnce(resp(500));
     await retryPendingTokens();
-    expect(cola()).toEqual([{ tipo: 'contacto', payload: {}, origen: 'c', intentos: 1 }]);
+    expect(cola()).toEqual([
+      { tipo: 'contacto', payload: {}, origen: 'c', intentos: 1, timestamp: ts },
+    ]);
   });
 
   it('purga la cola vieja y los tipos inválidos', () => {
     localStorage.setItem('ayma_pending_tokens', JSON.stringify([{ tipo: 'bot_action' }]));
+    const ts = Date.now();
     localStorage.setItem(PENDING_KEY, JSON.stringify([
-      { tipo: 'bot_session' },
-      { tipo: undefined },
-      { tipo: 'lead', intentos: 0 },
+      { tipo: 'bot_session', timestamp: ts },
+      { tipo: undefined, timestamp: ts },
+      { tipo: 'lead', intentos: 0, timestamp: ts },
     ]));
     purgarColaPendiente();
     expect(localStorage.getItem('ayma_pending_tokens')).toBeNull();
-    expect(cola()).toEqual([{ tipo: 'lead', intentos: 0 }]);
+    expect(cola()).toEqual([{ tipo: 'lead', intentos: 0, timestamp: ts }]);
+  });
+});
+
+describe('tokenVault — purga por antigüedad (H-46)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  it('descarta las entradas de más de 7 días al inicializar', () => {
+    const viejo = Date.now() - MAX_EDAD_MS - 1000;
+    localStorage.setItem(
+      PENDING_KEY,
+      JSON.stringify([
+        { tipo: 'lead', payload: {}, intentos: 0, timestamp: viejo },
+        { tipo: 'lead', payload: {}, intentos: 0, timestamp: Date.now() },
+      ])
+    );
+
+    purgarColaPendiente();
+
+    expect(cola()).toHaveLength(1);
+    expect(cola()[0].timestamp).toBeGreaterThan(viejo);
+  });
+
+  it('una entrada sin timestamp se considera vencida y se descarta', () => {
+    localStorage.setItem(
+      PENDING_KEY,
+      JSON.stringify([{ tipo: 'lead', payload: {}, intentos: 0 }])
+    );
+
+    purgarColaPendiente();
+
+    expect(cola()).toHaveLength(0);
   });
 });

@@ -5,6 +5,7 @@
  * - Solo se encola para reintento ante error de red o 5xx. Un 4xx es
  *   "mal formado" y no se reintenta nunca.
  * - Cada elemento de la cola tiene un tope de MAX_INTENTOS reintentos.
+ * - Al inicializar se purga lo que tenga más de MAX_EDAD_MS (7 días).
  */
 
 const VAULT_URL = 'https://vault.aymaseguros.com.ar';
@@ -12,6 +13,8 @@ const VAULT_URL = 'https://vault.aymaseguros.com.ar';
 export const PENDING_KEY = 'ayma_pending_tokens_v2';
 export const LEGACY_PENDING_KEYS = ['ayma_pending_tokens'];
 export const MAX_INTENTOS = 3;
+// Nada se reintenta más de 7 días: una cola vieja ya no le sirve a nadie.
+export const MAX_EDAD_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_COLA = 50;
 
 // Espejo de la whitelist del Worker. Si el Worker cambia, cambiar acá.
@@ -61,7 +64,7 @@ function guardarCola(cola) {
 }
 
 function postVault(item) {
-  return fetch(`${VAULT_URL}/vault/register`, {
+  return fetch(`${VAULT_URL}/api/landing`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ tipo: item.tipo, payload: item.payload, origen: item.origen }),
@@ -137,8 +140,13 @@ export function purgarColaPendiente() {
     return;
   }
   const cola = leerCola();
+  const ahora = Date.now();
   const limpia = cola.filter(
-    (item) => item && esTipoValido(item.tipo) && (item.intentos || 0) < MAX_INTENTOS
+    (item) =>
+      item &&
+      esTipoValido(item.tipo) &&
+      (item.intentos || 0) < MAX_INTENTOS &&
+      ahora - (item.timestamp || 0) < MAX_EDAD_MS
   );
   if (limpia.length !== cola.length) guardarCola(limpia);
 }
@@ -161,7 +169,10 @@ export async function retryPendingTokens() {
     } catch {
       // error de red: status queda en null
     }
-    if (!esReintentable(status)) continue; // 4xx: se descarta
+    if (!esReintentable(status)) {
+      console.error('❌ Token pendiente descartado por 4xx:', status, item.tipo);
+      continue;
+    }
     const intentos = (item.intentos || 0) + 1;
     if (intentos >= MAX_INTENTOS) continue; // tope alcanzado: se descarta
     stillPending.push({ ...item, intentos });

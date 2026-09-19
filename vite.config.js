@@ -9,7 +9,10 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true,
+        // H-36: drop_console borraba también los console.error, y con ellos
+        // todo rastro de un lead que no se pudo registrar. Se sacan solo los
+        // console de ruido; error y warn quedan visibles en producción.
+        pure_funcs: ['console.log', 'console.debug', 'console.info'],
         drop_debugger: true
       }
     },

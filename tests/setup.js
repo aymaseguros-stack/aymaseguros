@@ -54,3 +54,22 @@ global.fetch = vi.fn();
 beforeEach(() => {
   fetch.mockClear();
 });
+
+// sessionStorage: mismo mock que localStorage, para la atribución.
+const sessionStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: (key) => store[key] || null,
+    setItem: (key, value) => { store[key] = value.toString(); },
+    removeItem: (key) => { delete store[key]; },
+    clear: () => { store = {}; },
+    get length() { return Object.keys(store).length; },
+    key: (index) => Object.keys(store)[index] || null,
+  };
+})();
+Object.defineProperty(globalThis, 'sessionStorage', {
+  value: sessionStorageMock,
+  configurable: true,
+  writable: true,
+});
+beforeEach(() => { sessionStorage.clear(); });

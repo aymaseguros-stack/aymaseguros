@@ -5,7 +5,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { tokenizar, TIPOS } from '../utils/tokenVault';
-import { crearLead, whatsappUrl, TELEFONO_VISIBLE } from '../utils/leads';
+import { enviarLead, whatsappUrl, TELEFONO_VISIBLE } from '../services/leads';
 
 const BACKEND_URL = 'https://ayma-portal-backend.onrender.com/api/v1';
 const WHATSAPP_ROSARIO = '5493416952259';
@@ -117,19 +117,25 @@ Escribí el número o lo que necesitás.`,
 
   // El endpoint de leads crea el lead y emite el token del Vault en la misma
   // operación. Devuelve { ok, token } — ok solo con respuesta 2xx.
-  const guardarLead = (leadData) => crearLead({
-    nombre: leadData.nombre || 'Cliente Web',
-    telefono: leadData.telefono,
-    tipo_seguro: leadData.tipo || 'auto',
-    vehiculo_tipo: leadData.tipo,
-    vehiculo_marca: leadData.marca,
-    vehiculo_modelo: leadData.modelo,
-    vehiculo_version: leadData.version,
-    vehiculo_anio: leadData.anio,
-    cobertura: leadData.cobertura,
-    origen: 'chatbot',
-    session_token: sessionToken,
-  });
+  const guardarLead = (leadData) =>
+    enviarLead(
+      {
+        nombre: leadData.nombre || 'Cliente Web',
+        telefono: leadData.telefono,
+        tipo_seguro: leadData.tipo || 'auto',
+        vehiculo_tipo: leadData.tipo,
+        vehiculo_marca: leadData.marca,
+        vehiculo_modelo: leadData.modelo,
+        vehiculo_version: leadData.version,
+        vehiculo_anio: leadData.anio,
+        cobertura: leadData.cobertura,
+      },
+      {
+        canal: 'chatbot',
+        tipoVault: TIPOS.COT_AUTO,
+        extraVault: { session_token: sessionToken },
+      }
+    );
 
   const handleClose = async () => {
     await registrarAccion('BOT_CERRADO', { 

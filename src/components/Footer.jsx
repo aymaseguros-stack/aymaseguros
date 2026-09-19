@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { tokenizar, TIPOS } from '../utils/tokenVault';
-import { crearLead, whatsappUrl, TELEFONO_VISIBLE } from '../utils/leads';
+import { enviarLead, whatsappUrl, TELEFONO_VISIBLE } from '../services/leads';
 
 const Footer = () => {
   const [form, setForm] = useState({ nombre: '', email: '', telefono: '', mensaje: '' });
@@ -13,16 +13,23 @@ const Footer = () => {
     setLoading(true);
     setStatus(null);
 
-    const result = await crearLead({
-      nombre: form.nombre,
-      telefono: form.telefono,
-      email: form.email,
-      tipo_seguro: 'consulta',
-      mensaje: form.mensaje,
-      origen: 'landing',
-    });
+    // `mensaje` no existe en el esquema del portal: viaja al Vault.
+    const result = await enviarLead(
+      {
+        nombre: form.nombre,
+        telefono: form.telefono,
+        email: form.email,
+        tipo_seguro: 'consulta',
+      },
+      {
+        canal: 'footer_contacto',
+        tipoVault: TIPOS.CONTACTO,
+        extraVault: { mensaje: form.mensaje },
+      }
+    );
 
     setLoading(false);
+    // El portal manda: sin alta en el CRM no se muestra éxito.
     if (!result.ok) {
       setStatus('error');
       return;
