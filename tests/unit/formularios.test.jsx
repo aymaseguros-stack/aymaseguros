@@ -142,6 +142,49 @@ describe('formularios de la landing', () => {
       expect(console.error).toHaveBeenCalled();
     });
 
+    it('confirma en pantalla cuando el portal acepta el lead, con WhatsApp de respaldo', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, { token: 'AYMA-T1' }));
+      await render(<HeroSection />);
+
+      await submitForm(container.querySelector('form'));
+
+      expect(container.textContent).toMatch(/Recibimos tu pedido/);
+      const wa = container.querySelector('a[href^="https://wa.me/"]');
+      expect(wa.textContent).toMatch(/Escribinos por WhatsApp/);
+      expect(decodeURIComponent(wa.href)).toContain('Ref: AYMA-T1');
+    });
+
+    it('confirma aunque el navegador bloquee la ventana de WhatsApp', async () => {
+      vi.stubGlobal('open', vi.fn(() => null));
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, { token: 'T' }));
+      await render(<HeroSection />);
+
+      await submitForm(container.querySelector('form'));
+
+      expect(container.textContent).toMatch(/Recibimos tu pedido/);
+      expect(container.querySelector('a[href^="https://wa.me/"]')).toBeTruthy();
+    });
+
+    it('si el POST falla NO confirma: muestra error con botón de WhatsApp', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(500));
+      await render(<HeroSection />);
+
+      await submitForm(container.querySelector('form'));
+
+      expect(container.textContent).not.toMatch(/Recibimos tu pedido/);
+      expect(container.textContent).toMatch(/No pudimos registrar/);
+      expect(container.querySelector('a[href^="https://wa.me/"]')).toBeTruthy();
+    });
+
+    ['auto', 'moto'].forEach((ramo) => {
+      it(`#cotizar-${ramo} abre Vehículo con "${ramo}" preseleccionado`, async () => {
+        window.location.hash = `#cotizar-${ramo}`;
+        await render(<HeroSection />);
+        expect(container.querySelector('form select').value).toBe(ramo);
+        window.location.hash = '';
+      });
+    });
+
     it('un 4xx del portal no encola nada', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(400));
       await render(<HeroSection />);

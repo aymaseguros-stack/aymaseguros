@@ -5,6 +5,9 @@ import { enviarLead, whatsappUrl } from '../services/leads';
 const HeroSection = () => {
   const [activeTab, setActiveTab] = useState('auto');
   const [loading, setLoading] = useState(false);
+  // Resultado del último envío: { ok, url }. Mientras exista, se muestra la
+  // confirmación (o el error) en lugar del formulario.
+  const [envio, setEnvio] = useState(null);
   
   // Estados de formularios
   const [autoForm, setAutoForm] = useState({ tipo: '', marca: '', modelo: '', anio: '', nombre: '', telefono: '' });
@@ -29,9 +32,10 @@ const HeroSection = () => {
       const m = window.location.hash.match(/^#cotizar-(auto|moto|hogar|art|comercio|vida)$/);
       if (!m) return;
       const ramo = m[1];
-      if (ramo === 'moto') {
+      setEnvio(null);
+      if (ramo === 'moto' || ramo === 'auto') {
         setActiveTab('auto');
-        setAutoForm((f) => ({ ...f, tipo: f.tipo || 'moto' }));
+        setAutoForm((f) => ({ ...f, tipo: f.tipo || ramo }));
       } else {
         setActiveTab(ramo);
       }
@@ -55,6 +59,10 @@ const HeroSection = () => {
    * Si el POST falla igual se abre WhatsApp — no se pierde el prospecto — y
    * el error queda en consola y encolado para reintento.
    *
+   * En pantalla se confirma SOLO si el portal aceptó el lead; si no, se muestra
+   * el error. En ambos casos queda un botón de WhatsApp de respaldo, por si el
+   * navegador bloqueó la ventana.
+   *
    * La ventana se abre en blanco de forma sincrónica (dentro del gesto del
    * usuario) para que el bloqueador de popups no la frene durante el await.
    */
@@ -70,6 +78,7 @@ const HeroSection = () => {
     if (waWindow && !waWindow.closed) waWindow.location.href = url;
     else window.open(url, '_blank');
 
+    setEnvio({ ok: result.ok, url });
     setLoading(false);
     return result;
   };
@@ -289,6 +298,35 @@ const HeroSection = () => {
     </form>
   );
 
+  const renderResultado = () => (
+    <div role="status" aria-live="polite" className="text-center space-y-4 py-4">
+      {envio.ok ? (
+        <>
+          <div className="text-5xl">✅</div>
+          <p className="text-xl font-bold text-gray-900">Recibimos tu pedido.</p>
+          <p className="text-gray-600">Te contactamos a la brevedad.</p>
+        </>
+      ) : (
+        <>
+          <div className="text-5xl">⚠️</div>
+          <p className="text-xl font-bold text-gray-900">No pudimos registrar tu pedido.</p>
+          <p className="text-gray-600">Escribinos por WhatsApp y te atendemos enseguida.</p>
+        </>
+      )}
+      <a
+        href={envio.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full bg-green-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
+      >
+        💬 Escribinos por WhatsApp
+      </a>
+      <button type="button" onClick={() => setEnvio(null)} className="text-sm text-blue-600 hover:underline">
+        Hacer otra cotización
+      </button>
+    </div>
+  );
+
   const renderForm = () => {
     switch(activeTab) {
       case 'auto': return renderAutoForm();
@@ -357,7 +395,7 @@ const HeroSection = () => {
               {tabs.map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => { setActiveTab(tab.id); setEnvio(null); }}
                   className={`flex-1 min-w-max px-3 py-3 text-sm font-medium transition flex items-center justify-center gap-2 ${
                     activeTab === tab.id 
                       ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
@@ -379,7 +417,7 @@ const HeroSection = () => {
                 Completá los datos y recibí tu presupuesto en minutos
               </p>
               
-              {renderForm()}
+              {envio ? renderResultado() : renderForm()}
               
               <p className="text-xs text-gray-400 mt-4 text-center">
                 🔒 Tus datos están protegidos. No spam garantizado.
