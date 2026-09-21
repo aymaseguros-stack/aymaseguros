@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TIPOS } from '../utils/tokenVault';
 import { enviarLead, whatsappUrl } from '../services/leads';
 
@@ -21,6 +21,26 @@ const HeroSection = () => {
     { id: 'comercio', icon: '/icons/seguros_integral.png', label: 'Comercio' },
     { id: 'vida', icon: '/icons/Segurodevida.png', label: 'Vida' },
   ];
+
+  // Anclas estables (#cotizar-auto, #cotizar-moto, …): abren la pestaña que
+  // corresponde. Los QR y los anuncios pueden apuntar directo a un ramo.
+  useEffect(() => {
+    const abrirDesdeHash = () => {
+      const m = window.location.hash.match(/^#cotizar-(auto|moto|hogar|art|comercio|vida)$/);
+      if (!m) return;
+      const ramo = m[1];
+      if (ramo === 'moto') {
+        setActiveTab('auto');
+        setAutoForm((f) => ({ ...f, tipo: f.tipo || 'moto' }));
+      } else {
+        setActiveTab(ramo);
+      }
+      document.getElementById(`cotizar-${ramo}`)?.scrollIntoView({ block: 'start' });
+    };
+    abrirDesdeHash();
+    window.addEventListener('hashchange', abrirDesdeHash);
+    return () => window.removeEventListener('hashchange', abrirDesdeHash);
+  }, []);
 
   const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900";
   const selectClass = inputClass + " bg-white";
@@ -327,7 +347,10 @@ const HeroSection = () => {
           </div>
 
           {/* DERECHA - Formulario con tabs */}
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div id="cotizar" className="relative bg-white rounded-2xl shadow-2xl overflow-hidden scroll-mt-24">
+            {['auto', 'moto', 'hogar', 'art', 'comercio', 'vida'].map((ramo) => (
+              <span key={ramo} id={`cotizar-${ramo}`} className="absolute top-0 scroll-mt-24" aria-hidden="true" />
+            ))}
             
             {/* Tabs */}
             <div className="flex border-b overflow-x-auto">

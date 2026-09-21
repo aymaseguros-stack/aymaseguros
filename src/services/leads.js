@@ -12,7 +12,7 @@
  * descarta Pydantic en silencio, así que acá no se inventa ninguno.
  */
 
-import { getAtribucion } from './attribution';
+import { getAtribucion, getSlugQR } from './attribution';
 import { tokenizar, TIPOS, esTipoValido } from '../utils/tokenVault';
 
 export const LEADS_URL = 'https://api.aymaseguros.com.ar/api/v1/leads/';
@@ -44,6 +44,7 @@ export const CAMPOS_PORTAL = [
   'utm_source',
   'utm_medium',
   'utm_campaign',
+  'slug_qr',
 ];
 
 /** Un 4xx es un body mal formado: no se reintenta nunca. */
@@ -76,6 +77,8 @@ export function armarBodyPortal(datos, atribucion) {
   const fuente = { ...atribucion, ...datos };
   // `origen` lo decide la atribución salvo que el formulario pida otro.
   if (!datos.origen && atribucion?.origen) fuente.origen = atribucion.origen;
+  // El QR llega como ?ayma_pc; el portal lo espera como slug_qr.
+  if (!fuente.slug_qr && atribucion?.ayma_pc) fuente.slug_qr = atribucion.ayma_pc;
 
   const body = {};
   CAMPOS_PORTAL.forEach((campo) => {
@@ -212,7 +215,13 @@ export async function reintentarLeadsPendientes() {
   guardarCola(siguen);
 }
 
+/** Agrega la referencia del QR al texto de WhatsApp para no perder la atribución. */
+export function conRefQR(msg) {
+  const slug = getSlugQR();
+  return slug ? `${msg}\n\nRef: ${slug}` : msg;
+}
+
 export const whatsappUrl = (msg) =>
-  `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
+  `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(conRefQR(msg))}`;
 
 export default { enviarLead, reintentarLeadsPendientes, purgarLeadsPendientes, whatsappUrl };

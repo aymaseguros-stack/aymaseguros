@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { tokenizar, TIPOS } from '../utils/tokenVault';
 import ChatSealBadge from './ChatSealBadge';
+import { whatsappUrl } from '../services/leads';
 
 const WHATSAPP_ROSARIO = '5493416952259';
 const PORTAL_URL = 'https://portal.aymaseguros.com.ar';
@@ -55,12 +56,12 @@ const Header = ({ isChatOpen, onOpenChat }) => {
 
   const handleWhatsApp = async () => {
     await tokenizar(TIPOS.WA_CLICK, { ubicacion: 'header' }, 'header');
-    window.open(`https://wa.me/${WHATSAPP_ROSARIO}?text=Hola! Quiero información sobre seguros`, '_blank');
+    window.open(whatsappUrl('Hola! Quiero información sobre seguros'), '_blank');
   };
 
   const handleSiniestro = async () => {
     await tokenizar(TIPOS.CONSULTA, { tipo: 'siniestro', ubicacion: 'header' }, 'header');
-    window.open(`https://wa.me/${WHATSAPP_ROSARIO}?text=Hola, necesito denunciar un siniestro. Mis datos son:`, '_blank');
+    window.open(whatsappUrl('Hola, necesito denunciar un siniestro. Mis datos son:'), '_blank');
   };
 
   const handlePortal = async () => {
