@@ -1,3 +1,4 @@
+import { whatsappUrl } from '../services/leads';
 // ==========================================
 // PATRÓN DE FONDO (igual al hero)
 // ==========================================
@@ -95,7 +96,7 @@ export const SeccionHogar = () => {
             </div>
             <div className="text-center">
               <p className="text-blue-100 mb-4">Cotización gratis en 2 minutos</p>
-              <a href="https://wa.me/5493416952259?text=Hola! Quiero cotizar un seguro de hogar" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-lg">
+              <a href={whatsappUrl("Hola! Quiero cotizar un seguro de hogar")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-lg">
                 <IconoCorporativo src="/icons/icons500x500_vivienda.png" alt="Hogar" size="sm" />
                 Cotizar Seguro de Hogar
               </a>
@@ -149,7 +150,7 @@ export const SeccionComercio = () => {
           <h3 className="text-2xl font-bold mb-3">¿Tenés un comercio?</h3>
           <p className="text-emerald-100 mb-6 max-w-xl mx-auto">Te armamos un paquete de protección a medida de tu negocio. Sin compromiso.</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <a href="https://wa.me/5493416952259?text=Hola! Quiero cotizar un seguro para mi comercio" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-emerald-600 px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition">
+            <a href={whatsappUrl("Hola! Quiero cotizar un seguro para mi comercio")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-emerald-600 px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition">
               <IconoCorporativo src="/icons/seguros_integral.png" alt="Comercio" size="sm" />Cotizar Seguro Comercial
             </a>
             <a href="tel:+5493416952259" className="inline-flex items-center gap-2 bg-emerald-700 text-white px-8 py-4 rounded-full font-bold hover:bg-emerald-800 transition">📞 Llamar ahora</a>
@@ -217,10 +218,10 @@ export const SeccionEmpresas = () => {
               <div className="bg-white/10 rounded-xl p-6 mb-4">
                 <p className="text-blue-100 text-sm mb-2">¿Cuántos empleados tenés?</p>
                 <div className="flex gap-2 justify-center flex-wrap">
-                  {['1-10', '11-50', '51-200', '+200'].map((rango) => (<a key={rango} href={`https://wa.me/5493416952259?text=Hola! Tengo una empresa con ${rango} empleados`} target="_blank" rel="noopener noreferrer" className="bg-white/20 hover:bg-yellow-400 hover:text-gray-900 px-4 py-2 rounded-lg text-sm font-medium transition-colors">{rango}</a>))}
+                  {['1-10', '11-50', '51-200', '+200'].map((rango) => (<a key={rango} href={whatsappUrl(`Hola! Tengo una empresa con ${rango} empleados`)} target="_blank" rel="noopener noreferrer" className="bg-white/20 hover:bg-yellow-400 hover:text-gray-900 px-4 py-2 rounded-lg text-sm font-medium transition-colors">{rango}</a>))}
                 </div>
               </div>
-              <a href="https://wa.me/5493416952259?text=Hola! Quiero información sobre seguros para empresas" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 transition shadow-lg">
+              <a href={whatsappUrl("Hola! Quiero información sobre seguros para empresas")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 transition shadow-lg">
                 <img src="/icons/icons500x500_empresa.png" alt="Empresas" className="w-10 h-10 rounded-full bg-yellow-400" />Cotizar Seguros Corporativos
               </a>
             </div>
@@ -258,7 +259,7 @@ export const Services = () => {
         </div>
         <div className="text-center mt-10">
           <p className="text-white/80 mb-4">¿No encontrás lo que buscás?</p>
-          <a href="https://wa.me/5493416952259?text=Hola! Necesito información sobre otro tipo de seguro" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition">💬 Consultanos por WhatsApp</a>
+          <a href={whatsappUrl("Hola! Necesito información sobre otro tipo de seguro")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition">💬 Consultanos por WhatsApp</a>
         </div>
       </div>
     </section>
@@ -278,7 +279,7 @@ export const FinalCTA = () => {
         <p className="text-blue-100 mb-8 max-w-2xl mx-auto">Cotizá gratis en 2 minutos. Sin compromiso, sin letra chica.</p>
         <div className="flex flex-wrap justify-center gap-4">
           <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 transition shadow-lg">Cotizar ahora</button>
-          <a href="https://wa.me/5493416952259" target="_blank" rel="noopener noreferrer" className="bg-green-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-green-700 transition flex items-center gap-2 shadow-lg">💬 WhatsApp</a>
+          <a href={whatsappUrl("Hola! Quiero cotizar un seguro")} target="_blank" rel="noopener noreferrer" className="bg-green-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-green-700 transition flex items-center gap-2 shadow-lg">💬 WhatsApp</a>
           <a href="tel:+5493416952259" className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-gray-900 transition">📞 Llamar</a>
         </div>
       </div>

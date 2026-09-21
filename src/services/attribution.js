@@ -19,6 +19,9 @@ export const CAMPOS_URL = [
   'utm_term',
   'fbclid',
   'gclid',
+  // Slug del QR propio de AYMA: el backend (GET /r/{slug}) redirige a la
+  // landing con ?ayma_pc={slug}. Se reenvía al portal como `slug_qr`.
+  'ayma_pc',
 ];
 
 export const ORIGEN = {
@@ -102,4 +105,10 @@ export function getAtribucion(canal = null) {
   };
 }
 
-export default { capturarAtribucion, getAtribucion, derivarOrigen, ATTRIB_KEY, ORIGEN };
+/** Slug del QR por el que entró la visita, o null. */
+export function getSlugQR() {
+  const guardada = leerGuardada() || (typeof window !== 'undefined' ? leerDeURL() : {});
+  return guardada.ayma_pc || null;
+}
+
+export default { capturarAtribucion, getSlugQR, getAtribucion, derivarOrigen, ATTRIB_KEY, ORIGEN };

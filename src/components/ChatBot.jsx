@@ -160,7 +160,7 @@ Escribí el número o lo que necesitás.`,
       session_token: sessionToken
     }, 'chatbot');
     
-    window.open(`https://wa.me/${WHATSAPP_ROSARIO}?text=${encodeURIComponent(mensaje)}`, '_blank');
+    window.open(whatsappUrl(mensaje), '_blank');
   };
 
   const handleSend = async () => {
