@@ -12,6 +12,10 @@
   ],
   "rewrites": [
     {
+      "source": "/emision/:token",
+      "destination": "/emision.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
@@ -48,6 +52,40 @@
         {
           "key": "Content-Security-Policy-Report-Only",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://snap.licdn.com https://widget.trustpilot.com https://static.cloudflareinsights.com; connect-src 'self' https://api.aymaseguros.com.ar https://vault.aymaseguros.com.ar https://ayma-portal-backend.onrender.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://px.ads.linkedin.com https://cloudflareinsights.com https://widget.trustpilot.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-src https://widget.trustpilot.com https://www.googletagmanager.com https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://api.aymaseguros.com.ar https://vault.aymaseguros.com.ar; frame-ancestors 'self'"
+        }
+      ]
+    },
+    {
+      "source": "/emision/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/emision.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
         }
       ]
     }
