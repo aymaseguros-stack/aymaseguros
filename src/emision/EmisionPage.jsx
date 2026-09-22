@@ -11,12 +11,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ErrorApi, WHATSAPP_AYMA, campoDelError, enviarFormulario, esPan, guardarBorrador,
-  mensajeGeneral, obtenerFormulario, subirArchivo,
+  mensajeDeSubida, mensajeGeneral, obtenerFormulario, subirArchivoConReintentos,
 } from './api';
 import {
-  MEDIOS, OPCIONES, archivosDesdeServidor, armarBloques, armarPayload, bloqueCompleto,
-  bloqueDelCampo, camposCobroVisibles, datosDesdeBorrador, errorDeArchivo, nombreParaSubir,
-  problemasDelBloque,
+  MEDIOS, OPCIONES, PROVINCIA_POR_DEFECTO, archivosDesdeServidor, archivosSinConfirmar,
+  armarBloques, armarPayload, bloqueCompleto, bloqueDelCampo, camposCobroVisibles,
+  datosDesdeBorrador, errorDeArchivo, nombreParaSubir, problemasDelBloque,
 } from './modelo';
 import {
   CampoCatalogo, CampoOpcion, CampoTexto, CasilleroArchivo, Mensaje,
@@ -125,6 +125,7 @@ export default function EmisionPage({ token }) {
       const f = await obtenerFormulario(token);
       const bs = armarBloques(f);
       const d = datosDesdeBorrador(f.borrador);
+      if (!d.provincia) d.provincia = PROVINCIA_POR_DEFECTO;
       const { archivos: a, cedulaTipo: ct } = archivosDesdeServidor(f.archivos_cargados, bs);
       setForm(f);
       setDatos(d);
@@ -182,15 +183,29 @@ export default function EmisionPage({ token }) {
       preview = URL.createObjectURL(archivo);
       previews.current.push(preview);
     }
-    actualizarArchivo(slot, { estado: 'subiendo', progreso: 0, archivo, categoria, preview, error: null });
+    actualizarArchivo(slot, {
+      estado: 'subiendo', progreso: 0, intento: 1, archivo, categoria, preview, error: null,
+    });
     try {
-      await subirArchivo(token, archivo, nombreParaSubir(slot, archivo.name), categoria,
-        (p) => actualizarArchivo(slot, { progreso: p }));
-      actualizarArchivo(slot, { estado: 'hecho', progreso: 100 });
+      // Reintenta solo los errores que se arreglan repitiendo (red, 5xx, 429).
+      // El casillero pasa a 'hecho' recién cuando el servidor confirma.
+      await subirArchivoConReintentos(
+        token, archivo, nombreParaSubir(slot, archivo.name), categoria,
+        (p) => actualizarArchivo(slot, { progreso: p }),
+        (n) => actualizarArchivo(slot, { intento: n }),
+      );
+      actualizarArchivo(slot, { estado: 'hecho', progreso: 100, error: null, intento: 1 });
     } catch (e) {
       if (tokenRechazado(e)) { setFase('invalido'); return; }
-      actualizarArchivo(slot, { estado: 'error', error: mensajeGeneral(e) });
+      actualizarArchivo(slot, { estado: 'error', error: mensajeDeSubida(e), intento: 1 });
     }
+  };
+
+  /** Saca un archivo del casillero: la otra salida cuando la subida falla. */
+  const quitar = (slot) => {
+    setErrores(({ [`archivo:${slot}`]: _, ...resto }) => resto);
+    setAviso(null);
+    setArchivos(({ [slot]: _quitado, ...resto }) => resto);
   };
 
   /** Traduce un 422 del backend al campo que lo causó. true si lo ubicó. */
@@ -233,6 +248,28 @@ export default function EmisionPage({ token }) {
       setErrores((prev) => ({ ...prev, consentimiento: 'Para enviar tenés que marcar esta casilla.' }));
       return;
     }
+    // Ningún archivo viaja "cargado" sin confirmación del servidor: si alguno
+    // quedó a medias, le decimos cuál y no lo dejamos enviar (C-6o).
+    const sinConfirmar = archivosSinConfirmar(bloques, archivos);
+    if (sinConfirmar.length) {
+      setErrores((prev) => ({
+        ...prev,
+        ...Object.fromEntries(sinConfirmar.map((a) => [
+          `archivo:${a.slot}`,
+          a.motivo === 'falta cargarlo' ? 'Falta este archivo.'
+            : a.motivo === 'todavía se está subiendo' ? 'Esperá a que termine de subir.'
+              : archivos[a.slot]?.error || 'No se pudo subir. Reintentá o quitalo.',
+        ])),
+      }));
+      irA(sinConfirmar[0].paso);
+      setAviso(
+        `Antes de enviar resolvé ${sinConfirmar.length === 1 ? 'este archivo' : 'estos archivos'}: `
+        + `${sinConfirmar.map((a) => `${a.titulo} (${a.motivo})`).join(' · ')}. `
+        + 'Reintentá la subida o quitalos.',
+      );
+      return;
+    }
+
     const pendiente = bloques.findIndex((b, i) => i < bloques.length - 1 && !bloqueCompleto(b, datos, archivos));
     if (pendiente !== -1) {
       setErrores((prev) => ({ ...prev, ...problemasDelBloque(bloques[pendiente], datos, archivos) }));
@@ -293,6 +330,7 @@ export default function EmisionPage({ token }) {
       estado={archivos[s.slot]} error={errores[`archivo:${s.slot}`]}
       onElegir={(f) => subir(s.slot, s.categoria, f)}
       onReintentar={() => subir(s.slot, archivos[s.slot].categoria, archivos[s.slot].archivo)}
+      onQuitar={() => quitar(s.slot)}
     />
   );
 

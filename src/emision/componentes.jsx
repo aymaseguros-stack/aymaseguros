@@ -173,7 +173,7 @@ function IconoCamara() {
  * Casillero de un archivo: elegir/sacar foto, barra de progreso, miniatura
  * y reintento. `foto` agrega capture="environment" (cámara trasera).
  */
-export function CasilleroArchivo({ slot, titulo, requerido, foto, estado, error, onElegir, onReintentar }) {
+export function CasilleroArchivo({ slot, titulo, requerido, foto, estado, error, onElegir, onReintentar, onQuitar }) {
   const ref = useRef(null);
   const e = estado || {};
   const id = `archivo-${slot}`;
@@ -203,9 +203,12 @@ export function CasilleroArchivo({ slot, titulo, requerido, foto, estado, error,
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
                 <div className="h-full rounded-full bg-ayma-blue-light transition-all" style={{ width: `${e.progreso || 0}%` }} />
               </div>
-              <p className="mt-1 text-xs text-slate-500">Subiendo… {e.progreso || 0}%</p>
+              <p className="mt-1 text-xs text-slate-500">
+                {e.intento > 1 ? `Reintentando (intento ${e.intento})… ` : 'Subiendo… '}{e.progreso || 0}%
+              </p>
             </div>
           )}
+          {/* "Cargado" solo con confirmación del servidor: nunca por optimismo. */}
           {e.estado === 'hecho' && <p className="mt-0.5 text-xs text-green-700">Cargado</p>}
           {!e.estado && <p className="mt-0.5 text-xs text-slate-500">{foto ? 'Sacá la foto con buena luz' : 'Foto o PDF, hasta 10 MB'}</p>}
         </div>
@@ -214,6 +217,15 @@ export function CasilleroArchivo({ slot, titulo, requerido, foto, estado, error,
           {e.estado === 'error' && e.archivo && (
             <button type="button" onClick={onReintentar} className="rounded-lg bg-ayma-blue px-3 py-2 text-sm font-medium text-white">
               Reintentar
+            </button>
+          )}
+          {e.estado === 'error' && onQuitar && (
+            <button
+              type="button" onClick={onQuitar}
+              aria-label={`Quitar ${titulo}`}
+              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700"
+            >
+              Quitar
             </button>
           )}
           {e.estado !== 'subiendo' && (

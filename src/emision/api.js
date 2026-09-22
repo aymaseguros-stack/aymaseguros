@@ -29,14 +29,47 @@ export function tokenDeLaRuta(pathname) {
   }
 }
 
-/** Error de la API sin datos sensibles: status + detalle del backend. */
+/**
+ * Error de la API sin datos sensibles: status + detalle del backend.
+ *
+ * `clase` separa los casos que el cliente tiene que poder distinguir, porque
+ * decirle "no hay conexión" a alguien que sí tiene conexión lo deja sin saber
+ * qué hacer (C-6o):
+ *
+ *   'sin_conexion' · el navegador está offline
+ *   'red'          · la petición no llegó o se cortó (el navegador dice online)
+ *   'servidor'     · 5xx: falló del lado nuestro
+ *   'validacion'   · 422: el backend rechazó el contenido, y dice por qué
+ *   'grande'       · 413: el archivo excede el límite
+ *   'limite'       · 429: demasiados intentos
+ *   'cliente'      · el resto de los 4xx
+ */
 export class ErrorApi extends Error {
   constructor(status, detalle) {
     super(typeof detalle === 'string' ? detalle : 'Error del servidor');
     this.name = 'ErrorApi';
-    this.status = status; // null = sin conexión
+    this.status = status; // null = la petición no llegó
     this.detalle = detalle;
+    this.clase = claseDeError(status);
   }
+
+  /** ¿Tiene sentido reintentar solo? Un 4xx no se arregla repitiéndolo. */
+  get reintentable() {
+    return ['sin_conexion', 'red', 'servidor', 'limite'].includes(this.clase);
+  }
+}
+
+/** true si el navegador se declara offline. Si no sabe, asumimos que hay red. */
+export const sinConexion = () =>
+  typeof navigator !== 'undefined' && navigator.onLine === false;
+
+function claseDeError(status) {
+  if (status === null || status === undefined) return sinConexion() ? 'sin_conexion' : 'red';
+  if (status >= 500) return 'servidor';
+  if (status === 429) return 'limite';
+  if (status === 413) return 'grande';
+  if (status === 422) return 'validacion';
+  return 'cliente';
 }
 
 const url = (token, sufijo = '') =>
@@ -87,9 +120,22 @@ export const enviarFormulario = (token, datos, consentimientoVersion) =>
     }),
   });
 
+/** Cuántos reintentos automáticos hace la subida y cuánto espera entre ellos. */
+export const REINTENTOS_SUBIDA = 2;
+export const ESPERAS_SUBIDA = [800, 2000];
+
+/** Config de la subida en un objeto para que los tests puedan acortar la espera. */
+export const CONFIG_SUBIDA = { esperas: ESPERAS_SUBIDA };
+
+const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
+
 /**
  * Sube UN archivo con progreso. XHR y no fetch porque fetch no expone el
  * progreso de subida. `onProgreso` recibe 0..100.
+ *
+ * SOLO resuelve si el servidor CONFIRMA la subida: 2xx y un cuerpo JSON.
+ * Un 2xx con un cuerpo que no podemos leer no es una confirmación, y no se
+ * puede marcar el archivo como cargado por optimismo (C-6o).
  */
 export function subirArchivo(token, archivo, nombre, categoria, onProgreso) {
   return new Promise((resolve, reject) => {
@@ -110,13 +156,82 @@ export function subirArchivo(token, archivo, nombre, categoria, onProgreso) {
       } catch {
         cuerpo = null;
       }
-      if (xhr.status >= 200 && xhr.status < 300) resolve(cuerpo);
-      else reject(new ErrorApi(xhr.status, cuerpo?.detail ?? null));
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new ErrorApi(xhr.status, cuerpo?.detail ?? null));
+        return;
+      }
+      if (cuerpo === null || typeof cuerpo !== 'object') {
+        // 2xx sin respuesta legible: no sabemos si quedó guardado, así que no
+        // se marca como cargado. Tampoco se reintenta solo, porque si el
+        // archivo sí entró el reintento lo duplicaría: decide el cliente.
+        const sinConfirmar = new ErrorApi(xhr.status, null);
+        sinConfirmar.clase = 'sin_confirmacion';
+        reject(sinConfirmar);
+        return;
+      }
+      resolve(cuerpo);
     };
     xhr.onerror = () => reject(new ErrorApi(null, null));
     xhr.ontimeout = () => reject(new ErrorApi(null, null));
     xhr.send(form);
   });
+}
+
+/**
+ * `subirArchivo` con reintento automático: hasta REINTENTOS_SUBIDA intentos
+ * extra, con espera entre uno y otro, y solo cuando el error da para
+ * reintentar (corte de red, 5xx, 429). Un 413 o un 422 se devuelven en el
+ * acto: repetirlos da el mismo resultado y le hace perder tiempo al cliente.
+ *
+ * `onIntento(n)` avisa en qué intento va (1 = el primero).
+ */
+export async function subirArchivoConReintentos(
+  token, archivo, nombre, categoria, onProgreso, onIntento, esperas = CONFIG_SUBIDA.esperas,
+) {
+  let ultimo;
+  for (let intento = 0; intento <= REINTENTOS_SUBIDA; intento += 1) {
+    if (onIntento) onIntento(intento + 1);
+    if (onProgreso) onProgreso(0);
+    try {
+      return await subirArchivo(token, archivo, nombre, categoria, onProgreso);
+    } catch (e) {
+      ultimo = e;
+      const puede = e instanceof ErrorApi && e.reintentable && intento < REINTENTOS_SUBIDA;
+      if (!puede) throw e;
+      await dormir(esperas[intento] ?? esperas[esperas.length - 1] ?? 0);
+    }
+  }
+  throw ultimo;
+}
+
+/**
+ * El mensaje que ve el cliente cuando falla la subida de UN archivo. Cada
+ * causa dice lo suyo: la evidencia de C-6o es un cliente al que le dijimos
+ * "no hay conexión" mientras la conexión andaba y lo que fallaba éramos
+ * nosotros.
+ */
+export function mensajeDeSubida(error, limiteMb = 10) {
+  if (!(error instanceof ErrorApi)) return 'No pudimos guardar la foto. Probá de nuevo.';
+  switch (error.clase) {
+    case 'sin_conexion':
+      return 'Te quedaste sin conexión. Cuando vuelva, tocá Reintentar.';
+    case 'red':
+      return 'Se cortó la subida antes de llegar a nuestro servidor. Probá de nuevo.';
+    case 'servidor':
+      return 'No pudimos guardar la foto. Probá de nuevo.';
+    case 'sin_confirmacion':
+      return 'No pudimos confirmar que la foto se haya guardado. Probá de nuevo.';
+    case 'grande':
+      return `El archivo es demasiado grande. El máximo es ${limiteMb} MB.`;
+    case 'limite':
+      return 'Hiciste muchos intentos seguidos. Esperá un minuto y probá de nuevo.';
+    case 'validacion':
+      return typeof error.detalle === 'string' && error.detalle.trim()
+        ? error.detalle
+        : 'El archivo no pasó la revisión. Probá con otra foto.';
+    default:
+      return 'No pudimos guardar la foto. Probá de nuevo.';
+  }
 }
 
 /**
@@ -139,11 +254,19 @@ export const esPan = (detalle) =>
 
 /** Mensaje en lenguaje simple para un error que no es de un campo. */
 export function mensajeGeneral(error) {
-  if (!(error instanceof ErrorApi) || error.status === null) {
-    return 'No pudimos conectarnos. Revisá tu conexión y probá de nuevo.';
+  if (!(error instanceof ErrorApi)) return 'Algo falló de nuestro lado. Probá de nuevo en unos minutos.';
+  switch (error.clase) {
+    case 'sin_conexion':
+      return 'Te quedaste sin conexión. Revisá tu internet y probá de nuevo.';
+    case 'red':
+      return 'No pudimos conectarnos. Revisá tu conexión y probá de nuevo.';
+    case 'limite':
+      return 'Hiciste muchos intentos seguidos. Esperá un minuto y probá de nuevo.';
+    case 'grande':
+      return 'El archivo es demasiado grande. El máximo es 10 MB.';
+    case 'validacion':
+      return typeof error.detalle === 'string' ? error.detalle : 'Revisá los datos: el servidor los rechazó.';
+    default:
+      return 'Algo falló de nuestro lado. Probá de nuevo en unos minutos.';
   }
-  if (error.status === 429) return 'Hiciste muchos intentos seguidos. Esperá un minuto y probá de nuevo.';
-  if (error.status === 422 && typeof error.detalle === 'string') return error.detalle;
-  if (error.status === 413) return 'El archivo es demasiado grande. El máximo es 10 MB.';
-  return 'Algo falló de nuestro lado. Probá de nuevo en unos minutos.';
 }
