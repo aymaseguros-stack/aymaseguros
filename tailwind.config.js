@@ -2,6 +2,7 @@
 export default {
   content: [
     "./index.html",
+    "./emision.html",
     "./src/**/*.{js,jsx}"
   ],
   theme: {

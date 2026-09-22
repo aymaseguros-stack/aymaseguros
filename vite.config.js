@@ -1,8 +1,30 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const raiz = dirname(fileURLToPath(import.meta.url))
+
+// En producción la reescritura la hace vercel.json; en `vite dev` y
+// `vite preview`, este middleware: /emision/:token -> /emision.html.
+const rutaEmision = {
+  name: 'ayma-ruta-emision',
+  configureServer(server) {
+    server.middlewares.use((req, _res, next) => {
+      if (/^\/emision\/[^/?#]+\/?(\?.*)?$/.test(req.url || '')) req.url = '/emision.html'
+      next()
+    })
+  },
+  configurePreviewServer(server) {
+    server.middlewares.use((req, _res, next) => {
+      if (/^\/emision\/[^/?#]+\/?(\?.*)?$/.test(req.url || '')) req.url = '/emision.html'
+      next()
+    })
+  },
+}
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), rutaEmision],
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -17,6 +39,13 @@ export default defineConfig({
       }
     },
     rollupOptions: {
+      // C-6b: /emision/:token es una entrada propia, SIN los scripts de
+      // terceros (GTM, Meta Pixel, Trustpilot) que index.html carga en todas
+      // las rutas: la URL lleva el token. vercel.json la reescribe.
+      input: {
+        main: resolve(raiz, 'index.html'),
+        emision: resolve(raiz, 'emision.html'),
+      },
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom']
