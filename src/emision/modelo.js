@@ -30,6 +30,18 @@ export const OPCIONES = {
     ['particular', 'Particular'],
     ['comercial', 'Comercial'],
   ],
+  provincia: [
+    ['Buenos Aires', 'Buenos Aires'],
+    ['CABA', 'Ciudad Autónoma de Buenos Aires'],
+    ['Catamarca', 'Catamarca'], ['Chaco', 'Chaco'], ['Chubut', 'Chubut'],
+    ['Córdoba', 'Córdoba'], ['Corrientes', 'Corrientes'], ['Entre Ríos', 'Entre Ríos'],
+    ['Formosa', 'Formosa'], ['Jujuy', 'Jujuy'], ['La Pampa', 'La Pampa'],
+    ['La Rioja', 'La Rioja'], ['Mendoza', 'Mendoza'], ['Misiones', 'Misiones'],
+    ['Neuquén', 'Neuquén'], ['Río Negro', 'Río Negro'], ['Salta', 'Salta'],
+    ['San Juan', 'San Juan'], ['San Luis', 'San Luis'], ['Santa Cruz', 'Santa Cruz'],
+    ['Santa Fe', 'Santa Fe'], ['Santiago del Estero', 'Santiago del Estero'],
+    ['Tierra del Fuego', 'Tierra del Fuego'], ['Tucumán', 'Tucumán'],
+  ],
   tarjeta_marca: [
     ['Visa', 'Visa'],
     ['Mastercard', 'Mastercard'],
@@ -52,7 +64,7 @@ export const MEDIOS = [
  * también lo es.
  */
 const OBLIGATORIOS_EXTRA = new Set([
-  'fecha_nacimiento', 'email', 'domicilio', 'localidad', 'codigo_postal',
+  'fecha_nacimiento', 'email', 'domicilio', 'localidad', 'provincia', 'codigo_postal',
   'kilometraje', 'uso',
 ]);
 
@@ -75,6 +87,24 @@ const TITULOS_COBRO = {
 
 const esRequerido = (campo) => !!campo.requerido || OBLIGATORIOS_EXTRA.has(campo.nombre);
 
+/** La provincia que proponemos: AYMA opera desde Rosario (C-6o). */
+export const PROVINCIA_POR_DEFECTO = 'Santa Fe';
+
+/**
+ * El domicilio sin provincia es un domicilio incompleto, y hasta C-6o solo
+ * viajaban localidad y código postal. Si el catálogo del backend ya la trae,
+ * la dejamos donde está (y la volvemos lista desplegable); si no, la sumamos
+ * nosotros justo después de la localidad.
+ */
+function conProvincia(campos) {
+  const lista = campos.map((c) => (c.nombre === 'provincia' ? { ...c, tipo: 'opcion' } : c));
+  if (lista.some((c) => c.nombre === 'provincia')) return lista;
+  const provincia = { nombre: 'provincia', titulo: 'Provincia', tipo: 'opcion', requerido: true, ayuda: null };
+  const i = lista.findIndex((c) => c.nombre === 'localidad');
+  if (i === -1) return [...lista, provincia];
+  return [...lista.slice(0, i + 1), provincia, ...lista.slice(i + 1)];
+}
+
 /** Los bloques del formulario, en el orden del brief. */
 export function armarBloques(form) {
   const secciones = Array.isArray(form?.secciones) ? form.secciones : [];
@@ -92,7 +122,7 @@ export function armarBloques(form) {
   bloques.push({
     id: 'titular',
     titulo: 'Titular',
-    campos: conRequerido(porCodigo.TITULAR?.campos),
+    campos: conProvincia(conRequerido(porCodigo.TITULAR?.campos)),
     archivos: [
       { slot: 'DNI_FRENTE', categoria: 'DNI_CEDULA', titulo: 'DNI – frente', requerido: true },
       { slot: 'DNI_DORSO', categoria: 'DNI_CEDULA', titulo: 'DNI – dorso', requerido: true },
@@ -233,6 +263,27 @@ export function problemasDelBloque(bloque, datos, archivos) {
     else if (s.requerido && estado !== 'hecho') problemas[`archivo:${s.slot}`] = 'Falta este archivo.';
   }
   return problemas;
+}
+
+/**
+ * Los casilleros que NO tienen confirmación del servidor, con el motivo:
+ * lo que hay que nombrarle al cliente antes de dejarlo enviar (C-6o punto 4).
+ * `obligatorio` es false cuando el archivo se puede simplemente quitar.
+ */
+export function archivosSinConfirmar(bloques, archivos) {
+  const pendientes = [];
+  bloques.forEach((bloque, paso) => {
+    const slots = [...bloque.archivos, ...(bloque.cedula ? [bloque.cedula] : [])];
+    for (const s of slots) {
+      const e = archivos[s.slot] || {};
+      let motivo = null;
+      if (e.estado === 'subiendo') motivo = 'todavía se está subiendo';
+      else if (e.estado === 'error') motivo = 'no se pudo subir';
+      else if (s.requerido && e.estado !== 'hecho') motivo = 'falta cargarlo';
+      if (motivo) pendientes.push({ slot: s.slot, titulo: s.titulo, motivo, obligatorio: !!s.requerido, paso });
+    }
+  });
+  return pendientes;
 }
 
 export const bloqueCompleto = (bloque, datos, archivos) =>

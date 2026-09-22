@@ -7,7 +7,7 @@
  *   - sin consentimiento no se puede enviar
  *   - en /emision no se inyectan scripts de terceros
  */
-import { describe, it, expect, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import React from 'react';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -15,9 +15,15 @@ import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
 import EmisionPage from '../../src/emision/EmisionPage';
-import { tokenDeLaRuta, campoDelError, API_EMISION } from '../../src/emision/api';
+import {
+  tokenDeLaRuta, campoDelError, API_EMISION, CONFIG_SUBIDA, ErrorApi, mensajeDeSubida,
+  subirArchivoConReintentos,
+} from '../../src/emision/api';
 import { pareceTarjeta, pasaLuhn } from '../../src/emision/luhn';
-import { armarBloques, armarPayload, datosDesdeBorrador, archivosDesdeServidor } from '../../src/emision/modelo';
+import {
+  armarBloques, armarPayload, datosDesdeBorrador, archivosDesdeServidor,
+  archivosSinConfirmar, PROVINCIA_POR_DEFECTO,
+} from '../../src/emision/modelo';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -415,5 +421,349 @@ describe('subida de archivos', () => {
     expect(container.textContent).toContain('más de 10 MB');
     expect(xhrOpen).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// C-6o · errores honestos en la subida
+// ---------------------------------------------------------------------------
+
+/**
+ * XHR de mentira: `respuestas` es la cola de lo que contesta el servidor,
+ * un elemento por intento. `{ red: true }` simula que la petición no llega.
+ */
+/** En los tests la espera entre reintentos es cero: lo que se fija es la lógica. */
+const sinEspera = () => {
+  const original = CONFIG_SUBIDA.esperas;
+  CONFIG_SUBIDA.esperas = [0, 0];
+  return () => { CONFIG_SUBIDA.esperas = original; };
+};
+
+function xhrFalso(respuestas) {
+  const enviados = [];
+  class XHRFalso {
+    constructor() { this.upload = {}; this.status = 0; this.responseText = ''; }
+    open(metodo, url) { this.url = url; }
+    send(form) {
+      enviados.push(form);
+      const r = respuestas[enviados.length - 1] ?? respuestas[respuestas.length - 1];
+      queueMicrotask(() => {
+        if (this.upload.onprogress) this.upload.onprogress({ lengthComputable: true, loaded: 1, total: 2 });
+        if (r.red) { this.onerror?.(); return; }
+        this.status = r.status;
+        this.responseText = r.texto ?? JSON.stringify(r.cuerpo ?? { ok: true, archivos: [{ id: 'a1' }] });
+        this.onload?.();
+      });
+    }
+  }
+  vi.stubGlobal('XMLHttpRequest', XHRFalso);
+  return enviados;
+}
+
+const archivoFalso = (nombre = 'dni.jpg') =>
+  new File([new Uint8Array([1, 2, 3])], nombre, { type: 'image/jpeg' });
+
+/** Los pasos ya alcanzados se navegan desde la barra de progreso. */
+const pasos = () => [...container.querySelectorAll('nav[aria-label="Progreso"] button')];
+const irAPaso = async (indice) => {
+  const lista = pasos();
+  await click(lista.at(indice));
+};
+const irABloque = async (titulo) => {
+  const destino = pasos().findIndex((b) => (b.getAttribute('aria-label') || '').startsWith(titulo));
+  if (destino >= 0) await irAPaso(destino);
+};
+
+/**
+ * Elige un archivo en el casillero `slot` y espera a que la subida termine,
+ * reintentos incluidos (en los tests las esperas son de 0 ms).
+ */
+const elegirArchivo = async (slot, archivo = archivoFalso()) => {
+  const input = container.querySelector(`#archivo-${slot}`);
+  Object.defineProperty(input, 'files', { value: [archivo], configurable: true });
+  await act(async () => { input.dispatchEvent(new Event('change', { bubbles: true })); });
+  for (let i = 0; i < 20 && /Subiendo|Reintentando/.test(casillero(slot).textContent); i += 1) {
+    await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+  }
+};
+
+const casillero = (slot) => container.querySelector(`#archivo-${slot}`).closest('div.rounded-xl');
+
+describe('C-6o · el mensaje dice la causa real', () => {
+  const online = (valor) => vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(valor);
+  afterEach(() => vi.restoreAllMocks());
+
+  it('sin conexión: lo dice, y no culpa al servidor', () => {
+    online(false);
+    expect(mensajeDeSubida(new ErrorApi(null, null))).toBe(
+      'Te quedaste sin conexión. Cuando vuelva, tocá Reintentar.',
+    );
+  });
+
+  it('con conexión y la petición que no llega: no dice "no hay conexión"', () => {
+    online(true);
+    const m = mensajeDeSubida(new ErrorApi(null, null));
+    expect(m).toBe('Se cortó la subida antes de llegar a nuestro servidor. Probá de nuevo.');
+    expect(m).not.toMatch(/sin conexión/i);
+  });
+
+  it('error del servidor (5xx): el mensaje del brief, sin hablar de la conexión', () => {
+    online(true);
+    for (const status of [500, 502, 503]) {
+      const m = mensajeDeSubida(new ErrorApi(status, null));
+      expect(m).toBe('No pudimos guardar la foto. Probá de nuevo.');
+      expect(m).not.toMatch(/conexi[oó]n/i);
+    }
+  });
+
+  it('422: muestra el motivo del campo que da el backend', () => {
+    online(true);
+    expect(mensajeDeSubida(new ErrorApi(422, 'La foto está borrosa: no se lee la patente.')))
+      .toBe('La foto está borrosa: no se lee la patente.');
+  });
+
+  it('archivo muy grande (413): dice cuál es el límite', () => {
+    online(true);
+    expect(mensajeDeSubida(new ErrorApi(413, null))).toBe('El archivo es demasiado grande. El máximo es 10 MB.');
+  });
+
+  it('un 5xx mientras el navegador está offline se cuenta como sin conexión solo si la petición no llegó', () => {
+    online(false);
+    expect(new ErrorApi(500, null).clase).toBe('servidor');
+    expect(new ErrorApi(null, null).clase).toBe('sin_conexion');
+  });
+});
+
+describe('C-6o · reintento automático', () => {
+  afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+
+  it('reintenta 2 veces ante un 5xx y sale bien en el tercer intento', async () => {
+    const enviados = xhrFalso([{ status: 500 }, { status: 500 }, { status: 201 }]);
+    const intentos = [];
+    const r = await subirArchivoConReintentos(
+      TOKEN, archivoFalso(), 'DNI_FRENTE-dni.jpg', 'DNI_CEDULA', null, (n) => intentos.push(n), [0, 0],
+    );
+    expect(enviados).toHaveLength(3);
+    expect(intentos).toEqual([1, 2, 3]);
+    expect(r).toBeTruthy();
+  });
+
+  it('agotados los reintentos, falla con el mensaje del servidor', async () => {
+    const enviados = xhrFalso([{ status: 500 }]);
+    await expect(
+      subirArchivoConReintentos(TOKEN, archivoFalso(), 'n.jpg', 'DNI_CEDULA', null, null, [0, 0]),
+    ).rejects.toMatchObject({ clase: 'servidor' });
+    expect(enviados).toHaveLength(3); // el primero + 2 reintentos
+  });
+
+  it('un corte de red también se reintenta', async () => {
+    const enviados = xhrFalso([{ red: true }, { status: 200 }]);
+    await subirArchivoConReintentos(TOKEN, archivoFalso(), 'n.jpg', 'DNI_CEDULA', null, null, [0, 0]);
+    expect(enviados).toHaveLength(2);
+  });
+
+  it('un 422 NO se reintenta: repetirlo da lo mismo', async () => {
+    const enviados = xhrFalso([{ status: 422, texto: JSON.stringify({ detail: 'Foto borrosa.' }) }]);
+    await expect(
+      subirArchivoConReintentos(TOKEN, archivoFalso(), 'n.jpg', 'DNI_CEDULA', null, null, [0, 0]),
+    ).rejects.toMatchObject({ status: 422, detalle: 'Foto borrosa.' });
+    expect(enviados).toHaveLength(1);
+  });
+
+  it('un 413 tampoco se reintenta', async () => {
+    const enviados = xhrFalso([{ status: 413 }]);
+    await expect(
+      subirArchivoConReintentos(TOKEN, archivoFalso(), 'n.jpg', 'DNI_CEDULA', null, null, [0, 0]),
+    ).rejects.toMatchObject({ clase: 'grande' });
+    expect(enviados).toHaveLength(1);
+  });
+});
+
+describe('C-6o · "Cargado" exige confirmación del servidor', () => {
+  let restaurar;
+  beforeEach(() => { restaurar = sinEspera(); });
+  afterEach(() => { restaurar(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+
+  it('un 2xx con cuerpo legible confirma: recién ahí dice Cargado', async () => {
+    xhrFalso([{ status: 201, cuerpo: { ok: true, archivos: [{ id: 'a1' }] } }]);
+    mockApi();
+    await render(<EmisionPage token={TOKEN} />);
+    expect(casillero('DNI_FRENTE').textContent).not.toContain('Cargado');
+    await elegirArchivo('DNI_FRENTE');
+    expect(casillero('DNI_FRENTE').textContent).toContain('Cargado');
+  });
+
+  it('un 2xx sin cuerpo legible NO es confirmación: no dice Cargado y avisa', async () => {
+    xhrFalso([{ status: 200, texto: '<html>502 Bad Gateway</html>' }]);
+    mockApi();
+    await render(<EmisionPage token={TOKEN} />);
+    await elegirArchivo('DNI_FRENTE');
+    const c = casillero('DNI_FRENTE');
+    expect(c.textContent).not.toContain('Cargado');
+    expect(c.textContent).toContain('No pudimos confirmar que la foto se haya guardado.');
+  });
+
+  it('si falla la subida no dice Cargado y ofrece Reintentar y Quitar', async () => {
+    xhrFalso([{ status: 500 }]);
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
+    mockApi();
+    await render(<EmisionPage token={TOKEN} />);
+    await elegirArchivo('DNI_FRENTE');
+    const c = casillero('DNI_FRENTE');
+    expect(c.textContent).not.toContain('Cargado');
+    expect(c.textContent).toContain('No pudimos guardar la foto. Probá de nuevo.');
+    expect([...c.querySelectorAll('button')].map((b) => b.textContent)).toEqual(
+      expect.arrayContaining(['Reintentar', 'Quitar']),
+    );
+  });
+
+  it('mientras sube, el casillero no dice Cargado', async () => {
+    let soltar;
+    class XHRLento {
+      constructor() { this.upload = {}; }
+      open() {}
+      send() { soltar = () => { this.status = 201; this.responseText = '{"ok":true}'; this.onload(); }; }
+    }
+    vi.stubGlobal('XMLHttpRequest', XHRLento);
+    mockApi();
+    await render(<EmisionPage token={TOKEN} />);
+    const input = container.querySelector('#archivo-DNI_FRENTE');
+    Object.defineProperty(input, 'files', { value: [archivoFalso()], configurable: true });
+    await act(async () => { input.dispatchEvent(new Event('change', { bubbles: true })); });
+    expect(casillero('DNI_FRENTE').textContent).toContain('Subiendo…');
+    expect(casillero('DNI_FRENTE').textContent).not.toContain('Cargado');
+    await act(async () => { soltar(); });
+    expect(casillero('DNI_FRENTE').textContent).toContain('Cargado');
+  });
+});
+
+describe('C-6o · no se envía con archivos sin confirmar', () => {
+  const bloques = armarBloques(FORMULARIO);
+  let restaurar;
+  beforeEach(() => { restaurar = sinEspera(); });
+  afterEach(() => { restaurar(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+
+  it('nombra los casilleros a medias y por qué', () => {
+    const pendientes = archivosSinConfirmar(bloques, {
+      DNI_FRENTE: { estado: 'hecho' },
+      DNI_DORSO: { estado: 'error', error: 'No pudimos guardar la foto. Probá de nuevo.' },
+      FRENTE: { estado: 'subiendo', progreso: 40 },
+    });
+    expect(pendientes.map((p) => [p.titulo, p.motivo])).toEqual([
+      ['DNI – dorso', 'no se pudo subir'],
+      ['Frente del vehículo', 'todavía se está subiendo'],
+      ['Parte trasera', 'falta cargarlo'],
+    ]);
+  });
+
+  it('con todo confirmado no queda nada pendiente', () => {
+    const hecho = { estado: 'hecho' };
+    expect(archivosSinConfirmar(bloques, {
+      DNI_FRENTE: hecho, DNI_DORSO: hecho, FRENTE: hecho, TRASERA: hecho,
+    })).toEqual([]);
+  });
+
+  it('al enviar avisa cuáles son y no llama a /enviar', async () => {
+    xhrFalso([{ status: 500 }]);
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
+    mockApi({ get: resp(200, {
+      ...FORMULARIO,
+      borrador: { ...BORRADOR_TITULAR_Y_VEHICULO, medio: 'efectivo_transferencia' },
+      archivos_cargados: ARCHIVOS_CARGADOS,
+    }) });
+    await render(<EmisionPage token={TOKEN} />);
+
+    // Rompemos a propósito uno de los archivos ya cargados.
+    await irABloque('Inspección');
+    await elegirArchivo('TRASERA');
+    expect(casillero('TRASERA').textContent).not.toContain('Cargado');
+
+    await irAPaso(-1); // Confirmar
+    const casilla = container.querySelector('input[name="consentimiento"]');
+    await act(async () => { casilla.click(); });
+    fetch.mockClear();
+    await click(boton('Enviar mis datos'));
+
+    expect(container.textContent).toContain('Parte trasera (no se pudo subir)');
+    expect(container.textContent).toContain('Reintentá la subida o quitalos.');
+    expect(fetch.mock.calls.some(([u]) => String(u).endsWith('/enviar'))).toBe(false);
+    expect(container.textContent).not.toContain('Recibimos tus datos');
+  });
+
+  it('quitar el archivo opcional que falló destraba el envío', async () => {
+    xhrFalso([{ status: 500 }]);
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
+    mockApi({ get: resp(200, {
+      ...FORMULARIO,
+      borrador: { ...BORRADOR_TITULAR_Y_VEHICULO, medio: 'efectivo_transferencia' },
+      archivos_cargados: ARCHIVOS_CARGADOS,
+    }) });
+    await render(<EmisionPage token={TOKEN} />);
+
+    // La cédula es opcional en el catálogo: si su subida falla, igual bloquea…
+    await irABloque('Vehículo');
+    await elegirArchivo('CEDULA');
+    expect(casillero('CEDULA').textContent).toContain('No pudimos guardar la foto.');
+
+    // …y se destraba quitándola.
+    await click([...casillero('CEDULA').querySelectorAll('button')].find((b) => b.textContent === 'Quitar'));
+    expect(casillero('CEDULA').textContent).not.toContain('No pudimos guardar la foto.');
+
+    await irAPaso(-1); // Confirmar
+    const casilla = container.querySelector('input[name="consentimiento"]');
+    await act(async () => { casilla.click(); });
+    await click(boton('Enviar mis datos'));
+    expect(container.textContent).toContain('Recibimos tus datos');
+  });
+});
+
+describe('C-6o · provincia en el domicilio', () => {
+  it('el bloque del titular tiene provincia junto a localidad y CP', () => {
+    const [titular] = armarBloques(FORMULARIO);
+    const nombres = titular.campos.map((c) => c.nombre);
+    expect(nombres).toContain('provincia');
+    expect(nombres.indexOf('provincia')).toBe(nombres.indexOf('localidad') + 1);
+    expect(titular.campos.find((c) => c.nombre === 'provincia').requerido).toBe(true);
+  });
+
+  it('si el catálogo del backend no la trae, la agregamos igual', () => {
+    const sinProvincia = {
+      ...FORMULARIO,
+      secciones: FORMULARIO.secciones.map((s) => (s.codigo === 'TITULAR'
+        ? { ...s, campos: s.campos.filter((c) => c.nombre !== 'provincia') } : s)),
+    };
+    const nombres = armarBloques(sinProvincia)[0].campos.map((c) => c.nombre);
+    expect(nombres).toContain('provincia');
+  });
+
+  it('viene con Santa Fe puesta y viaja en el borrador que se guarda', async () => {
+    const puts = [];
+    mockApi({
+      get: resp(200, {
+        ...FORMULARIO, borrador: BORRADOR_TITULAR_Y_VEHICULO, archivos_cargados: ARCHIVOS_CARGADOS,
+      }),
+      put: (url, opts) => { puts.push(JSON.parse(opts.body)); return resp(200, { ok: true }); },
+    });
+    await render(<EmisionPage token={TOKEN} />);
+    while (boton('Atrás')) await click(boton('Atrás'));
+    const select = container.querySelector('#campo-provincia');
+    expect(select.value).toBe(PROVINCIA_POR_DEFECTO);
+    expect(PROVINCIA_POR_DEFECTO).toBe('Santa Fe');
+
+    await click(boton('Guardar y seguir'));
+    expect(puts.at(-1).datos.provincia).toBe('Santa Fe');
+    expect(puts.at(-1).datos.localidad).toBe('Rosario');
+    expect(puts.at(-1).datos.codigo_postal).toBe('2000');
+  });
+
+  it('el borrador del backend gana sobre el valor por defecto', async () => {
+    mockApi({ get: resp(200, {
+      ...FORMULARIO,
+      borrador: { ...BORRADOR_TITULAR_Y_VEHICULO, provincia: 'Córdoba' },
+      archivos_cargados: ARCHIVOS_CARGADOS,
+    }) });
+    await render(<EmisionPage token={TOKEN} />);
+    while (boton('Atrás')) await click(boton('Atrás'));
+    expect(container.querySelector('#campo-provincia').value).toBe('Córdoba');
   });
 });
