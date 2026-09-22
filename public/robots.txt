@@ -1,7 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /node_modules/
-Disallow: /*.json$
 
 Sitemap: https://www.aymaseguros.com.ar/sitemap.xml
