@@ -331,7 +331,8 @@ describe('sin scripts de terceros en /emision', () => {
     const valor = (k) => h.headers.find((x) => x.key === k)?.value;
     expect(valor('X-Robots-Tag')).toBe('noindex, nofollow');
     expect(valor('Referrer-Policy')).toBe('no-referrer');
-    expect(valor('Cache-Control')).toBe('no-store');
+    // no-transform: Cloudflare no inyecta su beacon de Web Analytics (la URL lleva el token).
+    expect(valor('Cache-Control')).toBe('no-store, no-transform');
     // La regla de /emision va DESPUÉS de la global: gana su Referrer-Policy.
     expect(vercel.headers.indexOf(h)).toBeGreaterThan(vercel.headers.findIndex((x) => x.source === '/(.*)'));
     // La reescritura va ANTES del catch-all de la SPA.
