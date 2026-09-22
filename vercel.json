@@ -68,7 +68,7 @@
         },
         {
           "key": "Cache-Control",
-          "value": "no-store"
+          "value": "no-store, no-transform"
         }
       ]
     },
@@ -85,7 +85,7 @@
         },
         {
           "key": "Cache-Control",
-          "value": "no-store"
+          "value": "no-store, no-transform"
         }
       ]
     }
