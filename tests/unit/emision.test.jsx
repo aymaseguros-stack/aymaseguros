@@ -333,6 +333,19 @@ describe('sin scripts de terceros en /emision', () => {
     expect(valor('Referrer-Policy')).toBe('no-referrer');
     // no-transform: Cloudflare no inyecta su beacon de Web Analytics (la URL lleva el token).
     expect(valor('Cache-Control')).toBe('no-store, no-transform');
+    // C-6b2: CSP APLICADA y estricta, y la Report-Only global pisada con la
+    // misma política (la regla de /emision va después: gana su valor).
+    const csp = valor('Content-Security-Policy');
+    expect(csp).toBe("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src https://api.aymaseguros.com.ar; font-src 'self'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'");
+    expect(csp).not.toContain('unsafe-inline');
+    expect(csp).not.toContain('cloudflareinsights');
+    expect(valor('Content-Security-Policy-Report-Only')).toBe(csp);
+    const html2 = vercel.headers.find((x) => x.source === '/emision.html');
+    expect(html2.headers.find((x) => x.key === 'Content-Security-Policy')?.value).toBe(csp);
+    // La CSP global del resto del sitio sigue en Report-Only, sin cambios.
+    const global = vercel.headers.find((x) => x.source === '/(.*)');
+    expect(global.headers.some((x) => x.key === 'Content-Security-Policy')).toBe(false);
+    expect(global.headers.find((x) => x.key === 'Content-Security-Policy-Report-Only').value).toContain('googletagmanager');
     // La regla de /emision va DESPUÉS de la global: gana su Referrer-Policy.
     expect(vercel.headers.indexOf(h)).toBeGreaterThan(vercel.headers.findIndex((x) => x.source === '/(.*)'));
     // La reescritura va ANTES del catch-all de la SPA.
