@@ -54,19 +54,22 @@ const Header = ({ isChatOpen, onOpenChat }) => {
     { href: 'https://x.com/AymaSeguros', icon: 'x', color: 'hover:text-gray-900' },
   ];
 
-  const handleWhatsApp = async () => {
-    await tokenizar(TIPOS.WA_CLICK, { ubicacion: 'header' }, 'header');
+  // La ventana se abre dentro del click, antes de cualquier await: un
+  // window.open posterior lo frena el bloqueador de popups. El Vault va en
+  // paralelo y no se espera.
+  const handleWhatsApp = () => {
     window.open(whatsappUrl('Hola! Quiero información sobre seguros'), '_blank');
+    tokenizar(TIPOS.WA_CLICK, { ubicacion: 'header' }, 'header');
   };
 
-  const handleSiniestro = async () => {
-    await tokenizar(TIPOS.CONSULTA, { tipo: 'siniestro', ubicacion: 'header' }, 'header');
+  const handleSiniestro = () => {
     window.open(whatsappUrl('Hola, necesito denunciar un siniestro. Mis datos son:'), '_blank');
+    tokenizar(TIPOS.CONSULTA, { tipo: 'siniestro', ubicacion: 'header' }, 'header');
   };
 
-  const handlePortal = async () => {
-    await tokenizar(TIPOS.CONSULTA, { tipo: 'portal_login', ubicacion: 'header' }, 'header');
+  const handlePortal = () => {
     window.open(PORTAL_URL, '_blank');
+    tokenizar(TIPOS.CONSULTA, { tipo: 'portal_login', ubicacion: 'header' }, 'header');
   };
 
   const handlePhoneClick = async () => {
