@@ -11,6 +11,8 @@ import { act } from 'react-dom/test-utils';
 
 import Footer from '../../src/components/Footer';
 import HeroSection from '../../src/components/HeroSection';
+import Header from '../../src/components/Header';
+import ChatBot from '../../src/components/ChatBot';
 import { LEADS_URL } from '../../src/services/leads';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -46,7 +48,7 @@ describe('formularios de la landing', () => {
     sessionStorage.clear();
     vi.restoreAllMocks();
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    // window.open: el submit del cotizador abre WhatsApp.
+    // window.open: el Header y el chatbot abren WhatsApp; el hero ya no.
     vi.stubGlobal('open', vi.fn(() => ({ closed: false, location: { href: '' } })));
   });
 
@@ -96,6 +98,24 @@ describe('formularios de la landing', () => {
       expect(container.textContent).not.toMatch(/enviado/i);
     });
 
+    it('manda el mensaje del formulario al portal', async () => {
+      const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, {}));
+      await render(<Footer />);
+
+      const textarea = container.querySelector('textarea');
+      expect(textarea).toBeTruthy();
+      await act(async () => {
+        const set = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+        set.call(textarea, 'Quiero cotizar mi casa');
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      await submitForm(container.querySelector('form'));
+
+      const body = JSON.parse(postsAlPortal(f)[0][1].body);
+      expect(body.mensaje).toBe('Quiero cotizar mi casa');
+      expect(body.session_token).toBeUndefined();
+    });
+
     it('muestra éxito aunque falle solo el Vault', async () => {
       vi.spyOn(globalThis, 'fetch').mockImplementation((url) =>
         Promise.resolve(esPortal([url]) ? resp(201, { token: 'T' }) : resp(500))
@@ -112,7 +132,7 @@ describe('formularios de la landing', () => {
     const TABS = ['Vehículo', 'Hogar', 'ART', 'Comercio', 'Vida'];
 
     TABS.forEach((tab, i) => {
-      it(`el submit de "${tab}" postea al portal antes de abrir WhatsApp`, async () => {
+      it(`el submit de "${tab}" postea al portal y no abre ventanas solo`, async () => {
         const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, { token: 'T' }));
         await render(<HeroSection />);
 
@@ -128,16 +148,21 @@ describe('formularios de la landing', () => {
 
         expect(postsAlPortal(f)).toHaveLength(1);
         expect(postsAlPortal(f)[0][0]).toBe(LEADS_URL);
+        expect(globalThis.open).not.toHaveBeenCalled();
+        const body = JSON.parse(postsAlPortal(f)[0][1].body);
+        expect(body.session_token).toBeUndefined();
+        expect(body.page_url).not.toContain('?');
       });
     });
 
-    it('si el portal falla, igual se abre WhatsApp y el lead queda encolado', async () => {
+    it('si el portal falla, queda el botón de WhatsApp y el lead encolado', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(503));
       await render(<HeroSection />);
 
       await submitForm(container.querySelector('form'));
 
-      expect(globalThis.open).toHaveBeenCalled();
+      expect(globalThis.open).not.toHaveBeenCalled();
+      expect(container.querySelector('a[href^="https://wa.me/"]')).toBeTruthy();
       expect(JSON.parse(localStorage.getItem('ayma_pending_leads_v1') || '[]')).toHaveLength(1);
       expect(console.error).toHaveBeenCalled();
     });
@@ -151,18 +176,24 @@ describe('formularios de la landing', () => {
       expect(container.textContent).toMatch(/Recibimos tu pedido/);
       const wa = container.querySelector('a[href^="https://wa.me/"]');
       expect(wa.textContent).toMatch(/Escribinos por WhatsApp/);
+      expect(wa.getAttribute('target')).toBe('_blank');
+      expect(wa.getAttribute('rel')).toBe('noopener');
       expect(decodeURIComponent(wa.href)).toContain('Ref: AYMA-T1');
     });
 
-    it('confirma aunque el navegador bloquee la ventana de WhatsApp', async () => {
-      vi.stubGlobal('open', vi.fn(() => null));
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, { token: 'T' }));
+    it('la confirmación no espera al Vault', async () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      // El Vault no responde nunca; el portal sí.
+      vi.spyOn(globalThis, 'fetch').mockImplementation((url) =>
+        esPortal([url]) ? Promise.resolve(resp(201, { token: 'AYMA-T2' })) : new Promise(() => {})
+      );
       await render(<HeroSection />);
 
       await submitForm(container.querySelector('form'));
 
       expect(container.textContent).toMatch(/Recibimos tu pedido/);
-      expect(container.querySelector('a[href^="https://wa.me/"]')).toBeTruthy();
+      const wa = container.querySelector('a[href^="https://wa.me/"]');
+      expect(decodeURIComponent(wa.href)).toContain('Ref: AYMA-T2');
     });
 
     it('si el POST falla NO confirma: muestra error con botón de WhatsApp', async () => {
@@ -192,6 +223,55 @@ describe('formularios de la landing', () => {
       await submitForm(container.querySelector('form'));
 
       expect(JSON.parse(localStorage.getItem('ayma_pending_leads_v1') || '[]')).toHaveLength(0);
+    });
+  });
+
+  describe('Header — WhatsApp, Siniestro e Ingresar', () => {
+    ['Cotizá', 'Siniestro', 'Ingresar'].forEach((label) => {
+      it(`"${label}" abre la ventana dentro del click, sin esperar al Vault`, async () => {
+        // El Vault no responde nunca: si el handler lo esperara, no abriría.
+        vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise(() => {}));
+        await render(<Header isChatOpen={false} onOpenChat={() => {}} />);
+
+        const btn = Array.from(container.querySelectorAll('button'))
+          .find((b) => b.textContent.trim().endsWith(label));
+        expect(btn, `no se encontró ${label}`).toBeTruthy();
+
+        // Sincrónico: ni un microtask entre el click y el window.open.
+        btn.click();
+        expect(globalThis.open).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('ChatBot — WhatsApp', () => {
+    it('el botón abre wa.me dentro del click, sin esperar al Vault', async () => {
+      vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise(() => {}));
+      await render(<ChatBot isOpen setIsOpen={() => {}} />);
+
+      const btn = Array.from(container.querySelectorAll('button'))
+        .find((b) => b.textContent.includes('WhatsApp'));
+      btn.click();
+
+      expect(globalThis.open).toHaveBeenCalledTimes(1);
+      expect(globalThis.open.mock.calls[0][0]).toMatch(/^https:\/\/wa\.me\//);
+    });
+
+    it('"hablar con un ejecutivo" abre wa.me en el mismo gesto, sin setTimeout', async () => {
+      vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise(() => {}));
+      await render(<ChatBot isOpen setIsOpen={() => {}} />);
+
+      const input = container.querySelector('input');
+      await act(async () => {
+        const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+        set.call(input, '3');
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      const enviar = container.querySelector('button[aria-label="Enviar mensaje"]');
+      enviar.click();
+
+      expect(globalThis.open).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -48,7 +48,9 @@ const ChatBot = ({ isOpen, setIsOpen }) => {
   // Telemetría de interacción del bot: NO se asienta en el Vault (es un libro
   // de actos de negocio, y bot_action no está en la whitelist del Worker).
   // Si se quiere medir, va por GA4 o por /bot/acciones del backend.
-  const registrarAccion = async () => {};
+  // Sincrónica y sin await en las llamadas: en handleSend, cualquier await
+  // antes de abrirWhatsApp() saca el window.open del gesto del usuario.
+  const registrarAccion = () => {};
 
   // Mensaje inicial al abrir
   useEffect(() => {
@@ -77,7 +79,7 @@ Escribí el número o lo que necesitás.`,
 
   // ==================== LLAMADAS AL BACKEND ====================
   const fetchMarcas = async (tipo) => {
-    await registrarAccion('FETCH_MARCAS', { tipo });
+    registrarAccion('FETCH_MARCAS', { tipo });
     try {
       const res = await fetch(`${BACKEND_URL}/acara/marcas?tipo=${tipo}`);
       const data = await res.json();
@@ -90,7 +92,7 @@ Escribí el número o lo que necesitás.`,
   };
 
   const fetchModelos = async (tipo, marca) => {
-    await registrarAccion('FETCH_MODELOS', { tipo, marca });
+    registrarAccion('FETCH_MODELOS', { tipo, marca });
     try {
       const res = await fetch(`${BACKEND_URL}/acara/modelos?tipo=${tipo}&marca=${encodeURIComponent(marca)}`);
       const data = await res.json();
@@ -103,7 +105,7 @@ Escribí el número o lo que necesitás.`,
   };
 
   const fetchVersiones = async (tipo, marca, modelo) => {
-    await registrarAccion('FETCH_VERSIONES', { tipo, marca, modelo });
+    registrarAccion('FETCH_VERSIONES', { tipo, marca, modelo });
     try {
       const res = await fetch(`${BACKEND_URL}/acara/versiones?tipo=${tipo}&marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}`);
       const data = await res.json();
@@ -129,16 +131,16 @@ Escribí el número o lo que necesitás.`,
         vehiculo_version: leadData.version,
         vehiculo_anio: leadData.anio,
         cobertura: leadData.cobertura,
+        session_token: sessionToken,
       },
       {
         canal: 'chatbot',
         tipoVault: TIPOS.COT_AUTO,
-        extraVault: { session_token: sessionToken },
       }
     );
 
   const handleClose = async () => {
-    await registrarAccion('BOT_CERRADO', { 
+    registrarAccion('BOT_CERRADO', { 
       session_token: sessionToken
     });
     setIsOpen(false);
@@ -153,14 +155,16 @@ Escribí el número o lo que necesitás.`,
     setIsTyping(false);
   };
 
-  const abrirWhatsApp = async (mensaje = 'Hola! Vengo del chatbot de la web') => {
-    await tokenizar(TIPOS.WA_CLICK, {
+  // Sincrónica a propósito: la ventana se abre dentro del gesto del usuario,
+  // sin ningún await antes (si no, el bloqueador de popups la frena). El
+  // Vault va en paralelo y no se espera.
+  const abrirWhatsApp = (mensaje = 'Hola! Vengo del chatbot de la web') => {
+    window.open(whatsappUrl(mensaje), '_blank');
+    tokenizar(TIPOS.WA_CLICK, {
       mensaje_preview: mensaje.substring(0, 50),
       vehiculo: flujo.marca ? `${flujo.marca} ${flujo.modelo}` : null,
       session_token: sessionToken
     }, 'chatbot');
-    
-    window.open(whatsappUrl(mensaje), '_blank');
   };
 
   const handleSend = async () => {
@@ -172,7 +176,7 @@ Escribí el número o lo que necesitás.`,
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsTyping(true);
 
-    await registrarAccion('MENSAJE_USUARIO', { 
+    registrarAccion('MENSAJE_USUARIO', { 
       mensaje: userMessage,
       step_actual: flujo.step,
       modo_actual: flujo.modo
@@ -183,7 +187,7 @@ Escribí el número o lo que necesitás.`,
     // ==================== FLUJO INICIAL ====================
     if (flujo.modo === 'inicio') {
       if (lowerMessage === '1' || lowerMessage.includes('cotiz') || lowerMessage.includes('precio') || lowerMessage.includes('cuanto')) {
-        await registrarAccion('INICIO_COTIZACION', { origen: 'menu_principal' });
+        registrarAccion('INICIO_COTIZACION', { origen: 'menu_principal' });
         setFlujo(prev => ({ ...prev, modo: 'cotizar', step: 'tipo' }));
         addResponse(`¡Perfecto! Vamos a cotizar tu seguro.
 
@@ -218,22 +222,22 @@ Escribí el tipo.`);
       }
       
       if (lowerMessage === '3' || lowerMessage.includes('ejecutivo') || lowerMessage.includes('hablar') || lowerMessage.includes('persona') || lowerMessage.includes('whatsapp')) {
-        await registrarAccion('SOLICITUD_EJECUTIVO', {});
+        registrarAccion('SOLICITUD_EJECUTIVO', {});
         addResponse(`¡Por supuesto! Te conecto con un asesor.
 
 📞 WhatsApp: 341 695-2259
 📧 Email: aymaseguros@hotmail.com
 
-¿Te abro WhatsApp ahora?`);
-        setTimeout(() => abrirWhatsApp(), 2000);
+Te abrí WhatsApp.`);
+        abrirWhatsApp();
         return;
       }
 
       if (lowerMessage.includes('auto') || lowerMessage.includes('moto') || lowerMessage.includes('camioneta')) {
-        await registrarAccion('INICIO_COTIZACION', { origen: 'directo', tipo_detectado: lowerMessage });
+        registrarAccion('INICIO_COTIZACION', { origen: 'directo', tipo_detectado: lowerMessage });
         setFlujo(prev => ({ ...prev, modo: 'cotizar', step: 'tipo' }));
       } else {
-        await registrarAccion('MENSAJE_NO_ENTENDIDO', { mensaje: userMessage });
+        registrarAccion('MENSAJE_NO_ENTENDIDO', { mensaje: userMessage });
         addResponse(`No entendí bien. ¿Qué necesitás?
 
 1️⃣ Cotizar seguro de vehículo
@@ -260,7 +264,7 @@ Escribí el número.`);
         }
         
         if (tipoVehiculo) {
-          await registrarAccion('TIPO_SELECCIONADO', { tipo: tipoVehiculo });
+          registrarAccion('TIPO_SELECCIONADO', { tipo: tipoVehiculo });
           setFlujo(prev => ({ ...prev, step: 'marca', tipo: tipoVehiculo }));
           const marcas = await fetchMarcas(tipoVehiculo);
           const lista = marcas.slice(0, 12).map(m => m.marca).join(', ');
@@ -300,7 +304,7 @@ Escribí la marca.`);
         }
 
         if (marcaEncontrada) {
-          await registrarAccion('MARCA_SELECCIONADA', { marca: marcaEncontrada.marca, tipo: flujo.tipo });
+          registrarAccion('MARCA_SELECCIONADA', { marca: marcaEncontrada.marca, tipo: flujo.tipo });
           setFlujo(prev => ({ ...prev, step: 'modelo', marca: marcaEncontrada.marca }));
           const modelos = await fetchModelos(flujo.tipo, marcaEncontrada.marca);
           
@@ -321,7 +325,7 @@ Escribí el modelo.`);
           return;
         }
         
-        await registrarAccion('MARCA_NO_ENCONTRADA', { input: userMessage });
+        registrarAccion('MARCA_NO_ENCONTRADA', { input: userMessage });
         addResponse(`No encontré "${userMessage}" en la base.
 
 Escribí la marca correctamente o probá con otra.
@@ -338,7 +342,7 @@ Ej: Ford, Toyota, Fiat, Volkswagen`);
 
         const modeloFinal = modeloEncontrado ? modeloEncontrado.modelo : userMessage.toUpperCase();
         
-        await registrarAccion('MODELO_SELECCIONADO', { 
+        registrarAccion('MODELO_SELECCIONADO', { 
           modelo: modeloFinal, 
           marca: flujo.marca,
           encontrado_en_acara: !!modeloEncontrado
@@ -361,14 +365,14 @@ Escribí el año (ej: 2020, 2023)`);
           const anioActual = new Date().getFullYear();
           
           if (anioNum < 1990 || anioNum > anioActual + 1) {
-            await registrarAccion('ANIO_INVALIDO', { input: anio });
+            registrarAccion('ANIO_INVALIDO', { input: anio });
             addResponse(`El año ${anio} no parece válido.
 
 Escribí un año entre 1990 y ${anioActual + 1}.`);
             return;
           }
           
-          await registrarAccion('ANIO_SELECCIONADO', { 
+          registrarAccion('ANIO_SELECCIONADO', { 
             anio, 
             vehiculo: `${flujo.marca} ${flujo.modelo}`
           });
@@ -386,7 +390,7 @@ Escribí 1, 2 o 3.`);
           return;
         }
         
-        await registrarAccion('ANIO_NO_DETECTADO', { input: userMessage });
+        registrarAccion('ANIO_NO_DETECTADO', { input: userMessage });
         addResponse(`No detecté un año válido.
 
 Escribí el año (ej: 2020, 2022, 2024)`);
@@ -405,7 +409,7 @@ Escribí el año (ej: 2020, 2022, 2024)`);
           coberturaTexto = 'Todo Riesgo';
         }
 
-        await registrarAccion('COBERTURA_SELECCIONADA', { 
+        registrarAccion('COBERTURA_SELECCIONADA', { 
           cobertura,
           vehiculo: `${flujo.marca} ${flujo.modelo} ${flujo.anio}`
         });
@@ -422,7 +426,7 @@ Escribí el año (ej: 2020, 2022, 2024)`);
       }
 
       if (flujo.step === 'nombre') {
-        await registrarAccion('NOMBRE_INGRESADO', { nombre: userMessage });
+        registrarAccion('NOMBRE_INGRESADO', { nombre: userMessage });
         setFlujo(prev => ({ ...prev, step: 'telefono', nombre: userMessage }));
         addResponse(`✅ Gracias ${userMessage}!
 
@@ -443,7 +447,7 @@ Escribí el año (ej: 2020, 2022, 2024)`);
           });
 
           if (!leadResult.ok) {
-            await registrarAccion('LEAD_ERROR', { error: leadResult.error });
+            registrarAccion('LEAD_ERROR', { error: leadResult.error });
             setFlujo(prev => ({ ...prev, telefono }));
             addResponse(`⚠️ No pudimos registrar tu solicitud por un problema técnico.
 
@@ -483,7 +487,7 @@ También podés reenviar tu teléfono para reintentar.`, {
           return;
         }
         
-        await registrarAccion('TELEFONO_INVALIDO', { input: userMessage });
+        registrarAccion('TELEFONO_INVALIDO', { input: userMessage });
         addResponse(`No detecté un teléfono válido.
 
 Escribí tu número.
@@ -495,7 +499,7 @@ Ej: 341 555-1234`);
     // ==================== FLUJO CONSULTA ====================
     if (flujo.modo === 'consulta') {
       if (lowerMessage.includes('cotiz') || lowerMessage.includes('si') || lowerMessage.includes('quiero')) {
-        await registrarAccion('CONSULTA_A_COTIZACION', {});
+        registrarAccion('CONSULTA_A_COTIZACION', {});
         setFlujo({ ...flujo, modo: 'cotizar', step: 'tipo' });
         addResponse(`¡Dale! ¿Qué tipo de vehículo querés cotizar?
 
@@ -522,7 +526,7 @@ Ej: 341 555-1234`);
     
     if (flujo.modo === 'fin') {
       if (lowerMessage.includes('otra') || lowerMessage.includes('nuevo') || lowerMessage.includes('cotizar') || lowerMessage.includes('si')) {
-        await registrarAccion('NUEVA_COTIZACION', {});
+        registrarAccion('NUEVA_COTIZACION', {});
         setFlujo({
           modo: 'cotizar',
           step: 'tipo',
@@ -554,7 +558,7 @@ Ej: 341 555-1234`);
     }
 
     if (lowerMessage.includes('hola') || lowerMessage.includes('buenas') || lowerMessage.includes('buen dia')) {
-      await registrarAccion('SALUDO', {});
+      registrarAccion('SALUDO', {});
       addResponse(`¡Hola! 👋 ¿Cómo estás?
 
 ¿En qué puedo ayudarte?
@@ -567,7 +571,7 @@ Ej: 341 555-1234`);
     }
 
     if (lowerMessage.includes('contacto') || lowerMessage.includes('telefono') || lowerMessage.includes('llamar')) {
-      await registrarAccion('CONSULTA_CONTACTO', {});
+      registrarAccion('CONSULTA_CONTACTO', {});
       addResponse(`📞 Nuestros canales:
 
 - WhatsApp: 341 695-2259
@@ -580,14 +584,14 @@ Ej: 341 555-1234`);
     }
 
     if (lowerMessage.includes('gracias') || lowerMessage.includes('genial') || lowerMessage.includes('perfecto')) {
-      await registrarAccion('AGRADECIMIENTO', {});
+      registrarAccion('AGRADECIMIENTO', {});
       addResponse(`¡De nada! 😊 
 
 ¿Hay algo más en lo que pueda ayudarte?`);
       return;
     }
 
-    await registrarAccion('MENSAJE_NO_ENTENDIDO', { mensaje: userMessage });
+    registrarAccion('MENSAJE_NO_ENTENDIDO', { mensaje: userMessage });
     addResponse(`No entendí bien. ¿Qué necesitás?
 
 1️⃣ Cotizar seguro de vehículo
@@ -684,7 +688,7 @@ Escribí el número o lo que necesitás.`);
             <div className="flex gap-2 overflow-x-auto pb-2">
               <button 
                 onClick={async () => {
-                  await registrarAccion('BOTON_RAPIDO_COTIZAR', {});
+                  registrarAccion('BOTON_RAPIDO_COTIZAR', {});
                   setFlujo({ ...flujo, modo: 'cotizar', step: 'tipo' });
                   setMessages(prev => [...prev, 
                     { role: 'user', content: 'Quiero cotizar' },

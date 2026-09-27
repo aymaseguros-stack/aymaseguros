@@ -8,8 +8,9 @@ import {
   PENDING_LEADS_KEY,
   MAX_EDAD_MS,
   CAMPOS_PORTAL,
+  VAULT_TIMEOUT_MS,
 } from '../../src/services/leads';
-import { ATTRIB_KEY, ORIGEN, derivarOrigen, getAtribucion } from '../../src/services/attribution';
+import { ATTRIB_KEY, ORIGEN, derivarOrigen, getAtribucion, pageUrlLimpia } from '../../src/services/attribution';
 
 const cola = () => JSON.parse(localStorage.getItem(PENDING_LEADS_KEY) || '[]');
 
@@ -58,8 +59,9 @@ describe('services/leads — envío al portal', () => {
     expect(f.mock.calls.some((c) => !esPortal(c))).toBe(true); // el Vault se llamó igual
   });
 
-  it('ok=true cuando solo falla el Vault, y lo loguea', async () => {
-    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('ok=true cuando solo falla el Vault, y queda un warning', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) =>
       Promise.resolve(esPortal([url]) ? resp(201, { token: 'T' }) : resp(500))
     );
@@ -67,8 +69,39 @@ describe('services/leads — envío al portal', () => {
     const r = await enviarLead(DATOS, { canal: 'footer_contacto' });
 
     expect(r.ok).toBe(true);
-    expect(r.vaultOk).toBe(false);
-    expect(err).toHaveBeenCalled();
+    expect(await r.vault).toBe(false);
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it('resuelve con el portal aunque el Vault no responda nunca', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) =>
+      esPortal([url]) ? Promise.resolve(resp(201, { token: 'T' })) : new Promise(() => {})
+    );
+
+    const r = await enviarLead(DATOS, { canal: 'hero_auto' });
+
+    expect(r.ok).toBe(true);
+    expect(r.token).toBe('T');
+  });
+
+  it('el Vault tiene tope de 5 s: vencido, warning y vault=false', async () => {
+    vi.useFakeTimers();
+    try {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.spyOn(globalThis, 'fetch').mockImplementation((url) =>
+        esPortal([url]) ? Promise.resolve(resp(201, {})) : new Promise(() => {})
+      );
+
+      const r = await enviarLead(DATOS, { canal: 'hero_auto' });
+      await vi.advanceTimersByTimeAsync(VAULT_TIMEOUT_MS);
+
+      expect(VAULT_TIMEOUT_MS).toBe(5000);
+      expect(await r.vault).toBe(false);
+      expect(warn.mock.calls.some((c) => String(c[0]).includes('5 s'))).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('un error de red del portal no lanza y deja ok=false', async () => {
@@ -172,14 +205,60 @@ describe('services/leads — body contra el esquema real del portal', () => {
   });
 
   it('no manda campos que LeadCreate no declara', async () => {
+    sessionStorage.setItem(
+      ATTRIB_KEY,
+      JSON.stringify({ utm_source: 'x', landing_url: 'https://a/?q=1', captured_at: 'hoy' })
+    );
     const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, {}));
 
-    await enviarLead({ ...DATOS, mensaje: 'hola', session_token: 'X' }, { canal: 'chatbot' });
+    await enviarLead({ ...DATOS, inventado: 'no' }, { canal: 'chatbot' });
 
     const body = bodyPortal(f);
     Object.keys(body).forEach((k) => expect(CAMPOS_PORTAL).toContain(k));
-    expect(body.mensaje).toBeUndefined();
-    expect(body.session_token).toBeUndefined();
+    expect(body.inventado).toBeUndefined();
+    expect(body.landing_url).toBeUndefined();
+    expect(body.captured_at).toBeUndefined();
+  });
+
+  it('manda mensaje y session_token cuando el formulario los trae', async () => {
+    const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, {}));
+
+    await enviarLead({ ...DATOS, mensaje: 'hola', session_token: 'BOT-1-ABC' }, { canal: 'chatbot' });
+
+    const body = bodyPortal(f);
+    expect(body.mensaje).toBe('hola');
+    expect(body.session_token).toBe('BOT-1-ABC');
+  });
+
+  it('sin session_token no se inventa uno', async () => {
+    const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, {}));
+
+    await enviarLead(DATOS, { canal: 'hero_auto' });
+
+    expect(bodyPortal(f).session_token).toBeUndefined();
+  });
+
+  it('manda el canal del formulario', async () => {
+    const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, {}));
+
+    await enviarLead(DATOS, { canal: 'hero_auto' });
+
+    expect(bodyPortal(f).canal).toBe('hero_auto');
+  });
+
+  it('manda page_url sin el query string', async () => {
+    window.history.replaceState(null, '', '/seguros?utm_source=fb&fbclid=F1&nombre=Ana#cotizar-auto');
+    const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, {}));
+
+    try {
+      await enviarLead(DATOS, { canal: 'hero_auto' });
+    } finally {
+      window.history.replaceState(null, '', '/');
+    }
+
+    const body = bodyPortal(f);
+    expect(body.page_url).toBe(`${window.location.origin}/seguros#cotizar-auto`);
+    expect(body.page_url).not.toContain('?');
   });
 
   it('omite los campos vacíos en vez de mandar null', () => {
@@ -189,10 +268,13 @@ describe('services/leads — body contra el esquema real del portal', () => {
     expect(body.nombre).toBe('Ana');
   });
 
-  it('adjunta las UTMs que el portal sí acepta', async () => {
+  it('adjunta la atribución completa: UTMs y gclid (Google Ads)', async () => {
     sessionStorage.setItem(
       ATTRIB_KEY,
-      JSON.stringify({ utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'autos', gclid: 'G1' })
+      JSON.stringify({
+        utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'autos',
+        utm_content: 'rsa1', utm_term: 'seguro auto rosario', gclid: 'G1',
+      })
     );
     const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, {}));
 
@@ -202,9 +284,21 @@ describe('services/leads — body contra el esquema real del portal', () => {
     expect(body.utm_source).toBe('google');
     expect(body.utm_medium).toBe('cpc');
     expect(body.utm_campaign).toBe('autos');
+    expect(body.utm_content).toBe('rsa1');
+    expect(body.utm_term).toBe('seguro auto rosario');
+    expect(body.gclid).toBe('G1');
     expect(body.origen).toBe(ORIGEN.GOOGLE);
-    // gclid no tiene campo en el portal: no se inventa uno
-    expect(body.gclid).toBeUndefined();
+  });
+
+  it('adjunta fbclid (Meta Ads)', async () => {
+    sessionStorage.setItem(ATTRIB_KEY, JSON.stringify({ utm_source: 'facebook', fbclid: 'F1' }));
+    const f = vi.spyOn(globalThis, 'fetch').mockResolvedValue(resp(201, {}));
+
+    await enviarLead(DATOS, { canal: 'hero_auto' });
+
+    const body = bodyPortal(f);
+    expect(body.fbclid).toBe('F1');
+    expect(body.origen).toBe(ORIGEN.META);
   });
 });
 
@@ -224,6 +318,16 @@ describe('services/attribution', () => {
 
   it('deriva GOOGLE_ADS por gclid', () => {
     expect(derivarOrigen({ gclid: 'xyz' })).toBe(ORIGEN.GOOGLE);
+  });
+
+  it('pageUrlLimpia descarta el query y conserva el hash', () => {
+    window.history.replaceState(null, '', '/x?gclid=G&tel=341#cotizar-hogar');
+    try {
+      expect(pageUrlLimpia()).toBe(`${window.location.origin}/x#cotizar-hogar`);
+      expect(getAtribucion('c').page_url).toBe(pageUrlLimpia());
+    } finally {
+      window.history.replaceState(null, '', '/');
+    }
   });
 
   it('sin nada, es FORMULARIO_WEB', () => {

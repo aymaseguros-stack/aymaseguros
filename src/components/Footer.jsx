@@ -13,18 +13,17 @@ const Footer = () => {
     setLoading(true);
     setStatus(null);
 
-    // `mensaje` no existe en el esquema del portal: viaja al Vault.
     const result = await enviarLead(
       {
         nombre: form.nombre,
         telefono: form.telefono,
         email: form.email,
         tipo_seguro: 'consulta',
+        mensaje: form.mensaje,
       },
       {
         canal: 'footer_contacto',
         tipoVault: TIPOS.CONTACTO,
-        extraVault: { mensaje: form.mensaje },
       }
     );
 

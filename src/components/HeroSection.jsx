@@ -53,39 +53,31 @@ const HeroSection = () => {
   // ========== SUBMIT HANDLERS ==========
 
   /**
-   * Registra el lead y abre WhatsApp con el mismo click.
+   * Registra el lead y muestra el resultado con el botón de WhatsApp.
    *
-   * Orden: primero se espera el POST al portal, después se navega a wa.me.
-   * Si el POST falla igual se abre WhatsApp — no se pierde el prospecto — y
-   * el error queda en consola y encolado para reintento.
+   * NO se abre WhatsApp solo. Abrirlo después del POST obliga a una ventana
+   * abierta de antemano (quedaba en about:blank mientras respondía el portal)
+   * o a un window.open post-await que el navegador bloquea. El botón
+   * "Escribinos por WhatsApp" es un <a target="_blank"> que el usuario
+   * clickea: un gesto propio, que ningún bloqueador frena, y ya con la Ref.
    *
-   * En pantalla se confirma SOLO si el portal aceptó el lead; si no, se muestra
-   * el error. En ambos casos queda un botón de WhatsApp de respaldo, por si el
-   * navegador bloqueó la ventana.
-   *
-   * La ventana se abre en blanco de forma sincrónica (dentro del gesto del
-   * usuario) para que el bloqueador de popups no la frene durante el await.
+   * Se confirma SOLO si el portal aceptó el lead; si no, se muestra el error.
+   * El Vault no se espera (ver services/leads).
    */
-  const enviarYAbrirWhatsApp = async ({ datos, canal, tipoVault, mensaje }) => {
+  const registrarLead = async ({ datos, canal, tipoVault, mensaje }) => {
     setLoading(true);
-    const waWindow = window.open('', '_blank');
 
     const result = await enviarLead(datos, { canal, tipoVault, timeoutMs: 15000 });
 
     const ref = result.token ? `🔖 Ref: ${result.token}\n\n` : '\n';
-    const url = whatsappUrl(mensaje(ref));
-
-    if (waWindow && !waWindow.closed) waWindow.location.href = url;
-    else window.open(url, '_blank');
-
-    setEnvio({ ok: result.ok, url });
+    setEnvio({ ok: result.ok, url: whatsappUrl(mensaje(ref)) });
     setLoading(false);
     return result;
   };
 
   const handleAutoSubmit = async (e) => {
     e.preventDefault();
-    await enviarYAbrirWhatsApp({
+    await registrarLead({
       canal: 'hero_auto',
       tipoVault: TIPOS.COT_AUTO,
       datos: {
@@ -106,7 +98,7 @@ const HeroSection = () => {
 
   const handleHogarSubmit = async (e) => {
     e.preventDefault();
-    await enviarYAbrirWhatsApp({
+    await registrarLead({
       canal: 'hero_hogar',
       tipoVault: TIPOS.COT_HOGAR,
       datos: {
@@ -124,7 +116,7 @@ const HeroSection = () => {
 
   const handleArtSubmit = async (e) => {
     e.preventDefault();
-    await enviarYAbrirWhatsApp({
+    await registrarLead({
       canal: 'hero_art',
       tipoVault: TIPOS.COT_ART,
       datos: {
@@ -141,7 +133,7 @@ const HeroSection = () => {
 
   const handleComercioSubmit = async (e) => {
     e.preventDefault();
-    await enviarYAbrirWhatsApp({
+    await registrarLead({
       canal: 'hero_comercio',
       tipoVault: TIPOS.COT_COMERCIO,
       datos: {
@@ -159,7 +151,7 @@ const HeroSection = () => {
 
   const handleVidaSubmit = async (e) => {
     e.preventDefault();
-    await enviarYAbrirWhatsApp({
+    await registrarLead({
       canal: 'hero_vida',
       tipoVault: TIPOS.COT_VIDA,
       datos: {
@@ -316,7 +308,7 @@ const HeroSection = () => {
       <a
         href={envio.url}
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener"
         className="w-full bg-green-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
       >
         💬 Escribinos por WhatsApp

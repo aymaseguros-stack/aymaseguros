@@ -4,12 +4,14 @@
  * Dos destinos por envío:
  *   1. El portal (CRM). Es el que manda: si este POST falla, el formulario
  *      NO puede mostrar éxito.
- *   2. El Vault, como asiento del acto. Si solo falla el Vault, el envío se
- *      considera exitoso y el fallo queda logueado.
+ *   2. El Vault, como asiento del acto. Corre en paralelo y NO se espera:
+ *      la confirmación en pantalla depende solo del portal. Si el Vault
+ *      falla o tarda más de VAULT_TIMEOUT_MS, queda un warning y listo.
  *
  * El body del portal se arma contra el esquema real de `LeadCreate`
- * (app/schemas/lead.py del portal). Los campos que ese esquema no declara los
- * descarta Pydantic en silencio, así que acá no se inventa ninguno.
+ * (app/schemas/lead.py del portal). Un campo que ese esquema no declara el
+ * portal lo acepta pero no lo guarda (solo lo loguea), así que acá no se
+ * inventa ninguno.
  */
 
 import { getAtribucion, getSlugQR } from './attribution';
@@ -25,8 +27,8 @@ export const MAX_EDAD_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_COLA = 50;
 
 /**
- * Campos que el endpoint del portal acepta de verdad. Cualquier otra cosa
- * viaja al Vault, que sí guarda payload libre.
+ * Campos que el endpoint del portal acepta y persiste. Cualquier otra cosa
+ * viaja solo al Vault, que guarda payload libre.
  */
 export const CAMPOS_PORTAL = [
   'nombre',
@@ -41,11 +43,24 @@ export const CAMPOS_PORTAL = [
   'vehiculo_anio',
   'cobertura',
   'origen',
+  'canal',
   'utm_source',
   'utm_medium',
   'utm_campaign',
+  'utm_content',
+  'utm_term',
+  'fbclid',
+  'gclid',
+  'page_url',
+  'mensaje',
+  // Solo lo trae el chatbot (su BOT-… de sesión). El resto de los
+  // formularios no tiene sesión y no se inventa una.
+  'session_token',
   'slug_qr',
 ];
+
+/** Tope para el asiento en el Vault. Pasado este tiempo se deja de esperar. */
+export const VAULT_TIMEOUT_MS = 5000;
 
 /** Un 4xx es un body mal formado: no se reintenta nunca. */
 const esReintentable = (status) => status === null || status >= 500;
@@ -108,8 +123,12 @@ async function postPortal(body, timeoutMs) {
 /**
  * Envía el lead al portal y lo asienta en el Vault.
  *
- * @returns {Promise<{ok:boolean, token:?string, error:?string, vaultOk:boolean}>}
- *   `ok` refleja EXCLUSIVAMENTE el resultado del POST al portal.
+ * Resuelve apenas responde el portal (tope `timeoutMs`, 15 s en los
+ * formularios). El Vault se dispara en paralelo y no demora la respuesta.
+ *
+ * @returns {Promise<{ok:boolean, token:?string, error:?string, vault:Promise<boolean>}>}
+ *   `ok` refleja EXCLUSIVAMENTE el resultado del POST al portal. `vault`
+ *   resuelve a true/false cuando termina el asiento (o vence su tope).
  */
 export async function enviarLead(datos, opciones = {}) {
   const {
@@ -121,6 +140,10 @@ export async function enviarLead(datos, opciones = {}) {
 
   const atribucion = getAtribucion(canal);
   const body = armarBodyPortal(datos, atribucion);
+
+  // Asiento en el Vault, en paralelo. Lleva la atribución completa y los
+  // datos que el portal no guarda (p. ej. `landing_url`, `captured_at`).
+  const vault = asentarEnVault(datos, atribucion, { tipoVault, canal, extraVault });
 
   let status = null;
   let portal = { ok: false, error: null, token: null };
@@ -149,27 +172,31 @@ export async function enviarLead(datos, opciones = {}) {
     else console.error('↳ 4xx: body rechazado, no se reintenta');
   }
 
-  // Asiento en el Vault. La atribución completa (utm_content, utm_term,
-  // fbclid, gclid, canal, page_url) sobrevive acá: el esquema del portal no
-  // tiene campos donde ponerla.
-  let vaultOk = false;
-  try {
-    const tipo = esTipoValido(tipoVault) ? tipoVault : TIPOS.LEAD;
-    const r = await tokenizar(
-      tipo,
-      { ...datos, ...atribucion, ...extraVault, portal_ok: portal.ok },
-      canal || 'landing'
-    );
-    vaultOk = Boolean(r?.success);
-  } catch (err) {
-    console.error('⚠️ Vault error (no bloquea el lead):', err.message);
-  }
+  return { ...portal, vault };
+}
 
-  if (portal.ok && !vaultOk) {
-    console.error('⚠️ Lead registrado en el portal pero no asentado en el Vault');
-  }
+/**
+ * Tokeniza en el Vault con un tope de VAULT_TIMEOUT_MS. Nunca rechaza: un
+ * fallo o una demora quedan como warning. Si vence el tope, el request sigue
+ * su curso (y `tokenizar` lo encola si termina fallando).
+ */
+function asentarEnVault(datos, atribucion, { tipoVault, canal, extraVault }) {
+  const tipo = esTipoValido(tipoVault) ? tipoVault : TIPOS.LEAD;
+  let timer;
+  const tope = new Promise((resolve) => {
+    timer = setTimeout(() => resolve('timeout'), VAULT_TIMEOUT_MS);
+  });
+  const asiento = Promise.resolve()
+    .then(() => tokenizar(tipo, { ...datos, ...atribucion, ...extraVault }, canal || 'landing'))
+    .then((r) => (r?.success ? 'ok' : 'error'))
+    .catch(() => 'error');
 
-  return { ...portal, vaultOk };
+  return Promise.race([asiento, tope]).then((resultado) => {
+    clearTimeout(timer);
+    if (resultado === 'timeout') console.warn('⚠️ Vault: sin respuesta en 5 s (no bloquea el lead)');
+    else if (resultado === 'error') console.warn('⚠️ Vault: el asiento falló (no bloquea el lead)');
+    return resultado === 'ok';
+  });
 }
 
 /** Descarta lo vencido (>7 días) o sin intentos disponibles. */

@@ -8,6 +8,8 @@
  * - Al inicializar se purga lo que tenga más de MAX_EDAD_MS (7 días).
  */
 
+import { pageUrlLimpia } from '../services/attribution';
+
 const VAULT_URL = 'https://vault.aymaseguros.com.ar';
 
 export const PENDING_KEY = 'ayma_pending_tokens_v2';
@@ -86,7 +88,7 @@ export async function tokenizar(tipo, payload, origen = 'landing') {
     payload: {
       ...payload,
       ...getUTMs(),
-      page_url: typeof window !== 'undefined' ? window.location.href : null,
+      page_url: pageUrlLimpia(),
       timestamp_client: new Date().toISOString(),
     },
   };

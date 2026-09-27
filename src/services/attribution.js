@@ -92,6 +92,19 @@ export function capturarAtribucion() {
 }
 
 /**
+ * URL de la página sin el query string: origin + pathname + hash.
+ *
+ * El query puede traer identificadores de click o parámetros de terceros, y
+ * lo que sirve de ahí (utm_*, fbclid, gclid, ayma_pc) ya viaja en sus propios
+ * campos. El hash se conserva: `#cotizar-auto` dice desde qué ancla se envió.
+ */
+export function pageUrlLimpia() {
+  if (typeof window === 'undefined') return null;
+  const { origin, pathname, hash } = window.location;
+  return `${origin}${pathname}${hash}`;
+}
+
+/**
  * Atribución vigente para adjuntar a un envío.
  * `canal` identifica el formulario que dispara el envío.
  */
@@ -101,7 +114,7 @@ export function getAtribucion(canal = null) {
     ...guardada,
     origen: derivarOrigen(guardada),
     canal,
-    page_url: typeof window !== 'undefined' ? window.location.href : null,
+    page_url: pageUrlLimpia(),
   };
 }
 
@@ -111,4 +124,4 @@ export function getSlugQR() {
   return guardada.ayma_pc || null;
 }
 
-export default { capturarAtribucion, getSlugQR, getAtribucion, derivarOrigen, ATTRIB_KEY, ORIGEN };
+export default { capturarAtribucion, getSlugQR, getAtribucion, pageUrlLimpia, derivarOrigen, ATTRIB_KEY, ORIGEN };
